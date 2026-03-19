@@ -1,0 +1,61 @@
+create DATABASE AirportDB;
+
+create table Companies(
+id int PRIMARY KEY,
+name varchar(20)
+)
+
+create table Airports(
+id int PRIMARY KEY,
+city varchar(30)
+)
+
+create table Employees(
+id int PRIMARY KEY,
+name varchar(50),
+role varchar(20),
+birthday date,
+salary int,
+hiring_date date
+)
+
+create table Runways(
+id int PRIMARY KEY,
+name varchar(20),
+handle_time int
+)
+
+create table Gate(
+id int PRIMARY KEY,
+name varchar(20)
+)
+
+create table Routes(
+id int PRIMARY KEY,
+route_type varchar(10),
+airport_id int FOREIGN KEY REFERENCES Airports(id),
+reccurence_interval int,
+start_date date,
+end_date date,
+departure_time datetime,
+arrival_time datetime,
+capacity int
+)
+create table Gates(
+id int PRIMARY KEY,
+name varchar(20)
+)
+
+
+create table Flights(
+id int PRIMARY KEY,
+route_id int FOREIGN KEY REFERENCES Routes(id),
+date datetime,
+runway_id int FOREIGN KEY REFERENCES Runways(id),
+gate_id int FOREIGN KEY REFERENCES Gates(id)
+)
+create table Flight_employees(
+id_employee int FOREIGN KEY REFERENCES Employees(id),
+id_flight int FOREIGN KEY REFERENCES Flights(id),
+PRIMARY KEY(id_employee, id_flight)
+)
