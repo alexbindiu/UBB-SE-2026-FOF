@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "TicketSellingModule (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "TicketSellingModule (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
