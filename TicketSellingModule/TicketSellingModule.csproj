@@ -48,7 +48,6 @@
     <Folder Include="WinUI\" />
     <Folder Include="ViewModel\" />
     <Folder Include="Service\" />
-    <Folder Include="Repo\" />
   </ItemGroup>
 
   <!--
