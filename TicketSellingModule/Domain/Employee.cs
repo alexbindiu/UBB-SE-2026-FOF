@@ -11,18 +11,18 @@ namespace TicketSellingModule.Domain
         public int Id { get; set; }
         public string Role { get; set; }
         public string Name { get; set; }
-        private List<Flight> Flights;
+        private List<Flight> Flights = new List<Flight>();
         public List<Flight> GetParticipatingFlights()
         {
-            return this.Fligths;
+            return this.Flights;
         }
         public void RemoveFromFlight(Flight flight)
         {
-            Flights.remove(flight);
+            Flights.Remove(flight);
         }
         public void AddToFlight(Flight flight)
         {
-            Flights.add(flight);
+            Flights.Add(flight);
         }
     }
 }
