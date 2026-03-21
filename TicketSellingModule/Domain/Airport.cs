@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TicketSellingModule.Domain
 {
-    internal class Airport
+    public class Airport
     {
         public int Id { get; set; }
         public string AirportCode { get; set; }
