@@ -12,9 +12,9 @@ using System;
 using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("TicketSellingModule")]
-[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ac181103237fd5d544ee25372f5a5d4561357daa")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1d840e8fe9529c8ece93f082986fa16dfca2949b")]
 [assembly: System.Reflection.AssemblyProductAttribute("TicketSellingModule")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TicketSellingModule")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
