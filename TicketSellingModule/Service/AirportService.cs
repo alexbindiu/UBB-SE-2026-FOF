@@ -47,17 +47,16 @@ namespace TicketSellingModule.Service
             return _airportRepo.AddAirport(newAirport);
         }
 
-        public void Update(int id, string city)
+        public void Update(int id, string? newCity = null, string? newName = null, string? newCode = null)
         {
-            if (id <= 0 || string.IsNullOrWhiteSpace(city)) return;
+            var existingAirport = _airportRepo.GetAirportById(id);
+            if (existingAirport == null) return;
 
-            Airport airportToUpdate = new Airport
-            {
-                Id = id,
-                City = city
-            };
+            if (newName != null) existingAirport.AirportName = newName;
+            if (newCity != null) existingAirport.City = newCity;
+            if (newCode != null) existingAirport.AirportCode = newCode;
 
-            _airportRepo.UpdateAirport(airportToUpdate);
+            _airportRepo.UpdateAirport(existingAirport);
         }
 
         public void Delete(int id)
