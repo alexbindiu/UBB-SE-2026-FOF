@@ -14,7 +14,7 @@ namespace TicketSellingModule.Service
             return _companyRepo.GetAllCompanies();
         }
 
-        public Company GetById(int id)
+        public Company GetCompanyById(int id)
         {
             if (id<=0) 
                 return null;

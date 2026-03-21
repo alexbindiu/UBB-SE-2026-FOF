@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TicketSellingModule.Domain
 {
-    internal class Employee
+    public class Employee
     {
         public int Id { get; set; }
         public string Role { get; set; }

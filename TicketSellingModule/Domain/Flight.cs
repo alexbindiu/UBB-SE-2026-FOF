@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TicketSellingModule.Domain
 {
-    internal class Flight
+    public class Flight
     {
         public int Id { get; set; }
         public DateTime Date { get; set; }
