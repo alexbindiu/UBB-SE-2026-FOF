@@ -11,7 +11,9 @@ create table Companies(
 
 create table Airports(
     id int IDENTITY(1,1) PRIMARY KEY,
-    city varchar(30)
+    city varchar(30),
+    name VARCHAR(100),
+    code VARCHAR(10);
 )
 
 create table Employees(
