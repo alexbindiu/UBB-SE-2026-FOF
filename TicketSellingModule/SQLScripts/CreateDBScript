@@ -38,6 +38,7 @@ create table Gates(
 
 create table Routes(
     id int IDENTITY(1,1) PRIMARY KEY,
+    company_id int FOREIGN KEY REFERENCES Companies(id),
     route_type varchar(10),
     airport_id int FOREIGN KEY REFERENCES Airports(id),
     reccurence_interval int,
