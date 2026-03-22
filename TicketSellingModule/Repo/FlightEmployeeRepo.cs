@@ -70,10 +70,10 @@ namespace TicketSellingModule.Repo
             {
                 conn.Open();
                 string query = "select id_employee from Flight_employees where id_flight = @flightId";
-
+                
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
-                    cmd.Parameters.AddWithValue("flightId", employeeIds);
+                    cmd.Parameters.AddWithValue("flightId", flightId);
                     using (SqlDataReader r = cmd.ExecuteReader())
                     {
                         while (r.Read())
