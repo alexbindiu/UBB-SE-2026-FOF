@@ -7,10 +7,15 @@ using System.Threading.Tasks;
 using TicketSellingModule.Domain;
 namespace TicketSellingModule.Repo
 {
-    internal class CompanyRepo
+    public class CompanyRepo
     {
-        DbConnectionFactory _connectionFactory = new DbConnectionFactory();
-        
+        private readonly DbConnectionFactory _connectionFactory;
+        public CompanyRepo(DbConnectionFactory factory)
+        {
+            _connectionFactory = factory;
+        }
+
+
         public List<Company> GetAllCompanies()
         {
             List<Company> AllCompanies = new List<Company>();

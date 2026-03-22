@@ -5,11 +5,14 @@ using TicketSellingModule.Domain;
 
 namespace TicketSellingModule.Repo
 {
-    internal class EmployeeRepo
+    public class EmployeeRepo
     {
-        DbConnectionFactory _connectionFactory = new DbConnectionFactory();
+        private readonly DbConnectionFactory _connectionFactory;
+        public EmployeeRepo(DbConnectionFactory factory)
+        {
+            _connectionFactory = factory;
+        }
 
-        FlightRepo _flightRepo = new FlightRepo();
 
         public List<Employee> GetAllEmployees()
         {
@@ -31,10 +34,6 @@ namespace TicketSellingModule.Repo
                             emp.Birthday = DateOnly.FromDateTime(reader.GetDateTime(3));
                             emp.Salary = reader.GetInt32(4);
                             emp.HiringDate = DateOnly.FromDateTime(reader.GetDateTime(5));
-
-                            // Note: If you have 1000 employees, calling this inside a loop can be slow, 
-                            // but for a school project, this is the standard way to do it!
-                            emp.AssignedFlights = GetAssignedFlightsForEmployee(emp.Id);
 
                             allEmployees.Add(emp);
                         }
@@ -64,8 +63,6 @@ namespace TicketSellingModule.Repo
                             foundEmployee.Birthday = DateOnly.FromDateTime(reader.GetDateTime(3));
                             foundEmployee.Salary = reader.GetInt32(4);
                             foundEmployee.HiringDate = DateOnly.FromDateTime(reader.GetDateTime(5));
-
-                            foundEmployee.AssignedFlights = GetAssignedFlightsForEmployee(id);
 
                             return foundEmployee;
                         }
@@ -154,64 +151,6 @@ namespace TicketSellingModule.Repo
                         transaction.Rollback();
                         throw;
                     }
-                }
-            }
-        }
-
-
-        private List<Flight> GetAssignedFlightsForEmployee(int employeeId)
-        {
-            List<Flight> flights = new List<Flight>();
-            using (SqlConnection conn = _connectionFactory.GetConnection())
-            {
-                conn.Open();
-                string query = "SELECT id_flight FROM Flight_employees WHERE id_employee = @empId";
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@empId", employeeId);
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            int flightId = reader.GetInt32(0);
-                            Flight assignedFlight = _flightRepo.GetFlightById(flightId);
-                            if (assignedFlight != null)
-                            {
-                                flights.Add(assignedFlight);
-                            }
-                        }
-                    }
-                }
-            }
-            return flights;
-        }
-
-        public void AssignFlightToEmployee(int employeeId, int flightId)
-        {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
-            {
-                conn.Open();
-                string query = "INSERT INTO Flight_employees (id_employee, id_flight) VALUES (@empId, @flightId)";
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@empId", employeeId);
-                    cmd.Parameters.AddWithValue("@flightId", flightId);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
-
-        public void RemoveFlightFromEmployee(int employeeId, int flightId)
-        {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
-            {
-                conn.Open();
-                string query = "DELETE FROM Flight_employees WHERE id_employee = @empId AND id_flight = @flightId";
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@empId", employeeId);
-                    cmd.Parameters.AddWithValue("@flightId", flightId);
-                    cmd.ExecuteNonQuery();
                 }
             }
         }
