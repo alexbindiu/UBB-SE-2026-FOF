@@ -10,10 +10,14 @@ namespace TicketSellingModule.Domain
     {
         public int Id { get; set; }
         public DateTime Date { get; set; }
-        public string FlightNumber{ get; set; }
-        public List<Employee> Employees { get; set; } = new List<Employee>();
+        public string FlightNumber { get; set; }
+        public int RouteId { get; set; }
+        public Route Route { get; set; }
+        public int RunwayId { get; set; }
+        public Runway Runway { get; set; }
+        public int GateId { get; set; }
         public Gate Gate { get; set; }
-        public Runway Runway{ get; set; }
-        public Route Route{ get; set; }
+
+        public List<Employee> Employees { get; set; } = new List<Employee>();
     }
 }

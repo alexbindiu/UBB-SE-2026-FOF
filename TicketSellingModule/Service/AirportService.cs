@@ -7,7 +7,11 @@ namespace TicketSellingModule.Service
 {
     public class AirportService
     {
-        private readonly AirportRepo _airportRepo = new AirportRepo();
+        private readonly AirportRepo _airportRepo;
+        public AirportService (AirportRepo airportRepo)
+        {
+            _airportRepo = airportRepo;
+        }
 
         public List<Airport> GetAll()
         {

@@ -7,7 +7,11 @@ namespace TicketSellingModule.Service
 {
     public class GateService
     {
-        private readonly GateRepo _gateRepo = new GateRepo();
+        private readonly GateRepo _gateRepo;
+        public GateService (GateRepo gateRepo)
+        {
+            _gateRepo = gateRepo;
+        }
 
         public List<Gate> GetAll()
         {

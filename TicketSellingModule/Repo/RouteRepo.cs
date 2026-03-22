@@ -9,11 +9,14 @@ using TicketSellingModule.Domain;
 
 namespace TicketSellingModule.Repo
 {
-    internal class RouteRepo
+    public class RouteRepo
     {
-        DbConnectionFactory _connectionFactory = new DbConnectionFactory();
-        CompanyRepo _companyRepo = new CompanyRepo();
-        AirportRepo _airportRepo = new AirportRepo();
+        private readonly DbConnectionFactory _connectionFactory;
+        public RouteRepo(DbConnectionFactory factory)
+        {
+            _connectionFactory = factory;
+        }
+
         public List<Route> GetAllRoutes()
         {
             List<Route> AllRoutes = new List<Route>();
@@ -29,9 +32,9 @@ namespace TicketSellingModule.Repo
                         {
                             Route newRoute = new Route();
                             newRoute.Id = reader.GetInt32(0);
-                            newRoute.Company = _companyRepo.GetCompanyById(reader.GetInt32(1));
+                            newRoute.CompanyId = reader.GetInt32(1);
                             newRoute.RouteType = reader.GetString(2);
-                            newRoute.Airport = _airportRepo.GetAirportById(reader.GetInt32(3));
+                            newRoute.AirportId = reader.GetInt32(3);
                             newRoute.RecurrenceInterval = reader.GetInt32(4);
                             newRoute.StartDate = DateOnly.FromDateTime(reader.GetDateTime(5));
                             newRoute.EndDate = DateOnly.FromDateTime(reader.GetDateTime(6));
@@ -150,11 +153,11 @@ namespace TicketSellingModule.Repo
 
                             foundRoute.Id = reader.GetInt32(0);
 
-                            foundRoute.Company = _companyRepo.GetCompanyById(reader.GetInt32(1));
+                            foundRoute.CompanyId = reader.GetInt32(1);
 
                             foundRoute.RouteType = reader.GetString(2);
 
-                            foundRoute.Airport = _airportRepo.GetAirportById(reader.GetInt32(3));
+                            foundRoute.AirportId = reader.GetInt32(3);
 
                             foundRoute.RecurrenceInterval = reader.GetInt32(4);
 

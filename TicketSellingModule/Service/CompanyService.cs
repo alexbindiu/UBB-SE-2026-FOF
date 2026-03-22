@@ -7,7 +7,11 @@ namespace TicketSellingModule.Service
 {
     public class CompanyService
     {
-        private readonly CompanyRepo _companyRepo = new CompanyRepo();
+        private readonly CompanyRepo _companyRepo;
+        public CompanyService (CompanyRepo companyRepo)
+        {
+            _companyRepo = companyRepo;
+        }
         
         public List<Company> GetAll()
         {

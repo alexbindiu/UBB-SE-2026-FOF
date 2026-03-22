@@ -10,10 +10,15 @@ using TicketSellingModule.Domain;
 
 namespace TicketSellingModule.Repo
 {
-    internal class AirportRepo
+    public class AirportRepo
     {
-        DbConnectionFactory _connectionFactory = new DbConnectionFactory();
-        
+        private readonly DbConnectionFactory _connectionFactory;
+
+        public AirportRepo(DbConnectionFactory factory)
+        {
+            _connectionFactory = factory;
+        }
+
         public List<Airport> GetAllAirports()
         {
             List<Airport> AllAirports = new List<Airport>();

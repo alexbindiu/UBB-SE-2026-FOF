@@ -7,7 +7,11 @@ namespace TicketSellingModule.Service
 {
     public class RunwayService
     {
-        private readonly RunwayRepo _runwayRepo = new RunwayRepo();
+        private readonly RunwayRepo _runwayRepo;
+        public RunwayService(RunwayRepo runwayRepo)
+        {
+            _runwayRepo = runwayRepo;
+        }
 
         public List<Runway> GetAll()
         {

@@ -4,9 +4,14 @@ using TicketSellingModule.Domain;
 
 namespace TicketSellingModule.Repo
 {
-    internal class RunwayRepo
+    public class RunwayRepo
     {
-        DbConnectionFactory _connectionFactory = new DbConnectionFactory();
+        private readonly DbConnectionFactory _connectionFactory;
+        public RunwayRepo(DbConnectionFactory factory)
+        {
+            _connectionFactory = factory;
+        }
+
 
         public List<Runway> GetAllRunways()
         {

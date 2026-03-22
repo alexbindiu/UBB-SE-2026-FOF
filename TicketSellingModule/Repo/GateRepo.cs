@@ -9,9 +9,14 @@ using TicketSellingModule.Domain;
 
 namespace TicketSellingModule.Repo
 {
-    internal class GateRepo
+    public class GateRepo
     {
-        DbConnectionFactory _connectionFactory = new DbConnectionFactory();
+        private readonly DbConnectionFactory _connectionFactory;
+        public GateRepo(DbConnectionFactory factory)
+        {
+            _connectionFactory = factory;
+        }
+
         public List<Gate> GetAllGates()
         {
             List<Gate> AllGates = new List<Gate>();
