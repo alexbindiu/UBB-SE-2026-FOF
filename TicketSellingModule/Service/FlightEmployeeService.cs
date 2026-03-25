@@ -12,11 +12,13 @@ namespace TicketSellingModule.Service
     {
         private readonly FlightEmployeeRepo _linkRepo;
         private readonly EmployeeRepo _employeeRepo;
+        private readonly FlightRepo _flightRepo;
 
-        public FlightEmployeeService(FlightEmployeeRepo linkRepo, EmployeeRepo employeeRepo)
+        public FlightEmployeeService(FlightEmployeeRepo linkRepo, EmployeeRepo employeeRepo, FlightRepo flightRepo)
         {
             _linkRepo = linkRepo;
             _employeeRepo = employeeRepo;
+            _flightRepo = flightRepo;
         }
 
         public void AssignCrewMember(int flightId, int employeeId)
@@ -54,7 +56,16 @@ namespace TicketSellingModule.Service
         public List<Flight> GetEmployeeSchedule(int employeeId)
         {
             if (employeeId <= 0) return new List<Flight>();
-            return _linkRepo.GetFlightsByEmployee(employeeId);
+            
+            List<int> flightIds = _linkRepo.GetFlightsByEmployee(employeeId);
+            List<Flight> flights = new List<Flight>();
+
+            foreach (var id in flightIds) {
+                var flight = _flightRepo.GetById(id);
+                if (flight != null) flights.Add(flight);
+            }
+
+            return flights;
         }
 
     }
