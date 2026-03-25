@@ -15,6 +15,13 @@
 	  <WindowsPackageType>None</WindowsPackageType>
 	  <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="WinUI\CompanyPage.xaml" />
+    <None Remove="WinUI\StaffPage.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Remove="WinUI\EmployeeDashboardPage.xaml" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -44,7 +51,20 @@
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260317003" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="WinUI\" />
+    <Page Update="WinUI\CompanyPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <None Update="WinUI\EmployeeDashboardPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <Page Update="WinUI\StaffPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="WinUI\EmployeeDashboardPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <!--
