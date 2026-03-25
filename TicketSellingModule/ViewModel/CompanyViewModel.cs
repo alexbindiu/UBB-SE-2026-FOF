@@ -20,9 +20,11 @@ namespace TicketSellingModule.ViewModel
 
         public CompanyViewModel()
         {
-            _companyService = new CompanyService(new CompanyRepo());
-            _airportService = new AirportService(new AirportRepo());
-            _flightRouteService = new FlightRouteService(new FlightRepo(), new RouteRepo());
+            var connectionFactory = new DbConnectionFactory();
+
+            _companyService = new CompanyService(new CompanyRepo(connectionFactory));
+            _airportService = new AirportService(new AirportRepo(connectionFactory));
+            _flightRouteService = new FlightRouteService(new FlightRepo(connectionFactory), new RouteRepo(connectionFactory));
 
             CompaniesList = new ObservableCollection<Company>();
             AirportsList = new ObservableCollection<Airport>();
@@ -106,6 +108,30 @@ namespace TicketSellingModule.ViewModel
             _flightRouteService.DeleteFlight(flightId);
             
             GetCompanyFlights(currentCompanyId); 
+        }
+        public string GenerateFlightCode(int companyId)
+        {
+            var company = _companyService.GetCompanyById(companyId);
+            string prefix = "FL";
+
+            if (company != null && !string.IsNullOrEmpty(company.Name))
+            {
+                string[] words = company.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                if (words.Length >= 2)
+                {
+                    prefix = (words[0][0].ToString() + words[1][0].ToString()).ToUpper();
+                }
+                else if (company.Name.Length >= 2)
+                {
+                    prefix = company.Name.Substring(0, 2).ToUpper();
+                }
+            }
+
+            Random rng = new Random();
+            int flightNum = rng.Next(1000, 9999);
+
+            return $"{prefix}-{flightNum}";
         }
     }
 }

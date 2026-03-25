@@ -38,9 +38,14 @@ namespace TicketSellingModule.Repo
                             newRoute.RecurrenceInterval = reader.GetInt32(4);
                             newRoute.StartDate = DateOnly.FromDateTime(reader.GetDateTime(5));
                             newRoute.EndDate = DateOnly.FromDateTime(reader.GetDateTime(6));
-                            newRoute.DepartureTime = TimeOnly.FromTimeSpan(reader.GetTimeSpan(7));
-                            newRoute.ArrivalTime = TimeOnly.FromTimeSpan(reader.GetTimeSpan(8));
-                            newRoute.Capacity = reader.GetInt32(9);
+                            // 1. Get the raw value as a string (e.g., "01/01/1900 2:35:00 pm")
+                            string rawDepTime = reader.GetValue(7).ToString();
+                            string rawArrTime = reader.GetValue(8).ToString();
+
+                            // 2. Use DateTime.Parse first (it handles the 1900 date easily) 
+                            // and then convert the result to TimeOnly
+                            newRoute.DepartureTime = TimeOnly.FromDateTime(DateTime.Parse(rawDepTime));
+                            newRoute.ArrivalTime = TimeOnly.FromDateTime(DateTime.Parse(rawArrTime));
                             AllRoutes.Add(newRoute);
                         }
                     }
