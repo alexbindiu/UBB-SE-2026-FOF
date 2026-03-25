@@ -30,7 +30,7 @@ namespace TicketSellingModule.WinUI
                 {
                     int companyId = 1; 
 
-                    string flightNum = ViewModel.GenerateFlightNumber(companyId);
+                    string flightNum = ViewModel.GenerateFlightCode(companyId);
                     string type = (TypeComboBox.SelectedItem as string) == "Arrival" ? "ARR" : "DEP";
 
                     var selectedAirport = AirportComboBox.SelectedItem as TicketSellingModule.Domain.Airport;
@@ -111,5 +111,6 @@ namespace TicketSellingModule.WinUI
                 CustomDaysTextBox.Visibility = Visibility.Collapsed;
             }
         }
+        
     }
 }
