@@ -12,11 +12,15 @@ namespace TicketSellingModule.Service
     {
         private readonly FlightRepo _flightRepo;
         private readonly RouteRepo _routeRepo;
+        private readonly CompanyRepo _companyRepo;
+        private readonly AirportRepo _airportRepo;
 
-        public FlightRouteService(FlightRepo flightRepo, RouteRepo routeRepo)
+        public FlightRouteService(FlightRepo flightRepo, RouteRepo routeRepo, CompanyRepo companyRepo, AirportRepo airportRepo)
         {
             _flightRepo = flightRepo;
             _routeRepo = routeRepo;
+            _companyRepo = companyRepo;
+            _airportRepo = airportRepo;
         }
         
         public int Add(int companyID, int airportID, string route_type, int recurrence_interval,
@@ -69,7 +73,9 @@ namespace TicketSellingModule.Service
             Route newRoute = new Route
             {
                 CompanyId = companyID,
+                Company = _companyRepo.GetCompanyById(companyID),
                 AirportId = airportID,
+                Airport = _airportRepo.GetAirportById(airportID),
                 RouteType = route_type,
                 RecurrenceInterval = recurrence_interval,
                 StartDate = DateOnly.FromDateTime(start_date),

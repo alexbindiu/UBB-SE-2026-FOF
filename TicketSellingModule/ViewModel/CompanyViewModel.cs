@@ -24,7 +24,7 @@ namespace TicketSellingModule.ViewModel
 
             _companyService = new CompanyService(new CompanyRepo(connectionFactory));
             _airportService = new AirportService(new AirportRepo(connectionFactory));
-            _flightRouteService = new FlightRouteService(new FlightRepo(connectionFactory), new RouteRepo(connectionFactory));
+            _flightRouteService = new FlightRouteService(new FlightRepo(connectionFactory), new RouteRepo(connectionFactory), new CompanyRepo(connectionFactory), new AirportRepo(connectionFactory));
 
             CompaniesList = new ObservableCollection<Company>();
             AirportsList = new ObservableCollection<Airport>();
