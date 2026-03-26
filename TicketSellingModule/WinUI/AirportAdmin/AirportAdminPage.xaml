@@ -7,56 +7,137 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:components="using:TicketSellingModule.WinUI.Components"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="#1E1E1E">
 
-    <Grid>
+    <Page.Resources>
+        <SolidColorBrush x:Key="CustomAccentBrush" Color="#2bb8c0"/>
+        <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#252526"/>
+        <SolidColorBrush x:Key="PanelBorderBrush" Color="#3F3F46"/>
+        <SolidColorBrush x:Key="SidebarButtonBackgroundBrush" Color="Transparent"/>
+        <SolidColorBrush x:Key="SidebarButtonForegroundBrush" Color="White"/>
+
+        <Style x:Key="SidebarButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="54"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="20,0"/>
+            <Setter Property="Margin" Value="10,6"/>
+            <Setter Property="Background" Value="{StaticResource SidebarButtonBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource SidebarButtonForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PanelBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style x:Key="SidebarNavItemStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid Padding="30">
         <Grid.RowDefinitions>
-            <RowDefinition Height="70"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+        <!-- Header spans the whole top -->
+        <components:Header Grid.Row="0"
+                           Grid.ColumnSpan="2"/>
 
-        <!-- Top bar -->
-        <components:Header Grid.Row="0"/>
+        <!-- Main layout -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
+            <!-- Sidebar -->
+            <Border Grid.Column="0"
+        Background="{StaticResource PanelBackgroundBrush}"
+        BorderBrush="{StaticResource PanelBorderBrush}"
+        BorderThickness="1"
+        CornerRadius="8"
+        Padding="10">
 
-        <!-- Sidebar -->
-        <StackPanel Grid.Row="1"
-                    Grid.Column="0"
-                    Background="#FAFAFA"
-                    BorderBrush="#D0D0D0"
-                    BorderThickness="0,1,1,0">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="ADMIN PANEL"
+                   Foreground="White"
+                   FontSize="18"
+                   FontWeight="Bold"
+                   Margin="10,10,10,20"/>
 
-            <Button x:Name="FlightsButton"
-                    Content="FLIGHTS"
-                    Height="60"
-                    HorizontalContentAlignment="Left"
-                    Padding="20,0"
-                    Click="FlightsButton_Click"/>
+                    <Button x:Name="FlightsButton"
+                Click="FlightsButton_Click"
+                Style="{StaticResource SidebarNavItemStyle}">
+                        <Grid Height="44" Padding="14,0">
+                            <TextBlock Text="FLIGHTS"
+                           Foreground="White"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
 
-            <Button x:Name="EmployeesButton"
-                    Content="EMPLOYEES"
-                    Height="60"
-                    HorizontalContentAlignment="Left"
-                    Padding="20,0"
-                    Click="EmployeesButton_Click"/>
+                    <Button x:Name="EmployeesButton"
+                Click="EmployeesButton_Click"
+                Style="{StaticResource SidebarNavItemStyle}">
+                        <Grid Height="44" Padding="14,0">
+                            <TextBlock Text="EMPLOYEES"
+                           Foreground="White"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
 
-            <Button x:Name="AirportButton"
-                    Content="AIRPORT"
-                    Height="60"
-                    HorizontalContentAlignment="Left"
-                    Padding="20,0"
-                    Click="AirportButton_Click"/>
-        </StackPanel>
+                    <Button x:Name="AirportButton"
+                Click="AirportButton_Click"
+                Style="{StaticResource SidebarNavItemStyle}">
+                        <Grid Height="44" Padding="14,0">
+                            <TextBlock Text="AIRPORT"
+                           Foreground="White"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
+                </StackPanel>
+            </Border>
 
-        <!-- Content -->
-        <Frame x:Name="ContentFrame"
-               Grid.Row="1"
-               Grid.Column="1"
-               Margin="20"/>
+            <!-- Content area -->
+            <Border Grid.Column="2"
+                    Background="{StaticResource PanelBackgroundBrush}"
+                    BorderBrush="{StaticResource PanelBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="20">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="15"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Text="AIRPORT ADMINISTRATION"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               HorizontalAlignment="Center"/>
+
+                    <Frame x:Name="ContentFrame"
+                           Grid.Row="2"
+                           Background="Transparent"/>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Page>
