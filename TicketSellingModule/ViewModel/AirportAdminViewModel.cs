@@ -34,7 +34,11 @@ namespace TicketSellingModule.ViewModel
             _runwayService = new RunwayService(new RunwayRepo(connectionFactory));
             _gateService = new GateService(new GateRepo(connectionFactory));
             _employeeService = new EmployeeService(new EmployeeRepo(connectionFactory));
-            _flightRouteService = new FlightRouteService(new FlightRepo(connectionFactory), new RouteRepo(connectionFactory), new CompanyRepo(connectionFactory), new AirportRepo(connectionFactory));
+            _flightRouteService = new FlightRouteService(new FlightRepo(connectionFactory), 
+                new RouteRepo(connectionFactory), 
+                new CompanyRepo(connectionFactory), 
+                new AirportRepo(connectionFactory)
+                );
 
             RunwaysList = new ObservableCollection<Runway>();
             GatesList = new ObservableCollection<Gate>();
