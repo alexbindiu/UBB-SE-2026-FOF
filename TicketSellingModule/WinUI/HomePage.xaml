@@ -52,15 +52,15 @@
                            Margin="0,0,0,25"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Content="COMPANY"
-                            Style="{StaticResource DashboardButtonStyle}"
-                            Click="CompanyButton_Click"/>
-                    <Button Content="STAFF"
-                            Style="{StaticResource DashboardButtonStyle}"
-                            Click="StaffButton_Click"/>
-                    <Button Content="AIRPORT ADMIN"
+                    <Button Style="{StaticResource DashboardButtonStyle}" Click="CompanyButton_Click">
+                        <TextBlock Text="Company Representative" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Button>
+                    <Button Content="Airport Administrator"
                             Style="{StaticResource DashboardButtonStyle}"
                             Click="AdminButton_Click"/>
+                    <Button Content="Airport Staff Member"
+                            Style="{StaticResource DashboardButtonStyle}"
+                            Click="StaffButton_Click"/>
                 </StackPanel>
             </StackPanel>
         </Grid>
