@@ -168,8 +168,8 @@ namespace TicketSellingModule.Repo
 
                             foundRoute.StartDate = DateOnly.FromDateTime(reader.GetDateTime(5));
                             foundRoute.EndDate = DateOnly.FromDateTime(reader.GetDateTime(6));
-                            foundRoute.DepartureTime = TimeOnly.FromTimeSpan(reader.GetTimeSpan(7));
-                            foundRoute.ArrivalTime = TimeOnly.FromTimeSpan(reader.GetTimeSpan(8));
+                            foundRoute.DepartureTime = TimeOnly.FromDateTime(reader.GetDateTime(7));
+                            foundRoute.ArrivalTime = TimeOnly.FromDateTime(reader.GetDateTime(8));
 
                             foundRoute.Capacity = reader.GetInt32(9);
 
