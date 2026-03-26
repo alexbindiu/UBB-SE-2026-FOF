@@ -17,6 +17,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="WinUI\CompanyPage.xaml" />
+    <None Remove="WinUI\SelectCompanyPage.xaml" />
     <None Remove="WinUI\StaffPage.xaml" />
   </ItemGroup>
   <ItemGroup>
@@ -57,6 +58,9 @@
     <None Update="WinUI\EmployeeDashboardPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
+    <Page Update="WinUI\SelectCompanyPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="WinUI\StaffPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

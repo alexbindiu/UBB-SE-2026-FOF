@@ -9,8 +9,7 @@ namespace TicketSellingModule
         {
             this.InitializeComponent();
 
-            // Tell the Frame to navigate to your new dashboard
-            RootFrame.Navigate(typeof(CompanyPage));
+            RootFrame.Navigate(typeof(SelectCompanyPage));
         }
     }
 }
