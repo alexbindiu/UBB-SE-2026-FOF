@@ -17,6 +17,8 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="WinUI\CompanyPage.xaml" />
+    <None Remove="WinUI\Components\Header.xaml" />
+    <None Remove="WinUI\HomePage.xaml" />
     <None Remove="WinUI\SelectCompanyPage.xaml" />
     <None Remove="WinUI\StaffPage.xaml" />
   </ItemGroup>
@@ -55,9 +57,15 @@
     <Page Update="WinUI\CompanyPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Update="WinUI\Components\Header.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <None Update="WinUI\EmployeeDashboardPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
+    <Page Update="WinUI\HomePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="WinUI\SelectCompanyPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
