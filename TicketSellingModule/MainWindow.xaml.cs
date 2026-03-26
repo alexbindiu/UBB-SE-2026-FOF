@@ -8,9 +8,7 @@ namespace TicketSellingModule
         public MainWindow()
         {
             this.InitializeComponent();
-
-            //RootFrame.Navigate(typeof(SelectCompanyPage));
-            RootFrame.Navigate(typeof(StaffPage), 1);
+            RootFrame.Navigate(typeof(HomePage), 1);
         }
     }
 }

@@ -5,6 +5,7 @@
     xmlns:local="using:TicketSellingModule.WinUI"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:components="using:TicketSellingModule.WinUI.Components"
     mc:Ignorable="d"
     Background="#1E1E1E">
 
@@ -18,47 +19,7 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="0,0,0,30">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <FontIcon Grid.Column="0"
-                      Glyph="&#xE77B;"
-                      FontSize="32"
-                      Foreground="{StaticResource CustomAccentBrush}"/>
-
-            <TextBlock x:Name="EmployeeNameText"
-                       Grid.Column="1"
-                       Text="EMPLOYEE DASHBOARD"
-                       FontSize="26"
-                       FontWeight="SemiBold"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       Foreground="White"/>
-
-            <Border Grid.Column="2"
-                    Width="50"
-                    Height="50"
-                    CornerRadius="25"
-                    Background="{StaticResource CustomAccentBrush}">
-                <TextBlock x:Name="AvatarText"
-                           Text="E"
-                           FontSize="24"
-                           Foreground="White"
-                           FontWeight="Bold"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"/>
-            </Border>
-
-            <Border Grid.ColumnSpan="3"
-                    BorderThickness="0,0,0,1"
-                    BorderBrush="#333333"
-                    VerticalAlignment="Bottom"
-                    Margin="0,0,0,-15"/>
-        </Grid>
+        <components:Header Grid.Row="0"/>
 
         <Border Grid.Row="1"
                 BorderBrush="#3F3F46"

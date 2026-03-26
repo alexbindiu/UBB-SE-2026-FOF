@@ -49,8 +49,8 @@ namespace TicketSellingModule.WinUI
 
             if (employeeId <= 0)
             {
-                EmployeeNameText.Text = "EMPLOYEE DASHBOARD";
-                AvatarText.Text = "E";
+                //EmployeeNameText.Text = "EMPLOYEE DASHBOARD";
+                //AvatarText.Text = "E";
                 EmployeeIdText.Text = "-";
                 RoleText.Text = "-";
                 FlightsCountText.Text = "0";
@@ -63,8 +63,8 @@ namespace TicketSellingModule.WinUI
             var employee = ViewModel.GetEmployeeInfo(employeeId);
             if (employee == null)
             {
-                EmployeeNameText.Text = "EMPLOYEE DASHBOARD";
-                AvatarText.Text = "E";
+                //EmployeeNameText.Text = "EMPLOYEE DASHBOARD";
+                //AvatarText.Text = "E";
                 EmployeeIdText.Text = "-";
                 RoleText.Text = "-";
                 FlightsCountText.Text = "0";
@@ -72,8 +72,8 @@ namespace TicketSellingModule.WinUI
                 return;
             }
 
-            EmployeeNameText.Text = employee.Name.ToUpperInvariant();
-            AvatarText.Text = GetInitials(employee.Name);
+            //EmployeeNameText.Text = employee.Name.ToUpperInvariant();
+            //AvatarText.Text = GetInitials(employee.Name);
             EmployeeIdText.Text = employee.Id.ToString();
             RoleText.Text = employee.Role;
 
