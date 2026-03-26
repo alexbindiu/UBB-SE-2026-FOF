@@ -20,7 +20,7 @@ namespace TicketSellingModule.Repo
             using (SqlConnection connection = _connectionFactory.GetConnection())
             {
                 connection.Open();
-                string sql = "SELECT id, date, flight_number FROM Flights";
+                string sql = "SELECT id, date, flight_number, route_id FROM Flights";
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
@@ -32,6 +32,7 @@ namespace TicketSellingModule.Repo
                             flight.Id = reader.GetInt32(0);
                             flight.Date = reader.GetDateTime(1);
                             flight.FlightNumber = reader.GetString(2);
+                            flight.RouteId = reader.GetInt32(3);
 
                             flights.Add(flight);
                         }

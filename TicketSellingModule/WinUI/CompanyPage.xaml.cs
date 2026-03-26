@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using System;
 using TicketSellingModule.ViewModel;
 
@@ -8,18 +9,40 @@ namespace TicketSellingModule.WinUI
     public sealed partial class CompanyPage : Page
     {
         public CompanyViewModel ViewModel { get; }
+        private int _currentCompanyId;
 
         public CompanyPage()
         {
-            this.InitializeComponent();
             ViewModel = new CompanyViewModel();
-
-            // Initial Data Load
+            this.InitializeComponent();
             ViewModel.GetAllAirports();
-            AirportComboBox.ItemsSource = ViewModel.AirportsList;
-            ViewModel.GetCompanyFlights(1); // Testing with Company ID 1
+            
+        }
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            if (e.Parameter is int passedCompanyId)
+            {
+                _currentCompanyId = passedCompanyId;
+
+                ViewModel.GetCompanyFlights(_currentCompanyId);
+            }
         }
 
+        private void DeleteFlightButton_Click(object sender, RoutedEventArgs e)
+        {
+            Button clickedButton = sender as Button;
+
+            if (clickedButton != null && clickedButton.Tag is int flightId)
+            {
+                ViewModel.DeleteFlight(flightId, _currentCompanyId);
+            }
+        }
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ViewModel.SearchFlights(SearchTextBox.Text);
+        }
         private async void AddFlightButton_Click(object sender, RoutedEventArgs e)
         {
             ContentDialogResult result = await AddFlightDialog.ShowAsync();
@@ -28,7 +51,7 @@ namespace TicketSellingModule.WinUI
             {
                 try
                 {
-                    int companyId = 1; 
+                    int companyId = _currentCompanyId; 
 
                     string flightNum = ViewModel.GenerateFlightCode(companyId);
                     string type = (TypeComboBox.SelectedItem as string) == "Arrival" ? "ARR" : "DEP";
@@ -70,6 +93,9 @@ namespace TicketSellingModule.WinUI
 
                     ViewModel.AddFlight(flightNum, companyId, type, airportId, capacity,
                                        depTime, arrTime, interval, start, end, 1, 1);
+
+                    ViewModel.GetCompanyFlights(1);
+                    FlightsListView.ItemsSource = ViewModel.CompanyFlightsList; // Force UI refresh
 
 
                     ViewModel.GetCompanyFlights(companyId);

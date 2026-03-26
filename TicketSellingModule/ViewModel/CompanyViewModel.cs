@@ -17,6 +17,7 @@ namespace TicketSellingModule.ViewModel
         public ObservableCollection<Company> CompaniesList { get; set; }
         public ObservableCollection<Airport> AirportsList { get; set; }
         public ObservableCollection<Flight> CompanyFlightsList { get; set; }
+        private List<Flight> _masterCompanyFlights = new List<Flight>();
 
         public CompanyViewModel()
         {
@@ -86,21 +87,46 @@ namespace TicketSellingModule.ViewModel
             return newRouteId;
         }
 
-        public List<Flight> GetCompanyFlights(int companyId)
+        public void GetCompanyFlights(int companyId)
         {
-            var allRoutes = _flightRouteService.GetAllRoutes();
+            var allRoutes = _flightRouteService.GetAllRoutes() ?? new List<Route>();
             var companyRouteIds = allRoutes.Where(r => r.CompanyId == companyId).Select(r => r.Id).ToList();
 
-            var allFlights = _flightRouteService.GetAllFlights();
+            var allFlights = _flightRouteService.GetAllFlights() ?? new List<Flight>();
             var companyFlights = allFlights.Where(f => companyRouteIds.Contains(f.RouteId)).ToList();
+
+            _masterCompanyFlights = companyFlights;
 
             CompanyFlightsList.Clear();
             foreach (var flight in companyFlights)
             {
                 CompanyFlightsList.Add(flight);
             }
+        }
+        public void SearchFlights(string searchText)
+        {
+            CompanyFlightsList.Clear();
 
-            return companyFlights;
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                foreach (var flight in _masterCompanyFlights)
+                {
+                    CompanyFlightsList.Add(flight);
+                }
+                return;
+            }
+
+            string lowerSearch = searchText.ToLower();
+
+            var filteredList = _masterCompanyFlights.Where(f =>
+                !string.IsNullOrEmpty(f.FlightNumber) &&
+                f.FlightNumber.ToLower().Contains(lowerSearch)
+            ).ToList();
+
+            foreach (var flight in filteredList)
+            {
+                CompanyFlightsList.Add(flight);
+            }
         }
 
         public void DeleteFlight(int flightId, int currentCompanyId)
