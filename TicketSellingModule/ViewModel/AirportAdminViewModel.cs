@@ -10,7 +10,7 @@ using TicketSellingModule.Service;
 
 namespace TicketSellingModule.ViewModel
 {
-    internal class AirportAdminViewModel
+    public class AirportAdminViewModel
     {
         private readonly AirportService _airportService;
         private readonly RunwayService _runwayService;

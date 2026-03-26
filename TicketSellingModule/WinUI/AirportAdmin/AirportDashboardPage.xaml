@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="TicketSellingModule.WinUI.AirportAdmin.AirportDashboardPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:TicketSellingModule.WinUI.AirportAdmin.Components">
+
+    <ScrollViewer>
+        <Grid Padding="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <local:AirportSectionControl Grid.Column="0"
+                                         x:Name="RunwaysSection"
+                                         Title="Runways"/>
+
+            <local:AirportSectionControl Grid.Column="2"
+                                         x:Name="GatesSection"
+                                         Title="Gates"/>
+
+            <local:AirportSectionControl Grid.Column="4"
+                                         x:Name="AirportsSection"
+                                         Title="Destination Airports"/>
+        </Grid>
+    </ScrollViewer>
+</Page>

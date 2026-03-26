@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="TicketSellingModule.WinUI.AirportAdmin.AirportAdminPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:components="using:TicketSellingModule.WinUI.Components"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Top bar -->
+        <components:Header Grid.Row="0"/>
+
+
+        <!-- Sidebar -->
+        <StackPanel Grid.Row="1"
+                    Grid.Column="0"
+                    Background="#FAFAFA"
+                    BorderBrush="#D0D0D0"
+                    BorderThickness="0,1,1,0">
+
+            <Button x:Name="FlightsButton"
+                    Content="FLIGHTS"
+                    Height="60"
+                    HorizontalContentAlignment="Left"
+                    Padding="20,0"
+                    Click="FlightsButton_Click"/>
+
+            <Button x:Name="EmployeesButton"
+                    Content="EMPLOYEES"
+                    Height="60"
+                    HorizontalContentAlignment="Left"
+                    Padding="20,0"
+                    Click="EmployeesButton_Click"/>
+
+            <Button x:Name="AirportButton"
+                    Content="AIRPORT"
+                    Height="60"
+                    HorizontalContentAlignment="Left"
+                    Padding="20,0"
+                    Click="AirportButton_Click"/>
+        </StackPanel>
+
+        <!-- Content -->
+        <Frame x:Name="ContentFrame"
+               Grid.Row="1"
+               Grid.Column="1"
+               Margin="20"/>
+    </Grid>
+</Page>
