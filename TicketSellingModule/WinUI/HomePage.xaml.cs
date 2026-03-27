@@ -29,6 +29,7 @@ namespace TicketSellingModule.WinUI
             Frame.Navigate(typeof(SelectCompanyPage));
         }
 
+
         private void StaffButton_Click(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof(TicketSellingModule.WinUI.StaffLogin.StaffLoginPage));

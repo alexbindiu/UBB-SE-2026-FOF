@@ -28,7 +28,7 @@
                 Background="#252526"
                 Width="980"
                 Height="620"
-                HorizontalAlignment="Center"
+                HorizontalAlignment="Center" 
                 VerticalAlignment="Top">
             <Grid>
                 <Grid.RowDefinitions>

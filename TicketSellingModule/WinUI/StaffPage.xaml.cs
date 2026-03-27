@@ -87,6 +87,7 @@ namespace TicketSellingModule.WinUI
 
                 ScheduledFlights.Add(new EmployeeScheduleItem
                 {
+
                     Id = flight.Id.ToString(),
                     FlightNumber = flight.FlightNumber,
                     FlightType = NormalizeFlightType(route?.RouteType),

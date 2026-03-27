@@ -20,6 +20,7 @@ namespace TicketSellingModule.WinUI.StaffLogin
             {
                 var emp = _viewModel.GetEmployeeInfo(id);
                 if (emp != null)
+
                 {
                     Frame.Navigate(typeof(TicketSellingModule.WinUI.StaffPage), id);
                 }

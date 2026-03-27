@@ -32,6 +32,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
+        
         <!-- Center content -->
         <Grid Grid.Row="1">
             <StackPanel HorizontalAlignment="Center"

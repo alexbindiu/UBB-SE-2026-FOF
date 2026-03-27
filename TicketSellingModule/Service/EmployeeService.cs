@@ -28,7 +28,7 @@ namespace TicketSellingModule.Service
             return _employeeRepo.GetEmployeeById(id);
         }
 
-        public int Add(string name, string role, DateOnly birthday, int salary, DateOnly hiringDate)
+        public int Add(string name, string role, DateOnly birthday, int salary, DateOnly hiringDate) 
         {
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name can not be empty.");
             if (string.IsNullOrWhiteSpace(role)) throw new ArgumentException("Role can not be empty.");
