@@ -13,7 +13,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using TicketSellingModule.WinUI.AirportAdmin;
-
+using TicketSellingModule.WinUI.StaffLogin;
 
 namespace TicketSellingModule.WinUI
 {
@@ -31,7 +31,7 @@ namespace TicketSellingModule.WinUI
 
         private void StaffButton_Click(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(StaffPage));
+            Frame.Navigate(typeof(TicketSellingModule.WinUI.StaffLogin.StaffLoginPage));
         }
 
         private void AdminButton_Click(object sender, RoutedEventArgs e)

@@ -1,0 +1,15 @@
+<Page
+    x:Class="TicketSellingModule.WinUI.StaffLogin.StaffLoginPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="#1E1E1E">
+
+    <Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20" Width="300">
+            <TextBlock Text="STAFF LOGIN" FontSize="24" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+            <TextBox x:Name="EmployeeIdTextBox" PlaceholderText="Introduceți ID Angajat" HorizontalContentAlignment="Center"/>
+            <Button Content="Login" Click="LoginButton_Click" HorizontalAlignment="Stretch" Background="#2bb8c0" Foreground="White"/>
+            <TextBlock x:Name="ErrorTextBlock" Foreground="Red" Visibility="Collapsed" HorizontalAlignment="Center"/>
+        </StackPanel>
+    </Grid>
+</Page>
