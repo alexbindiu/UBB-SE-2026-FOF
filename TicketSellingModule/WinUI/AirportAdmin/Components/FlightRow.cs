@@ -14,5 +14,7 @@ namespace TicketSellingModule.WinUI.AirportAdmin.Components
         public string DestinationText { get; set; } = "";
         public string RunwayText { get; set; } = "";
         public string GateText { get; set; } = "";
+
+        public string CrewText { get; set; } = "";
     }
 }

@@ -32,40 +32,16 @@ namespace TicketSellingModule.Repo
                         {
                             Id = reader.GetInt32(0),
                             Date = reader.GetDateTime(1),
-                            FlightNumber = reader.GetString(2),
-                            RouteId = reader.GetInt32(3),
-                            RunwayId = reader.GetInt32(4),
-                            GateId = reader.GetInt32(5)
+                            FlightNumber = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                            RouteId = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
+                            RunwayId = reader.IsDBNull(4) ? 0 : reader.GetInt32(4),
+                            GateId = reader.IsDBNull(5) ? 0 : reader.GetInt32(5)
                         };
-
                         flights.Add(flight);
                     }
                 }
             }
-
             return flights;
-        }
-
-        public int Add(Flight flight)
-        {
-            using (SqlConnection connection = _connectionFactory.GetConnection())
-            {
-                connection.Open();
-                string sql = @"INSERT INTO Flights (route_id, date, runway_id, gate_id, flight_number)
-                               OUTPUT INSERTED.id
-                               VALUES (@route_id, @date, @runway_id, @gate_id, @flight_number)";
-
-                using (SqlCommand command = new SqlCommand(sql, connection))
-                {
-                    command.Parameters.AddWithValue("@route_id", flight.RouteId);
-                    command.Parameters.AddWithValue("@date", flight.Date);
-                    command.Parameters.AddWithValue("@runway_id", flight.RunwayId);
-                    command.Parameters.AddWithValue("@gate_id", flight.GateId);
-                    command.Parameters.AddWithValue("@flight_number", flight.FlightNumber);
-
-                    return (int)command.ExecuteScalar();
-                }
-            }
         }
 
         public Flight GetById(int id)
@@ -80,7 +56,6 @@ namespace TicketSellingModule.Repo
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@id", id);
-
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
                         if (reader.Read())
@@ -89,16 +64,15 @@ namespace TicketSellingModule.Repo
                             {
                                 Id = reader.GetInt32(0),
                                 Date = reader.GetDateTime(1),
-                                FlightNumber = reader.GetString(2),
-                                RouteId = reader.GetInt32(3),
-                                RunwayId = reader.GetInt32(4),
-                                GateId = reader.GetInt32(5)
+                                FlightNumber = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                RouteId = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
+                                RunwayId = reader.IsDBNull(4) ? 0 : reader.GetInt32(4),
+                                GateId = reader.IsDBNull(5) ? 0 : reader.GetInt32(5)
                             };
                         }
                     }
                 }
             }
-
             return flight;
         }
 
@@ -109,12 +83,11 @@ namespace TicketSellingModule.Repo
             using (SqlConnection connection = _connectionFactory.GetConnection())
             {
                 connection.Open();
-                string sql = "SELECT id, route_id, date, runway_id, gate_id, flight_number FROM Flights WHERE route_id = @route_id";
+                string sql = "SELECT id, date, flight_number, route_id, runway_id, gate_id FROM Flights WHERE route_id = @route_id";
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@route_id", routeId);
-
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
@@ -122,21 +95,43 @@ namespace TicketSellingModule.Repo
                             Flight flight = new Flight
                             {
                                 Id = reader.GetInt32(0),
-                                RouteId = reader.GetInt32(1),
-                                Date = reader.GetDateTime(2),
-                                RunwayId = reader.GetInt32(3),
-                                GateId = reader.GetInt32(4),
-                                FlightNumber = reader.GetString(5)
+                                Date = reader.GetDateTime(1),
+                                FlightNumber = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                RouteId = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
+                                RunwayId = reader.IsDBNull(4) ? 0 : reader.GetInt32(4),
+                                GateId = reader.IsDBNull(5) ? 0 : reader.GetInt32(5)
                             };
-
                             flights.Add(flight);
                         }
                     }
                 }
             }
-
             return flights;
         }
+        public int Add(Flight flight)
+        {
+            using (SqlConnection connection = _connectionFactory.GetConnection())
+            {
+                connection.Open();
+                string sql = @"INSERT INTO Flights (route_id, date, runway_id, gate_id, flight_number)
+                               OUTPUT INSERTED.id
+                               VALUES (@route_id, @date, @runway_id, @gate_id, @flight_number)";
+
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    // Adding DBNull checks so C# doesn't crash if the user leaves these blank!
+                    command.Parameters.AddWithValue("@route_id", (object)flight.RouteId ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@date", flight.Date);
+                    command.Parameters.AddWithValue("@runway_id", (object)flight.RunwayId ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@gate_id", (object)flight.GateId ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@flight_number", flight.FlightNumber ?? (object)DBNull.Value);
+
+                    return (int)command.ExecuteScalar();
+                }
+            }
+        }
+
+        
 
         public void Update(Flight flight)
         {
@@ -153,11 +148,11 @@ namespace TicketSellingModule.Repo
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
-                    command.Parameters.AddWithValue("@route_id", flight.RouteId);
+                    command.Parameters.AddWithValue("@route_id", (object)flight.RouteId ?? DBNull.Value);
                     command.Parameters.AddWithValue("@date", flight.Date);
-                    command.Parameters.AddWithValue("@runway_id", flight.RunwayId);
-                    command.Parameters.AddWithValue("@gate_id", flight.GateId);
-                    command.Parameters.AddWithValue("@flight_number", flight.FlightNumber);
+                    command.Parameters.AddWithValue("@runway_id", (object)flight.RunwayId ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@gate_id", (object)flight.GateId ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@flight_number", flight.FlightNumber ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@id", flight.Id);
 
                     command.ExecuteNonQuery();
