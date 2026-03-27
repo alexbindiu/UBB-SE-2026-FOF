@@ -7,11 +7,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:components="using:TicketSellingModule.WinUI.Components"
     mc:Ignorable="d"
-    Background="#1E1E1E">
+    Background="#0F172A">
 
     <Page.Resources>
         <SolidColorBrush x:Key="CustomAccentBrush" Color="#2bb8c0"/>
-        <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#252526"/>
+        <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#1E293B"/>
         <SolidColorBrush x:Key="PanelBorderBrush" Color="#3F3F46"/>
         <SolidColorBrush x:Key="SidebarButtonBackgroundBrush" Color="Transparent"/>
         <SolidColorBrush x:Key="SidebarButtonForegroundBrush" Color="White"/>

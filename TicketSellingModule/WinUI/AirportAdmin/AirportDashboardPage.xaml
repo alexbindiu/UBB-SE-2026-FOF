@@ -3,7 +3,8 @@
     x:Class="TicketSellingModule.WinUI.AirportAdmin.AirportDashboardPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:TicketSellingModule.WinUI.AirportAdmin.Components">
+    xmlns:local="using:TicketSellingModule.WinUI.AirportAdmin.Components"
+    Foreground="#F8FAFC">
 
     <ScrollViewer>
         <Grid Padding="20">

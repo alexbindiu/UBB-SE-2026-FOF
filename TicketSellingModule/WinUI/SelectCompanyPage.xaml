@@ -2,7 +2,7 @@
     x:Class="TicketSellingModule.WinUI.SelectCompanyPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Background="#1E1E1E">
+    Background="#0F172A">
 
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
         <TextBlock Text="SELECT YOUR AIRLINE" FontSize="24" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>

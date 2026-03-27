@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:components="using:TicketSellingModule.WinUI.Components"
     mc:Ignorable="d"
-    Background="#1E1E1E">
+    Background="#0F172A">
 
     <Page.Resources>
         <SolidColorBrush x:Key="CustomAccentBrush" Color="#2bb8c0"/>
