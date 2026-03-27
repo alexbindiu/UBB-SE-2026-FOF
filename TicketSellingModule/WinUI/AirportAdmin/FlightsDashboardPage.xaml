@@ -20,6 +20,8 @@
                 <ColumnDefinition Width="400"/>
                 <ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <AutoSuggestBox x:Name="FlightSearchBox"
@@ -30,6 +32,12 @@
             <Button Grid.Column="2"
                     Content="Refresh"
                     Click="RefreshButton_Click"/>
+
+            <Button Grid.Column="4"
+                Content="Manage Crew"
+                Style="{StaticResource AccentButtonStyle}"
+                Click="AssignCrewButton_Click"/>
+            
         </Grid>
 
         <local:FlightListControl Grid.Row="2"

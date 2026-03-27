@@ -68,6 +68,9 @@ namespace TicketSellingModule.WinUI.AirportAdmin
 
             foreach (var flight in filtered)
             {
+                var crew = _viewModel.GetFlightCrew(flight.Id);
+                string crewNames = crew.Count > 0 ? string.Join(", ", crew.Select(c => c.Name)) : "Unassigned";
+
                 FilteredFlights.Add(new FlightRow
                 {
                     Id = flight.Id,
@@ -75,7 +78,8 @@ namespace TicketSellingModule.WinUI.AirportAdmin
                     DateText = flight.Date.ToString("dd.MM.yyyy HH:mm"),
                     DestinationText = GetDestinationText(flight),
                     RunwayText = flight.Runway?.Name ?? "-",
-                    GateText = flight.Gate?.Name ?? "-"
+                    GateText = flight.Gate?.Name ?? "-",
+                    CrewText = crewNames // <-- Add the Crew names here!
                 });
             }
         }
@@ -93,6 +97,97 @@ namespace TicketSellingModule.WinUI.AirportAdmin
             return $"{destinationAirport.AirportCode} - {destinationAirport.AirportName}";
         }
 
+        private async void AssignCrewButton_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedRow = FlightListControl.SelectedItem;
+            if (selectedRow == null)
+            {
+                await new ContentDialog
+                {
+                    Title = "Action Denied",
+                    Content = "Please select a flight from the table first.",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                }.ShowAsync();
+                return;
+            }
+
+            var flight = _viewModel.GetFlightById(selectedRow.Id);
+            var availableEmployees = _viewModel.GetAvailableEmployeesForFlight(flight);
+
+            // NEW: Get the crew that is ALREADY assigned to this flight
+            var currentCrewIds = _viewModel.GetFlightCrew(flight.Id).Select(c => c.Id).ToList();
+
+            var stackPanel = new StackPanel { Spacing = 10 };
+            var errorText = new TextBlock
+            {
+                Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red),
+                Visibility = Visibility.Collapsed
+            };
+            stackPanel.Children.Add(errorText);
+
+            var checkBoxes = new List<CheckBox>();
+
+            foreach (var group in availableEmployees.GroupBy(emp => emp.Role))
+            {
+                stackPanel.Children.Add(new TextBlock
+                {
+                    Text = group.Key,
+                    FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                    Margin = new Thickness(0, 10, 0, 5)
+                });
+
+                foreach (var emp in group)
+                {
+                    var cb = new CheckBox { Content = emp.Name, Tag = emp };
+
+                    // NEW: If they are already assigned to this flight, check the box automatically!
+                    if (currentCrewIds.Contains(emp.Id))
+                    {
+                        cb.IsChecked = true;
+                    }
+
+                    checkBoxes.Add(cb);
+                    stackPanel.Children.Add(cb);
+                }
+            }
+
+            var dialog = new ContentDialog
+            {
+                Title = $"Manage Crew: {selectedRow.FlightNumber}",
+                Content = new ScrollViewer { Content = stackPanel, MaxHeight = 400 },
+                PrimaryButtonText = "Save Assignments",
+                CloseButtonText = "Cancel",
+                XamlRoot = this.XamlRoot
+            };
+
+            dialog.Closing += (s, args) =>
+            {
+                if (args.Result == ContentDialogResult.Primary)
+                {
+                    var selectedCount = checkBoxes.Count(cb => cb.IsChecked == true);
+                    if (selectedCount < 4)
+                    {
+                        args.Cancel = true;
+                        errorText.Text = "You must select at least 4 employees to operate a flight.";
+                        errorText.Visibility = Visibility.Visible;
+                    }
+                }
+            };
+
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                var selectedIds = checkBoxes.Where(c => c.IsChecked == true)
+                                            .Select(c => ((Employee)c.Tag).Id).ToList();
+
+                // NEW: Call the smart update method instead of the old assign method
+                _viewModel.UpdateCrewForFlight(flight.Id, selectedIds);
+                LoadFlights();
+            }
+        }
+
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
             LoadFlights();
@@ -107,5 +202,7 @@ namespace TicketSellingModule.WinUI.AirportAdmin
         {
             ApplyFilter(sender.Text);
         }
+
+
     }
 }

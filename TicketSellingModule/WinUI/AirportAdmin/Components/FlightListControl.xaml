@@ -26,6 +26,7 @@
                     <ColumnDefinition Width="220"/>
                     <ColumnDefinition Width="120"/>
                     <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="200"/>
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Text="Flight No." FontWeight="Bold"/>
@@ -33,6 +34,7 @@
                 <TextBlock Grid.Column="2" Text="Destination" FontWeight="Bold"/>
                 <TextBlock Grid.Column="3" Text="Runway" FontWeight="Bold"/>
                 <TextBlock Grid.Column="4" Text="Gate" FontWeight="Bold"/>
+                <TextBlock Grid.Column="5" Text="Assigned Crew" FontWeight="Bold"/>
             </Grid>
 
             <ListView x:Name="FlightsListView"
@@ -47,6 +49,7 @@
                                 <ColumnDefinition Width="220"/>
                                 <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="200"/>
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Text="{Binding FlightNumber}"/>
@@ -54,6 +57,8 @@
                             <TextBlock Grid.Column="2" Text="{Binding DestinationText}"/>
                             <TextBlock Grid.Column="3" Text="{Binding RunwayText}"/>
                             <TextBlock Grid.Column="4" Text="{Binding GateText}"/>
+                            <TextBlock Grid.Column="5" Text="{Binding CrewText}" TextWrapping="Wrap"/>
+                            
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>

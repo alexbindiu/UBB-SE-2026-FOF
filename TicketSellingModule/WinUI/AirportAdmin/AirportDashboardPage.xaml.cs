@@ -142,12 +142,26 @@ namespace TicketSellingModule.WinUI.AirportAdmin
             }
         }
 
-        private void DeleteRunway_Click(object sender, RoutedEventArgs e)
+        private async void DeleteRunway_Click(object sender, RoutedEventArgs e)
         {
             if (RunwaysSection.SelectedItem is not SimpleItemRow selected) return;
 
-            _viewModel.DeleteRunway(selected.Id);
-            LoadRunways();
+            try
+            {
+                _viewModel.DeleteRunway(selected.Id);
+                LoadRunways();
+            }
+            catch (Exception)
+            {
+                var errorDialog = new ContentDialog
+                {
+                    Title = "Action Denied",
+                    Content = $"You cannot delete the runway '{selected.MainValue}' because it is currently assigned to one or more scheduled flights. Please reassign or cancel those flights first.",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await errorDialog.ShowAsync();
+            }
         }
 
         private async void AddGate_Click(object sender, RoutedEventArgs e)
@@ -176,12 +190,26 @@ namespace TicketSellingModule.WinUI.AirportAdmin
             }
         }
 
-        private void DeleteGate_Click(object sender, RoutedEventArgs e)
+        private async void DeleteGate_Click(object sender, RoutedEventArgs e)
         {
             if (GatesSection.SelectedItem is not SimpleItemRow selected) return;
 
-            _viewModel.DeleteGate(selected.Id);
-            LoadGates();
+            try
+            {
+                _viewModel.DeleteGate(selected.Id);
+                LoadGates();
+            }
+            catch (Exception)
+            {
+                var errorDialog = new ContentDialog
+                {
+                    Title = "Action Denied",
+                    Content = $"You cannot delete the gate '{selected.MainValue}' because it is currently assigned to one or more scheduled flights. Please reassign or cancel those flights first.",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await errorDialog.ShowAsync();
+            }
         }
 
         private async void AddAirport_Click(object sender, RoutedEventArgs e)
@@ -226,12 +254,26 @@ namespace TicketSellingModule.WinUI.AirportAdmin
             }
         }
 
-        private void DeleteAirport_Click(object sender, RoutedEventArgs e)
+        private async void DeleteAirport_Click(object sender, RoutedEventArgs e)
         {
             if (AirportsSection.SelectedItem is not SimpleItemRow selected) return;
 
-            _viewModel.DeleteAirport(selected.Id);
-            LoadAirports();
+            try
+            {
+                _viewModel.DeleteAirport(selected.Id);
+                LoadAirports();
+            }
+            catch (Exception)
+            {
+                var errorDialog = new ContentDialog
+                {
+                    Title = "Action Denied",
+                    Content = $"You cannot delete the airport '{selected.MainValue}' because it is currently tied to existing flight routes. Please remove those routes first.",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await errorDialog.ShowAsync();
+            }
         }
 
         private ContentDialog CreateDialog(string title, object content)

@@ -42,6 +42,8 @@ namespace TicketSellingModule.WinUI.AirportAdmin.Components
             }
         }
 
+        public FlightRow? SelectedItem => FlightsListView.SelectedItem as FlightRow;
+
         public FlightListControl()
         {
             this.InitializeComponent();
