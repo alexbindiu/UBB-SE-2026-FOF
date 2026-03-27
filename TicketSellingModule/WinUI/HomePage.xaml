@@ -15,7 +15,7 @@
             <Setter Property="Height" Value="140"/>
             <Setter Property="Margin" Value="15"/>
             <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
             <Setter Property="BorderBrush" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="10"/>
