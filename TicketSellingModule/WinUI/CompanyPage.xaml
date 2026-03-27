@@ -25,7 +25,7 @@
                        PrimaryButtonText="Save Flight"
                        CloseButtonText="Cancel"
                        DefaultButton="Primary"
-                       Background="#252526"
+                       Background="#3F3F46"
                        RequestedTheme="Dark">
 
             <StackPanel Spacing="15" Width="450">
@@ -83,7 +83,7 @@
 
         <components:Header Grid.Row="0"/>
 
-        <Border Grid.Row="1" BorderBrush="#3F3F46" BorderThickness="1" CornerRadius="8" Background="#252526" Width="900" HorizontalAlignment="Center" VerticalAlignment="Top" Height="600">
+        <Border Grid.Row="1" BorderBrush="#3F3F46" BorderThickness="1" CornerRadius="8" Background="#1E293B" Width="900" HorizontalAlignment="Center" VerticalAlignment="Top" Height="600">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -105,7 +105,7 @@
          Margin="20,0,20,15" 
          Width="400" 
          HorizontalAlignment="Center" 
-         Background="#1E1E1E" 
+         Background="#3F3F46" 
          Foreground="White" 
          BorderThickness="1" 
          BorderBrush="#3F3F46"/>
