@@ -8,7 +8,7 @@ using TicketSellingModule.Repo;
 
 namespace TicketSellingModule.Service
 {
-    internal class EmployeeService
+    public class EmployeeService
     {
         private readonly EmployeeRepo _employeeRepo;
 

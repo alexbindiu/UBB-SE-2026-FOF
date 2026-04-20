@@ -10,7 +10,9 @@ namespace TicketSellingModule.Repo
         public DbConnectionFactory()
         {
             // This is the exact string we verified earlier for your specific machine
-            _connectionString = "Server=localhost;Database=AirportDB;Trusted_Connection=True;TrustServerCertificate=True;";
+            //_connectionString = "Server=localhost;Database=AirportDB;Trusted_Connection=True;TrustServerCertificate=True;";
+            _connectionString = "Server=DESKTOP-1JCJMN6\\SQLEXPRESS;Database=AirportDB;Trusted_Connection=True;TrustServerCertificate=True;";
+
         }
 
         // Every repository will call this method when it needs to talk to the database
