@@ -17,7 +17,5 @@ namespace TicketSellingModule.Domain
         public Runway Runway { get; set; }
         public int GateId { get; set; }
         public Gate Gate { get; set; }
-
-        public List<Employee> Employees { get; set; } = new List<Employee>();
     }
 }
