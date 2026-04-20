@@ -2,22 +2,39 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Input;
+using Microsoft.UI.Xaml;
 using TicketSellingModule.Domain;
 using TicketSellingModule.Repo;
 using TicketSellingModule.Service;
 
 namespace TicketSellingModule.ViewModel
 {
-    public class CompanyViewModel
+    public class CompanyViewModel : ViewModelBase
     {
         private readonly CompanyService _companyService;
         private readonly AirportService _airportService;
         private readonly FlightRouteService _flightRouteService;
+        private int _currentCompanyId;
+        private string _searchText;
+        private string _selectedRouteType;
+        private Airport _selectedAirport;
+        private string _capacityText;
+        private TimeSpan _departureTime = TimeSpan.Zero;
+        private TimeSpan _arrivalTime = TimeSpan.Zero;
+        private bool _isRecurrent;
+        private DateTimeOffset? _singleDate;
+        private string _recurrenceType;
+        private string _customDaysText;
+        private DateTimeOffset? _startDate;
+        private DateTimeOffset? _endDate;
         
         public ObservableCollection<Company> CompaniesList { get; set; }
         public ObservableCollection<Airport> AirportsList { get; set; }
         public ObservableCollection<Flight> CompanyFlightsList { get; set; }
         private List<Flight> _masterCompanyFlights = new List<Flight>();
+
+        public ICommand DeleteFlightCommand { get; }
 
         public CompanyViewModel()
         {
@@ -30,7 +47,112 @@ namespace TicketSellingModule.ViewModel
             CompaniesList = new ObservableCollection<Company>();
             AirportsList = new ObservableCollection<Airport>();
             CompanyFlightsList = new ObservableCollection<Flight>();
+
+            DeleteFlightCommand = new RelayCommand<int>(DeleteFlight);
         }
+
+        public int CurrentCompanyId
+        {
+            get => _currentCompanyId;
+            private set => SetProperty(ref _currentCompanyId, value);
+        }
+
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                if (SetProperty(ref _searchText, value))
+                {
+                    SearchFlights(_searchText);
+                }
+            }
+        }
+
+        public string SelectedRouteType
+        {
+            get => _selectedRouteType;
+            set => SetProperty(ref _selectedRouteType, value);
+        }
+
+        public Airport SelectedAirport
+        {
+            get => _selectedAirport;
+            set => SetProperty(ref _selectedAirport, value);
+        }
+
+        public string CapacityText
+        {
+            get => _capacityText;
+            set => SetProperty(ref _capacityText, value);
+        }
+
+        public TimeSpan DepartureTime
+        {
+            get => _departureTime;
+            set => SetProperty(ref _departureTime, value);
+        }
+
+        public TimeSpan ArrivalTime
+        {
+            get => _arrivalTime;
+            set => SetProperty(ref _arrivalTime, value);
+        }
+
+        public bool IsRecurrent
+        {
+            get => _isRecurrent;
+            set
+            {
+                if (SetProperty(ref _isRecurrent, value))
+                {
+                    OnPropertyChanged(nameof(RecurrentPanelVisibility));
+                    OnPropertyChanged(nameof(SingleDateVisibility));
+                }
+            }
+        }
+
+        public DateTimeOffset? SingleDate
+        {
+            get => _singleDate;
+            set => SetProperty(ref _singleDate, value);
+        }
+
+        public string RecurrenceType
+        {
+            get => _recurrenceType;
+            set
+            {
+                if (SetProperty(ref _recurrenceType, value))
+                {
+                    OnPropertyChanged(nameof(CustomDaysVisibility));
+                }
+            }
+        }
+
+        public string CustomDaysText
+        {
+            get => _customDaysText;
+            set => SetProperty(ref _customDaysText, value);
+        }
+
+        public DateTimeOffset? StartDate
+        {
+            get => _startDate;
+            set => SetProperty(ref _startDate, value);
+        }
+
+        public DateTimeOffset? EndDate
+        {
+            get => _endDate;
+            set => SetProperty(ref _endDate, value);
+        }
+
+        public Visibility RecurrentPanelVisibility => IsRecurrent ? Visibility.Visible : Visibility.Collapsed;
+
+        public Visibility SingleDateVisibility => IsRecurrent ? Visibility.Collapsed : Visibility.Visible;
+
+        public Visibility CustomDaysVisibility => RecurrenceType == "Custom" ? Visibility.Visible : Visibility.Collapsed;
 
         public List<Company> GetAllCompanies()
         {
@@ -61,6 +183,13 @@ namespace TicketSellingModule.ViewModel
             }
             
             return airports;
+        }
+
+        public void InitializeCompany(int companyId)
+        {
+            CurrentCompanyId = companyId;
+            GetAllAirports();
+            GetCompanyFlights(CurrentCompanyId);
         }
 
         public int AddAirport(string airportCode, string city, string name)
@@ -134,6 +263,63 @@ namespace TicketSellingModule.ViewModel
             _flightRouteService.DeleteFlight(flightId);
             
             GetCompanyFlights(currentCompanyId); 
+        }
+
+        public void DeleteFlight(int flightId)
+        {
+            if (CurrentCompanyId == 0)
+            {
+                return;
+            }
+
+            DeleteFlight(flightId, CurrentCompanyId);
+        }
+
+        public void AddFlightFromInputs()
+        {
+            if (CurrentCompanyId == 0)
+            {
+                throw new InvalidOperationException("Company not selected.");
+            }
+
+            int companyId = CurrentCompanyId;
+            string flightNum = GenerateFlightCode(companyId);
+            string type = SelectedRouteType == "Arrival" ? "ARR" : "DEP";
+            int airportId = SelectedAirport?.Id ?? 0;
+
+            int capacity = int.Parse(CapacityText ?? "0");
+            TimeOnly depTime = TimeOnly.FromTimeSpan(DepartureTime);
+            TimeOnly arrTime = TimeOnly.FromTimeSpan(ArrivalTime);
+
+            bool isRecurrent = IsRecurrent;
+            int interval = 0;
+            DateTime start = DateTime.Now;
+            DateTime end = DateTime.Now;
+
+            if (isRecurrent)
+            {
+                start = StartDate?.DateTime ?? DateTime.Now;
+                end = EndDate?.DateTime ?? DateTime.Now.AddMonths(1);
+
+                interval = RecurrenceType switch
+                {
+                    "Daily" => 1,
+                    "Weekly" => 7,
+                    "Monthly" => 30,
+                    "Custom" => int.Parse(CustomDaysText ?? "0"),
+                    _ => 0
+                };
+            }
+            else
+            {
+                start = SingleDate?.DateTime ?? DateTime.Now;
+                end = start;
+            }
+
+            AddFlight(flightNum, companyId, type, airportId, capacity,
+                depTime, arrTime, interval, start, end, 1, 1);
+
+            GetCompanyFlights(companyId);
         }
         public string GenerateFlightCode(int companyId)
         {

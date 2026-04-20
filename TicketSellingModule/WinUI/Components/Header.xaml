@@ -16,7 +16,6 @@
         </Grid.ColumnDefinitions>
 
         <Button Grid.Column="0"
-            Click="BackButton_Click"
             Background="Transparent"
             BorderThickness="0"
             Padding="0"
@@ -24,7 +23,8 @@
             Height="48"
             HorizontalAlignment="Left"
             VerticalAlignment="Center"
-            ToolTipService.ToolTip="Home">
+            ToolTipService.ToolTip="Home"
+            Command="{Binding NavigateHomeCommand}">
             <FontIcon Glyph="&#xE80F;" FontSize="28" Foreground="White"/>
         </Button>
 

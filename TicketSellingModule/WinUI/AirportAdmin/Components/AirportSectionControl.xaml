@@ -25,13 +25,20 @@
                            FontSize="18"
                            FontWeight="SemiBold"/>
 
-                <Button Grid.Column="1" Content="Add" Click="Add_Click"/>
-                <Button Grid.Column="3" Content="Edit" Click="Edit_Click"/>
-                <Button Grid.Column="5" Content="Delete" Click="Delete_Click"/>
+                <Button Grid.Column="1"
+                        Content="Add"
+                        Command="{x:Bind AddCommand, Mode=OneWay}" />
+                <Button Grid.Column="3"
+                        Content="Edit"
+                        Command="{x:Bind EditCommand, Mode=OneWay}" />
+                <Button Grid.Column="5"
+                        Content="Delete"
+                        Command="{x:Bind DeleteCommand, Mode=OneWay}" />
             </Grid>
 
             <ListView x:Name="ListViewControl"
-                      SelectionMode="Single">
+                      SelectionMode="Single"
+                      SelectedItem="{x:Bind SelectedItem, Mode=TwoWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Padding="0,6">

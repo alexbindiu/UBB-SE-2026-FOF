@@ -1,6 +1,7 @@
+using System.Collections.ObjectModel;
+using System.Windows.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System.Collections.ObjectModel;
 
 namespace TicketSellingModule.WinUI.AirportAdmin.Components
 {
@@ -40,30 +41,61 @@ namespace TicketSellingModule.WinUI.AirportAdmin.Components
             }
         }
 
-        public event RoutedEventHandler? AddClicked;
-        public event RoutedEventHandler? EditClicked;
-        public event RoutedEventHandler? DeleteClicked;
-
         public AirportSectionControl()
         {
             this.InitializeComponent();
         }
 
-        private void Add_Click(object sender, RoutedEventArgs e)
+        public object? SelectedItem
         {
-            AddClicked?.Invoke(this, e);
+            get => GetValue(SelectedItemProperty);
+            set => SetValue(SelectedItemProperty, value);
         }
 
-        private void Edit_Click(object sender, RoutedEventArgs e)
+        public static readonly DependencyProperty SelectedItemProperty =
+            DependencyProperty.Register(
+                nameof(SelectedItem),
+                typeof(object),
+                typeof(AirportSectionControl),
+                new PropertyMetadata(null));
+
+        public ICommand? AddCommand
         {
-            EditClicked?.Invoke(this, e);
+            get => (ICommand?)GetValue(AddCommandProperty);
+            set => SetValue(AddCommandProperty, value);
         }
 
-        private void Delete_Click(object sender, RoutedEventArgs e)
+        public static readonly DependencyProperty AddCommandProperty =
+            DependencyProperty.Register(
+                nameof(AddCommand),
+                typeof(ICommand),
+                typeof(AirportSectionControl),
+                new PropertyMetadata(null));
+
+        public ICommand? EditCommand
         {
-            DeleteClicked?.Invoke(this, e);
+            get => (ICommand?)GetValue(EditCommandProperty);
+            set => SetValue(EditCommandProperty, value);
         }
 
-        public object? SelectedItem => ListViewControl.SelectedItem;
+        public static readonly DependencyProperty EditCommandProperty =
+            DependencyProperty.Register(
+                nameof(EditCommand),
+                typeof(ICommand),
+                typeof(AirportSectionControl),
+                new PropertyMetadata(null));
+
+        public ICommand? DeleteCommand
+        {
+            get => (ICommand?)GetValue(DeleteCommandProperty);
+            set => SetValue(DeleteCommandProperty, value);
+        }
+
+        public static readonly DependencyProperty DeleteCommandProperty =
+            DependencyProperty.Register(
+                nameof(DeleteCommand),
+                typeof(ICommand),
+                typeof(AirportSectionControl),
+                new PropertyMetadata(null));
     }
 }
