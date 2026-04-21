@@ -62,6 +62,8 @@ namespace TicketSellingModule
             services.AddTransient<SelectCompanyViewModel>();
             services.AddTransient<AirportAdminViewModel>();
             services.AddTransient<EmployeesDashboardViewModel>();
+            services.AddTransient<AirportDashboardViewModel>();
+            services.AddTransient<FlightsDashboardViewModel>();
 
 
             services.AddTransient<RouteRepo>();

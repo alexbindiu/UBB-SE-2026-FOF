@@ -18,11 +18,9 @@ namespace TicketSellingModule.WinUI.AirportAdmin
         {
             this.InitializeComponent();
             
-            _airportViewModel = new AirportDashboardViewModel(new AirportService(new AirportRepo(connectionFactory)),
-                                                                new RunwayService(new RunwayRepo(connectionFactory)),
-                                                                new GateService(new GateRepo(connectionFactory)));
+            _airportViewModel = App.Services.GetRequiredService<AirportDashboardViewModel>();
 
-            Loaded += AirportAdminPage_Loaded;
+            //Loaded += AirportAdminPage_Loaded;
             ViewModel = App.Services.GetRequiredService<AirportAdminViewModel>();
             _employeesViewModel = App.Services.GetRequiredService<EmployeesDashboardViewModel>();
         }
