@@ -40,7 +40,7 @@ namespace TicketSellingModule.ViewModel
             ErrorVisibility = Visibility.Collapsed;
             ErrorMessage = string.Empty;
 
-            // Navigăm direct din ViewModel
+            
             _navigationService.NavigateToStaffDashboard(id);
         }
 

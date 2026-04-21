@@ -29,32 +29,32 @@
                        FontWeight="SemiBold"/>
 
             <local:EmployeeSectionControl Grid.Row="2"
-                                            SectionTitle="Pilot"
-                                            ItemsSource="{Binding PilotEmployees}"
-                                            AddCommand="{Binding AddEmployeeCommand}"
-                                            EditCommand="{Binding EditEmployeeCommand}"
-                                            DeleteCommand="{Binding DeleteEmployeeCommand}" />
+                                          SectionTitle="Pilot"
+                                          ItemsSource="{x:Bind ViewModel.PilotEmployees, Mode=OneWay}"
+                                          AddCommand="{x:Bind ViewModel.AddEmployeeCommand}"
+                                          EditCommand="{x:Bind ViewModel.EditEmployeeCommand}"
+                                          DeleteCommand="{x:Bind ViewModel.DeleteEmployeeCommand}" />
 
             <local:EmployeeSectionControl Grid.Row="4"
-                                            SectionTitle="Flight Attendant"
-                                            ItemsSource="{Binding FlightAttendantEmployees}"
-                                            AddCommand="{Binding AddEmployeeCommand}"
-                                            EditCommand="{Binding EditEmployeeCommand}"
-                                            DeleteCommand="{Binding DeleteEmployeeCommand}" />
+                                          SectionTitle="Flight Attendant"
+                                          ItemsSource="{x:Bind ViewModel.FlightAttendantEmployees, Mode=OneWay}"
+                                          AddCommand="{x:Bind ViewModel.AddEmployeeCommand}"
+                                          EditCommand="{x:Bind ViewModel.EditEmployeeCommand}"
+                                          DeleteCommand="{x:Bind ViewModel.DeleteEmployeeCommand}" />
 
             <local:EmployeeSectionControl Grid.Row="6"
-                                            SectionTitle="Co-Pilot"
-                                            ItemsSource="{Binding CoPilotEmployees}"
-                                            AddCommand="{Binding AddEmployeeCommand}"
-                                            EditCommand="{Binding EditEmployeeCommand}"
-                                            DeleteCommand="{Binding DeleteEmployeeCommand}" />
+                                          SectionTitle="Co-Pilot"
+                                          ItemsSource="{x:Bind ViewModel.CoPilotEmployees, Mode=OneWay}"
+                                          AddCommand="{x:Bind ViewModel.AddEmployeeCommand}"
+                                          EditCommand="{x:Bind ViewModel.EditEmployeeCommand}"
+                                          DeleteCommand="{x:Bind ViewModel.DeleteEmployeeCommand}" />
             
             <local:EmployeeSectionControl Grid.Row="8"
-                                            SectionTitle="Flight Dispatcher"
-                                            ItemsSource="{Binding FlightDispatcherEmployees}"
-                                            AddCommand="{Binding AddEmployeeCommand}"
-                                            EditCommand="{Binding EditEmployeeCommand}"
-                                            DeleteCommand="{Binding DeleteEmployeeCommand}" />
+                                          SectionTitle="Flight Dispatcher"
+                                          ItemsSource="{x:Bind ViewModel.FlightDispatcherEmployees, Mode=OneWay}"
+                                          AddCommand="{x:Bind ViewModel.AddEmployeeCommand}"
+                                          EditCommand="{x:Bind ViewModel.EditEmployeeCommand}"
+                                          DeleteCommand="{x:Bind ViewModel.DeleteEmployeeCommand}" />
 
             <Grid Grid.RowSpan="9" 
               Background="#80000000" 

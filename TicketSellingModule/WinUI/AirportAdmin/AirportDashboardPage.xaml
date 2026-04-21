@@ -20,7 +20,7 @@
                 <local:AirportSectionControl Grid.Column="0"
                                              Title="Runways"
                                              Items="{x:Bind ViewModel.RunwaysList, Mode=OneWay}"
-                                             SelectedItem="{Binding SelectedRunway, Mode=TwoWay}"
+                                             SelectedItem="{x:Bind ViewModel.SelectedRunway, Mode=TwoWay}"
                                              DisplayMemberPath="Name"
                                              AddCommand="{x:Bind ViewModel.OpenAddRunwayCommand}"
                                              EditCommand="{x:Bind ViewModel.OpenEditRunwayCommand}"

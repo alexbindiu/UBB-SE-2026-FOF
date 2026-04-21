@@ -74,38 +74,38 @@
                    Margin="10,10,10,20"/>
 
                     <Button x:Name="FlightsButton"
-                Click="FlightsButton_Click"
-                Style="{StaticResource SidebarNavItemStyle}">
+                            Style="{StaticResource SidebarNavItemStyle}"
+                            Command="{x:Bind ViewModel.ShowFlightsCommand}">
                         <Grid Height="44" Padding="14,0">
                             <TextBlock Text="FLIGHTS"
-                           Foreground="White"
-                           FontSize="14"
-                           FontWeight="SemiBold"
-                           VerticalAlignment="Center"/>
+                                       Foreground="White"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
                         </Grid>
                     </Button>
 
                     <Button x:Name="EmployeesButton"
-                Click="EmployeesButton_Click"
-                Style="{StaticResource SidebarNavItemStyle}">
+                            Style="{StaticResource SidebarNavItemStyle}"
+                            Command="{x:Bind ViewModel.ShowEmployeesCommand}">
                         <Grid Height="44" Padding="14,0">
                             <TextBlock Text="EMPLOYEES"
-                           Foreground="White"
-                           FontSize="14"
-                           FontWeight="SemiBold"
-                           VerticalAlignment="Center"/>
+                                       Foreground="White"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
                         </Grid>
                     </Button>
 
                     <Button x:Name="AirportButton"
-                Click="AirportButton_Click"
-                Style="{StaticResource SidebarNavItemStyle}">
+                            Style="{StaticResource SidebarNavItemStyle}"
+                            Command="{x:Bind ViewModel.ShowAirportCommand}">
                         <Grid Height="44" Padding="14,0">
                             <TextBlock Text="AIRPORT"
-                           Foreground="White"
-                           FontSize="14"
-                           FontWeight="SemiBold"
-                           VerticalAlignment="Center"/>
+                                       Foreground="White"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
                         </Grid>
                     </Button>
                 </StackPanel>

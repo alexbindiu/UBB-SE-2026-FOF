@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+using System;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using TicketSellingModule.ViewModel;
@@ -7,22 +7,23 @@ namespace TicketSellingModule.WinUI
 {
     public sealed partial class StaffPage : Page
     {
-        public StaffPageViewModel ViewModel { get; }
+        public StaffPageViewModel ViewModel { get; private set; } = null!;
 
         public StaffPage()
         {
-            // Request the fully constructed ViewModel from Dependency Injection
-            ViewModel = App.Services.GetRequiredService<StaffPageViewModel>();
             InitializeComponent();
-            DataContext = ViewModel;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
-            int employeeId = e.Parameter is int id ? id : 0;
-            ViewModel.Initialize(employeeId);
+            if (e.Parameter is ValueTuple<StaffPageViewModel, int> context)
+            {
+                ViewModel = context.Item1;
+                DataContext = ViewModel;
+                ViewModel.Initialize(context.Item2);
+            }
         }
     }
 }

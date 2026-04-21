@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
@@ -9,24 +8,24 @@ namespace TicketSellingModule.WinUI
 {
     public sealed partial class CompanyPage : Page
     {
-        public CompanyViewModel ViewModel { get; }
+        public CompanyViewModel ViewModel { get; private set; } = null!;
 
         public CompanyPage()
         {
-            ViewModel = App.Services.GetRequiredService<CompanyViewModel>();
             InitializeComponent();
-            DataContext = ViewModel;
-            ViewModel.LoadGates();
-            ViewModel.LoadRunways();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
-            if (e.Parameter is int passedCompanyId)
+            if (e.Parameter is ValueTuple<CompanyViewModel, int> context)
             {
-                ViewModel.InitializeCompany(passedCompanyId);
+                ViewModel = context.Item1;
+                DataContext = ViewModel;
+                ViewModel.LoadGates();
+                ViewModel.LoadRunways();
+                ViewModel.InitializeCompany(context.Item2);
             }
         }
 
