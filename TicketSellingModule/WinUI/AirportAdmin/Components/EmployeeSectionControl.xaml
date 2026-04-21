@@ -26,9 +26,9 @@
                            FontSize="18"
                            FontWeight="SemiBold"/>
 
-                <Button Grid.Column="1" Content="Add" Click="AddButton_Click"/>
-                <Button Grid.Column="3" Content="Edit" Click="EditButton_Click"/>
-                <Button Grid.Column="5" Content="Delete" Click="DeleteButton_Click"/>
+                <Button Grid.Column="1" Content="Add" Command="{x:Bind AddCommand}" CommandParameter="{x:Bind SectionTitle}"/>
+                <Button Grid.Column="3" Content="Edit" Command="{x:Bind EditCommand}" CommandParameter="{Binding ElementName=EmployeeListView, Path=SelectedItem}"/>
+                <Button Grid.Column="5" Content="Delete" Command="{x:Bind DeleteCommand}" CommandParameter="{Binding ElementName=EmployeeListView, Path=SelectedItem}"/>
             </Grid>
 
             <Grid>
@@ -46,7 +46,8 @@
             </Grid>
 
             <ListView x:Name="EmployeeListView"
-                      SelectionMode="Single">
+                      SelectionMode="Single"
+                      ItemsSource="{x:Bind ItemsSource, Mode=OneWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Grid Padding="0,8">

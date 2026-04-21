@@ -41,7 +41,7 @@ namespace TicketSellingModule.WinUI
             catch (Exception ex)
             {
                 args.Cancel = true;
-
+                sender.Hide();
                 var errorDialog = new ContentDialog
                 {
                     Title = "Error Saving Flight",

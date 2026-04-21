@@ -28,20 +28,32 @@
                        FontWeight="SemiBold"/>
 
             <local:EmployeeSectionControl Grid.Row="2"
-                                          x:Name="AirTrafficSection"
-                                          SectionTitle="Air Traffic"/>
+                                            SectionTitle="Pilot"
+                                            ItemsSource="{Binding PilotEmployees}"
+                                            AddCommand="{Binding AddEmployeeCommand}"
+                                            EditCommand="{Binding EditEmployeeCommand}"
+                                            DeleteCommand="{Binding DeleteEmployeeCommand}" />
 
             <local:EmployeeSectionControl Grid.Row="4"
-                                          x:Name="FlightDispatchersSection"
-                                          SectionTitle="Flight Dispatcher"/>
+                                            SectionTitle="Flight Attendant"
+                                            ItemsSource="{Binding FlightAttendantEmployees}"
+                                            AddCommand="{Binding AddEmployeeCommand}"
+                                            EditCommand="{Binding EditEmployeeCommand}"
+                                            DeleteCommand="{Binding DeleteEmployeeCommand}" />
 
             <local:EmployeeSectionControl Grid.Row="6"
-                                          x:Name="GroundHandlersSection"
-                                          SectionTitle="Ground Handler"/>
+                                            SectionTitle="Co-Pilot"
+                                            ItemsSource="{Binding CoPilotEmployees}"
+                                            AddCommand="{Binding AddEmployeeCommand}"
+                                            EditCommand="{Binding EditEmployeeCommand}"
+                                            DeleteCommand="{Binding DeleteEmployeeCommand}" />
             
             <local:EmployeeSectionControl Grid.Row="8"
-                                          x:Name="EngineersSection"
-                                          SectionTitle="Engineer"/>
+                                            SectionTitle="Flight Dispatcher"
+                                            ItemsSource="{Binding FlightDispatcherEmployees}"
+                                            AddCommand="{Binding AddEmployeeCommand}"
+                                            EditCommand="{Binding EditEmployeeCommand}"
+                                            DeleteCommand="{Binding DeleteEmployeeCommand}" />
         </Grid>
     </ScrollViewer>
 </Page>

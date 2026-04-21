@@ -1,15 +1,22 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using Microsoft.UI.Xaml;
 using TicketSellingModule.Domain;
+using TicketSellingModule.Repo;
+using TicketSellingModule.Service;
 
 namespace TicketSellingModule.ViewModel
 {
     public class StaffPageViewModel : ViewModelBase
     {
-        private readonly EmployeeViewModel _employeeViewModel;
+        private readonly EmployeeService _employeeService;
+        private readonly FlightEmployeeService _flightEmployeeService;
+        private readonly RouteService _routeService;
+        private readonly GateService _gateService;
+        private readonly RunwayService _runwayService;
         private int _currentEmployeeId;
         private string _employeeIdText = "-";
         private string _roleText = "-";
@@ -18,7 +25,21 @@ namespace TicketSellingModule.ViewModel
 
         public StaffPageViewModel()
         {
-            _employeeViewModel = new EmployeeViewModel();
+            var connectionFactory = new DbConnectionFactory();
+
+            _employeeService = new EmployeeService(new EmployeeRepo(connectionFactory));
+            _flightEmployeeService = new FlightEmployeeService(
+                new FlightEmployeeRepo(connectionFactory),
+                new EmployeeRepo(connectionFactory),
+                new FlightRepo(connectionFactory));
+
+            _routeService = new RouteService(
+                new RouteRepo(connectionFactory),
+                new FlightRepo(connectionFactory),
+                new CompanyRepo(connectionFactory),
+                new AirportRepo(connectionFactory));
+            _gateService = new GateService(new GateRepo(connectionFactory));
+            _runwayService = new RunwayService(new RunwayRepo(connectionFactory));
             ScheduledFlights = new ObservableCollection<EmployeeScheduleItem>();
             RefreshCommand = new RelayCommand(Refresh);
         }
@@ -64,7 +85,7 @@ namespace TicketSellingModule.ViewModel
                 return employeeId;
             }
 
-            var firstEmployee = _employeeViewModel.GetAllEmployees().FirstOrDefault();
+            var firstEmployee = GetAllEmployees().FirstOrDefault();
             return firstEmployee?.Id ?? 0;
         }
 
@@ -80,7 +101,7 @@ namespace TicketSellingModule.ViewModel
 
             _currentEmployeeId = employeeId;
 
-            var employee = _employeeViewModel.GetEmployeeInfo(employeeId);
+            var employee = GetEmployeeInfo(employeeId);
             if (employee == null)
             {
                 ResetEmployeeInfo();
@@ -90,12 +111,12 @@ namespace TicketSellingModule.ViewModel
             EmployeeIdText = employee.Id.ToString();
             RoleText = employee.Role;
 
-            var flights = _employeeViewModel.GetFlightEmployee(employeeId);
+            var flights = GetFlightEmployee(employeeId);
             foreach (var flight in flights.OrderBy(f => f.Date))
             {
-                var route = _employeeViewModel.GetRouteInfo(flight.RouteId);
-                var gate = _employeeViewModel.GetGateInfo(flight.GateId);
-                var runway = _employeeViewModel.GetRunwayInfo(flight.RunwayId);
+                var route = GetRouteInfo(flight.RouteId);
+                var gate = GetGateInfo(flight.GateId);
+                var runway = GetRunwayInfo(flight.RunwayId);
 
                 ScheduledFlights.Add(new EmployeeScheduleItem
                 {
@@ -173,6 +194,61 @@ namespace TicketSellingModule.ViewModel
             }
 
             return route.DepartureTime.ToString("HH:mm");
+        }
+
+        private List<Employee> GetAllEmployees()
+        {
+            return _employeeService.GetAll();
+        }
+
+        private Employee? GetEmployeeInfo(int employeeId)
+        {
+            return _employeeService.GetById(employeeId);
+        }
+
+        private List<Flight> GetFlightEmployee(int employeeId)
+        {
+            return _flightEmployeeService
+                .GetEmployeeSchedule(employeeId)
+                .OrderBy(f => f.Date)
+                .ToList();
+        }
+
+        private Route? GetRouteInfo(int routeId)
+        {
+            if (routeId <= 0)
+            {
+                return null;
+            }
+
+            return _routeService.GetById(routeId);
+        }
+
+        private Gate? GetGateInfo(int gateId)
+        {
+            if (gateId <= 0)
+            {
+                return null;
+            }
+
+            return _gateService.GetById(gateId);
+        }
+
+        private Runway? GetRunwayInfo(int runwayId)
+        {
+            if (runwayId <= 0)
+            {
+                return null;
+            }
+
+            try
+            {
+                return _runwayService.GetById(runwayId);
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

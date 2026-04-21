@@ -282,14 +282,38 @@ namespace TicketSellingModule.ViewModel
                 throw new InvalidOperationException("Company not selected.");
             }
 
+            if (string.IsNullOrWhiteSpace(SelectedRouteType))
+            {
+                throw new InvalidOperationException("Route type is required.");
+            }
+
+            if (SelectedAirport == null)
+            {
+                throw new InvalidOperationException("Airport is required.");
+            }
+
+            if (!int.TryParse(CapacityText, out int capacity) || capacity <= 0)
+            {
+                throw new InvalidOperationException("Capacity must be a positive number.");
+            }
+
             int companyId = CurrentCompanyId;
             string flightNum = GenerateFlightCode(companyId);
-            string type = SelectedRouteType == "Arrival" ? "ARR" : "DEP";
-            int airportId = SelectedAirport?.Id ?? 0;
+            string type = SelectedRouteType switch
+            {
+                "Arrival" => "ARR",
+                "Departure" => "DEP",
+                _ => throw new InvalidOperationException("Invalid route type selected.")
+            };
+            int airportId = SelectedAirport.Id;
 
-            int capacity = int.Parse(CapacityText ?? "0");
             TimeOnly depTime = TimeOnly.FromTimeSpan(DepartureTime);
             TimeOnly arrTime = TimeOnly.FromTimeSpan(ArrivalTime);
+
+            if (arrTime <= depTime)
+            {
+                throw new InvalidOperationException("Arrival time must be after departure time.");
+            }
 
             bool isRecurrent = IsRecurrent;
             int interval = 0;
@@ -298,21 +322,38 @@ namespace TicketSellingModule.ViewModel
 
             if (isRecurrent)
             {
-                start = StartDate?.DateTime ?? DateTime.Now;
-                end = EndDate?.DateTime ?? DateTime.Now.AddMonths(1);
+                if (StartDate == null || EndDate == null)
+                {
+                    throw new InvalidOperationException("Start and end dates are required for recurrent flights.");
+                }
+
+                start = StartDate.Value.DateTime;
+                end = EndDate.Value.DateTime;
+
+                if (end < start)
+                {
+                    throw new InvalidOperationException("End date must be after start date.");
+                }
 
                 interval = RecurrenceType switch
                 {
                     "Daily" => 1,
                     "Weekly" => 7,
                     "Monthly" => 30,
-                    "Custom" => int.Parse(CustomDaysText ?? "0"),
-                    _ => 0
+                    "Custom" => int.TryParse(CustomDaysText, out int customInterval) && customInterval > 0
+                        ? customInterval
+                        : throw new InvalidOperationException("Custom recurrence must be a positive number of days."),
+                    _ => throw new InvalidOperationException("Recurrence type is required.")
                 };
             }
             else
             {
-                start = SingleDate?.DateTime ?? DateTime.Now;
+                if (SingleDate == null)
+                {
+                    throw new InvalidOperationException("Flight date is required.");
+                }
+
+                start = SingleDate.Value.DateTime;
                 end = start;
             }
 
