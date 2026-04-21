@@ -35,6 +35,21 @@ namespace TicketSellingModule.Service
             _airportService = airportService;
         }
 
+
+        private bool CheckOverlappingTimes(TimeOnly start1, TimeOnly end1, TimeOnly start2, TimeOnly end2)
+        {
+            // Convert to absolute minutes from start of day 1 to end of day 2
+            int s1 = start1.Hour * 60 + start1.Minute;
+            int e1 = end1.Hour * 60 + end1.Minute;
+            if (e1 <= s1) e1 += 1440; // Add 24 hours if it crosses midnight
+
+            int s2 = start2.Hour * 60 + start2.Minute;
+            int e2 = end2.Hour * 60 + end2.Minute;
+            if (e2 <= s2) e2 += 1440; // Add 24 hours if it crosses midnight
+
+            return s1 < e2 && s2 < e1;
+        }
+
         public int Add(int companyID, int airportID, string route_type, int recurrence_interval,
                        DateTime start_date, DateTime end_date, TimeOnly dep_time, TimeOnly arr_time,
                        int capacity, string flight_number, int runwayID, int gateID)
@@ -44,10 +59,10 @@ namespace TicketSellingModule.Service
 
             if (capacity <= 0)
                 throw new ArgumentException("Capacity must be greater than 0.");
-
-            if (dep_time >= arr_time)
-                throw new ArgumentException("Departure time must be before arrival time.");
-
+            
+            //if (dep_time >= arr_time)
+            //    throw new ArgumentException("Departure time must be before arrival time.");
+            
             var allFlights = _flightRepo.GetAll();
             var flightsOnSameDate = allFlights.Where(f => f.Date.Date == start_date.Date).ToList();
 
@@ -59,7 +74,8 @@ namespace TicketSellingModule.Service
 
                     if (existingRoute != null)
                     {
-                        bool isTimeOverlap = dep_time < existingRoute.ArrivalTime && arr_time > existingRoute.DepartureTime;
+                        //bool isTimeOverlap = dep_time < existingRoute.ArrivalTime && arr_time > existingRoute.DepartureTime;
+                        bool isTimeOverlap = CheckOverlappingTimes(dep_time, arr_time, existingRoute.DepartureTime, existingRoute.ArrivalTime);
 
                         if (isTimeOverlap)
                         {

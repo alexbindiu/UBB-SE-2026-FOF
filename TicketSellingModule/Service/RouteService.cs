@@ -56,8 +56,8 @@ namespace TicketSellingModule.Service
                 throw new ArgumentException("Start date cannot be after end date.");
             if (capacity <= 0)
                 throw new ArgumentException("Capacity must be greater than 0.");
-            if (depTime >= arrTime)
-                throw new ArgumentException("Departure time must be before arrival time.");
+            //if (depTime >= arrTime)
+            //    throw new ArgumentException("Departure time must be before arrival time.");
 
             CheckConflicts(startDate, depTime, arrTime, gateId, runwayId, flightNumber);
 
