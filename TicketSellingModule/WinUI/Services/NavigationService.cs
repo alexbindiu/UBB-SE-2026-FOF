@@ -1,49 +1,38 @@
 using Microsoft.UI.Xaml.Controls;
+
 using TicketSellingModule.WinUI;
 using TicketSellingModule.WinUI.AirportAdmin;
 using TicketSellingModule.WinUI.StaffLogin;
 
 namespace TicketSellingModule.WinUI.Services
 {
-    public class NavigationService
+    public class NavigationService : INavigationService
     {
-        public static NavigationService Instance { get; private set; }
+        private Frame _frame;
 
-        private readonly Frame _frame;
-
-        public NavigationService(Frame frame)
+        public void Initialize(Frame frame)
         {
             _frame = frame;
         }
 
-        public static void Initialize(Frame frame)
-        {
-            Instance = new NavigationService(frame);
-        }
-
-        public void NavigateToHome()
-        {
+        public void NavigateToHome() =>
             _frame.Navigate(typeof(HomePage));
-        }
 
-        public void NavigateToSelectCompany()
-        {
+        public void NavigateToSelectCompany() =>
             _frame.Navigate(typeof(SelectCompanyPage));
-        }
 
-        public void NavigateToCompanyDashboard(int companyId)
-        {
+        public void NavigateToCompanyDashboard(int companyId) =>
             _frame.Navigate(typeof(CompanyPage), companyId);
-        }
 
-        public void NavigateToStaffLogin()
-        {
+        public void NavigateToStaffLogin() =>
             _frame.Navigate(typeof(StaffLoginPage));
-        }
 
-        public void NavigateToAirportAdmin()
-        {
+        public void NavigateToAirportAdmin() =>
             _frame.Navigate(typeof(AirportAdminPage));
-        }
+
+        public void NavigateToStaffDashboard(int employeeId) =>
+            _frame.Navigate(typeof(StaffPage), employeeId);
+
+        
     }
 }

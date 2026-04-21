@@ -1,34 +1,34 @@
-using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using TicketSellingModule.WinUI.Services;
 
 namespace TicketSellingModule.ViewModel
 {
-    public class HomeViewModel : ViewModelBase
+    public partial class HomeViewModel : ObservableObject
     {
-        public HomeViewModel()
+        private readonly INavigationService _navigationService;
+
+        public HomeViewModel(INavigationService navigationService)
         {
-            NavigateToCompanyCommand = new RelayCommand(NavigateToCompany);
-            NavigateToAdminCommand = new RelayCommand(NavigateToAdmin);
-            NavigateToStaffCommand = new RelayCommand(NavigateToStaff);
+            _navigationService = navigationService;
         }
 
-        public ICommand NavigateToCompanyCommand { get; }
-        public ICommand NavigateToAdminCommand { get; }
-        public ICommand NavigateToStaffCommand { get; }
-
+        [RelayCommand]
         private void NavigateToCompany()
         {
-            NavigationService.Instance?.NavigateToSelectCompany();
+            _navigationService.NavigateToSelectCompany();
         }
 
+        [RelayCommand]
         private void NavigateToAdmin()
         {
-            NavigationService.Instance?.NavigateToAirportAdmin();
+            _navigationService.NavigateToAirportAdmin();
         }
 
+        [RelayCommand]
         private void NavigateToStaff()
         {
-            NavigationService.Instance?.NavigateToStaffLogin();
+            _navigationService.NavigateToStaffLogin();
         }
     }
 }

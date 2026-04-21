@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="TicketSellingModule.WinUI.StaffLogin.StaffLoginPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -7,14 +8,23 @@
     <Grid>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20" Width="300">
             <TextBlock Text="STAFF LOGIN" FontSize="24" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
-            <TextBox x:Name="EmployeeIdTextBox" PlaceholderText="Enter Employee ID" HorizontalContentAlignment="Center"
-                     Text="{Binding EmployeeIdText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            <Button Content="Login" HorizontalAlignment="Stretch" Background="#2bb8c0" Foreground="White"
-                    Command="{Binding LoginCommand}"/>
-            <TextBlock x:Name="ErrorTextBlock" Foreground="Red" HorizontalAlignment="Center"
-                       Text="{Binding ErrorMessage}"
-                       Visibility="{Binding ErrorVisibility}"/>
+            
+            <TextBox x:Name="EmployeeIdTextBox" 
+                     PlaceholderText="Introdu ID Angajat" 
+                     HorizontalContentAlignment="Center"
+                     Text="{x:Bind ViewModel.EmployeeIdText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+         
+            <Button Content="Login" 
+                    HorizontalAlignment="Stretch" 
+                    Background="#2bb8c0" 
+                    Foreground="White"
+                    Command="{x:Bind ViewModel.LoginCommand}"/>
+
+            <TextBlock x:Name="ErrorTextBlock" 
+                       Foreground="Red" 
+                       HorizontalAlignment="Center"
+                       Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                       Visibility="{x:Bind ViewModel.ErrorVisibility, Mode=OneWay}"/>
         </StackPanel>
     </Grid>
-
 </Page>
