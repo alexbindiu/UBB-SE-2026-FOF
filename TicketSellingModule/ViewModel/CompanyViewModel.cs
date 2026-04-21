@@ -17,6 +17,8 @@ namespace TicketSellingModule.ViewModel
     {
         private readonly CompanyService _companyService;
         private readonly AirportService _airportService;
+        private readonly RunwayService _runwayService;
+        private readonly GateService _gateService;
         private readonly FlightRouteService _flightRouteService;
 
         private int _currentCompanyId;
@@ -25,6 +27,9 @@ namespace TicketSellingModule.ViewModel
         public ObservableCollection<Company> CompaniesList { get; } = new();
         public ObservableCollection<Airport> AirportsList { get; } = new();
         public ObservableCollection<Flight> CompanyFlightsList { get; } = new();
+
+        public ObservableCollection<Runway> RunwaysList { get; } = new();
+        public ObservableCollection<Gate> GatesList { get; } = new();
 
         public int CurrentCompanyId => _currentCompanyId;
 
@@ -52,15 +57,33 @@ namespace TicketSellingModule.ViewModel
         public Visibility SingleDateVisibility => IsRecurrent ? Visibility.Collapsed : Visibility.Visible;
         public Visibility CustomDaysVisibility => RecurrenceType == "Custom" ? Visibility.Visible : Visibility.Collapsed;
 
-        public CompanyViewModel(
-            CompanyService companyService,
+        public CompanyViewModel(CompanyService companyService,
             AirportService airportService,
-            FlightRouteService flightRouteService)
+            FlightRouteService flightRouteService, RunwayService runwayService, GateService gateService)
         {
             _companyService = companyService;
             _airportService = airportService;
             _flightRouteService = flightRouteService;
+            _runwayService = runwayService;
+            _gateService = gateService;
         }
+
+
+        private Runway _selectedRunway;
+        public Runway SelectedRunway
+        {
+            get => _selectedRunway;
+            set { _selectedRunway = value; OnPropertyChanged(); }
+        }
+
+        private Gate _selectedGate;
+        public Gate SelectedGate
+        {
+            get => _selectedGate;
+            set { _selectedGate = value; OnPropertyChanged(); }
+        }
+
+       
 
         // Called automatically by CommunityToolkit when SearchText changes
         partial void OnSearchTextChanged(string value) => SearchFlights(value);
@@ -70,6 +93,33 @@ namespace TicketSellingModule.ViewModel
             _currentCompanyId = companyId;
             GetAllAirports();
             GetCompanyFlights(companyId);
+        }
+
+        //public DateTimeOffset? EndDate
+        //{
+        //    get => _endDate;
+        //    set => SetProperty(ref _endDate, value);
+        //}
+
+
+        public void LoadRunways()
+        {
+            var runways = _runwayService.GetAll();
+            RunwaysList.Clear();
+            foreach (var runway in runways)
+            {
+                RunwaysList.Add(runway);
+            }
+        }
+
+        public void LoadGates()
+        {
+            var gates = _gateService.GetAll();
+            GatesList.Clear();
+            foreach (var gate in gates)
+            {
+                GatesList.Add(gate);
+            }
         }
 
         public List<Company> GetAllCompanies()
@@ -147,6 +197,9 @@ namespace TicketSellingModule.ViewModel
 
         public void AddFlightFromInputs()
         {
+            DateTime? start = null;
+            DateTime? end = null;
+
             if (_currentCompanyId == 0)
                 throw new InvalidOperationException("Company not selected.");
             if (string.IsNullOrWhiteSpace(SelectedRouteType))
@@ -155,6 +208,15 @@ namespace TicketSellingModule.ViewModel
                 throw new InvalidOperationException("Airport is required.");
             if (!int.TryParse(CapacityText, out int capacity) || capacity <= 0)
                 throw new InvalidOperationException("Capacity must be a positive number.");
+            
+            if (SelectedRunway == null)
+            {
+                throw new InvalidOperationException("Please select a Runway.");
+            }
+            if (SelectedGate == null)
+            {
+                throw new InvalidOperationException("Please select a Gate.");
+            }
 
             string type = SelectedRouteType switch
             {
@@ -163,13 +225,38 @@ namespace TicketSellingModule.ViewModel
                 _ => throw new InvalidOperationException("Invalid route type selected.")
             };
 
+
+
+            //TimeOnly depTime = TimeOnly.FromTimeSpan(DepartureTime);
+            //imeOnly arrTime = TimeOnly.FromTimeSpan(ArrivalTime);
+
+            //if (arrTime <= depTime)
+            //{
+            //    throw new InvalidOperationException("Arrival time must be after departure time.");
+            //}
+
+            bool isRecurrent = IsRecurrent;
+
+            DateTime baseDate = isRecurrent ? StartDate.Value.DateTime.Date : SingleDate.Value.DateTime.Date;
+
+            // 2. Create full DateTimes by adding the TimeSpans to the Date
+            DateTime fullDep = baseDate.Add(DepartureTime);
+            DateTime fullArr = baseDate.Add(ArrivalTime);
+
+            // 3. Logic: If Arrival is "numerically" less than Departure, 
+            // it MUST be the next day (e.g., Dep 11PM, Arr 1AM)
+            if (fullArr <= fullDep)
+            {
+                fullArr = fullArr.AddDays(1);
+            }
             TimeOnly depTime = TimeOnly.FromTimeSpan(DepartureTime);
             TimeOnly arrTime = TimeOnly.FromTimeSpan(ArrivalTime);
+            if (fullArr == fullDep)
+            {
+                throw new InvalidOperationException("Arrival time cannot be the same as departure time.");
+            }
 
-            if (arrTime <= depTime)
-                throw new InvalidOperationException("Arrival time must be after departure time.");
 
-            DateTime start, end;
             int interval = 0;
 
             if (IsRecurrent)
@@ -206,9 +293,29 @@ namespace TicketSellingModule.ViewModel
             string flightNum = _companyService.GenerateFlightCode(_currentCompanyId);
 
             AddFlight(flightNum, _currentCompanyId, type, SelectedAirport.Id,
-                capacity, depTime, arrTime, interval, start, end, 1, 1);
+                capacity, depTime, arrTime, interval, start.Value, end.Value, SelectedRunway.Id, SelectedGate.Id);
 
             GetCompanyFlights(_currentCompanyId);
+        }
+
+        public void ClearInputs()
+        {
+            SelectedRouteType = null;
+            SelectedAirport = null;
+            CapacityText = string.Empty;
+            IsRecurrent = false;
+
+            SelectedRunway = null;
+            SelectedGate = null;
+
+            SingleDate = DateTimeOffset.Now;
+            StartDate = DateTimeOffset.Now;
+            EndDate = DateTimeOffset.Now.AddDays(7);
+
+            DepartureTime = new TimeSpan(12, 0, 0); 
+            ArrivalTime = new TimeSpan(13, 0, 0);   
+
+            CustomDaysText = string.Empty;
         }
     }
 }
