@@ -24,9 +24,10 @@
             HorizontalAlignment="Left"
             VerticalAlignment="Center"
             ToolTipService.ToolTip="Home"
-            Command="{Binding NavigateHomeCommand}">
-            <FontIcon Glyph="&#xE80F;" FontSize="28" Foreground="White"/>
+            Command="{x:Bind ViewModel.NavigateHomeCommand}"> <FontIcon Glyph="&#xE80F;" FontSize="28" Foreground="White"/>
         </Button>
+        
+
 
         <StackPanel Grid.Column="1"
             Orientation="Horizontal"
@@ -44,15 +45,6 @@
                VerticalAlignment="Center"/>
         </StackPanel>
 
-        <Border Grid.Column="2"
-                Width="50"
-                Height="50"
-                CornerRadius="25"
-                Background="{StaticResource CustomAccentBrush}"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Center">
-            <FontIcon Glyph="&#xE77B;" FontSize="28" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        </Border>
         <Border Grid.ColumnSpan="3" BorderThickness="0,0,0,1" BorderBrush="#333333" VerticalAlignment="Bottom" Margin="0,0,0,-15"/>
     </Grid>
 </UserControl>

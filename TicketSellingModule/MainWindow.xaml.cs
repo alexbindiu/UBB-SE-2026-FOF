@@ -1,5 +1,6 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
-using TicketSellingModule.WinUI; // Brings in your WinUI folder!
+using TicketSellingModule.WinUI;
 using TicketSellingModule.WinUI.Services;
 
 namespace TicketSellingModule
@@ -9,7 +10,10 @@ namespace TicketSellingModule
         public MainWindow()
         {
             this.InitializeComponent();
-            NavigationService.Initialize(RootFrame);
+
+            var navigationService = App.Services.GetRequiredService<INavigationService>();
+            navigationService.Initialize(RootFrame);
+
             RootFrame.Navigate(typeof(HomePage), 1);
         }
     }
