@@ -26,7 +26,8 @@
                        CloseButtonText="Cancel"
                        DefaultButton="Primary"
                        Background="#3F3F46"
-                       RequestedTheme="Dark">
+                       RequestedTheme="Dark"
+                       PrimaryButtonClick="AddFlightDialog_PrimaryButtonClick">
 
             <StackPanel Spacing="15" Width="450">
                 <Grid ColumnSpacing="20" RowSpacing="15">
@@ -41,41 +42,54 @@
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
 
-                    <ComboBox x:Name="TypeComboBox" Header="TYPE" PlaceholderText="Arr / Dep" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch">
+                    <ComboBox x:Name="TypeComboBox" Header="TYPE" PlaceholderText="Arr / Dep" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch"
+                              SelectedItem="{Binding SelectedRouteType, Mode=TwoWay}">
                         <x:String>Arrival</x:String>
                         <x:String>Departure</x:String>
                     </ComboBox>
 
-                    <ComboBox x:Name="AirportComboBox" Header="AIRPORT" PlaceholderText="Select Airport" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" 
-                              ItemsSource="{x:Bind ViewModel.AirportsList}" DisplayMemberPath="AirportName"/>
+                    <ComboBox x:Name="AirportComboBox" Header="AIRPORT" PlaceholderText="Select Airport" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch"
+                              DisplayMemberPath="AirportName"
+                              ItemsSource="{Binding AirportsList}"
+                              SelectedItem="{Binding SelectedAirport, Mode=TwoWay}"/>
 
-                    <TimePicker x:Name="DepTimePicker" Header="DEP. TIME" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch"/>
-                    <TimePicker x:Name="ArrTimePicker" Header="ARR. TIME" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch"/>
+                    <TimePicker x:Name="DepTimePicker" Header="DEP. TIME" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch"
+                                Time="{Binding DepartureTime, Mode=TwoWay}"/>
+                    <TimePicker x:Name="ArrTimePicker" Header="ARR. TIME" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch"
+                                Time="{Binding ArrivalTime, Mode=TwoWay}"/>
 
-                    <TextBox x:Name="CapacityTextBox" Header="CAPACITY" PlaceholderText="e.g. 180" Grid.Row="2" Grid.Column="0"/>
-                    <CheckBox x:Name="RecurrentCheckBox" Content="Recurrent Flight" Grid.Row="2" Grid.Column="1" VerticalAlignment="Bottom" 
-                              Checked="RecurrentCheckBox_Checked" Unchecked="RecurrentCheckBox_Unchecked"/>
+                    <TextBox x:Name="CapacityTextBox" Header="CAPACITY" PlaceholderText="e.g. 180" Grid.Row="2" Grid.Column="0"
+                             Text="{Binding CapacityText, Mode=TwoWay}"/>
+                    <CheckBox x:Name="RecurrentCheckBox" Content="Recurrent Flight" Grid.Row="2" Grid.Column="1" VerticalAlignment="Bottom"
+                              IsChecked="{Binding IsRecurrent, Mode=TwoWay}"/>
 
-                    <CalendarDatePicker x:Name="SingleDatePicker" Header="DATE" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Stretch"/>
+                    <CalendarDatePicker x:Name="SingleDatePicker" Header="DATE" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Stretch"
+                                        Date="{Binding SingleDate, Mode=TwoWay}"
+                                        Visibility="{Binding SingleDateVisibility}"/>
                 </Grid>
 
-                <StackPanel x:Name="RecurrentPanel" Visibility="Collapsed" Spacing="15" Margin="0,10,0,0" Padding="15" Background="#1E1E1E" CornerRadius="8">
-                    <ComboBox x:Name="RecurrenceTypeComboBox" Header="Recurrence Type" HorizontalAlignment="Stretch" SelectionChanged="RecurrenceTypeComboBox_SelectionChanged">
+                <StackPanel x:Name="RecurrentPanel" Visibility="{Binding RecurrentPanelVisibility}" Spacing="15" Margin="0,10,0,0" Padding="15" Background="#1E1E1E" CornerRadius="8">
+                    <ComboBox x:Name="RecurrenceTypeComboBox" Header="Recurrence Type" HorizontalAlignment="Stretch"
+                              SelectedItem="{Binding RecurrenceType, Mode=TwoWay}">
                         <x:String>Daily</x:String>
                         <x:String>Weekly</x:String>
                         <x:String>Monthly</x:String>
                         <x:String>Custom</x:String>
                     </ComboBox>
 
-                    <TextBox x:Name="CustomDaysTextBox" Header="Every [ ] days" PlaceholderText="e.g. 3" Visibility="Collapsed" Width="150" HorizontalAlignment="Left"/>
+                    <TextBox x:Name="CustomDaysTextBox" Header="Every [ ] days" PlaceholderText="e.g. 3" Width="150" HorizontalAlignment="Left"
+                             Text="{Binding CustomDaysText, Mode=TwoWay}"
+                             Visibility="{Binding CustomDaysVisibility}"/>
 
                     <Grid ColumnSpacing="20">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
-                        <CalendarDatePicker x:Name="StartDatePicker" Header="START DATE" Grid.Column="0" HorizontalAlignment="Stretch"/>
-                        <CalendarDatePicker x:Name="EndDatePicker" Header="END DATE" Grid.Column="1" HorizontalAlignment="Stretch"/>
+                        <CalendarDatePicker x:Name="StartDatePicker" Header="START DATE" Grid.Column="0" HorizontalAlignment="Stretch"
+                                            Date="{Binding StartDate, Mode=TwoWay}"/>
+                        <CalendarDatePicker x:Name="EndDatePicker" Header="END DATE" Grid.Column="1" HorizontalAlignment="Stretch"
+                                            Date="{Binding EndDate, Mode=TwoWay}"/>
                     </Grid>
                 </StackPanel>
             </StackPanel>
@@ -94,21 +108,22 @@
 
                 <Grid Grid.Row="0" Margin="20,20,20,10">
                     <TextBlock Text="COMPANY'S FLIGHTS" FontSize="20" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <Button Content="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="20" Background="{StaticResource CustomAccentBrush}" Foreground="White" 
-                            HorizontalAlignment="Right" Width="40" Height="40" CornerRadius="4" Click="AddFlightButton_Click"/>
+                    <Button Content="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="20" Background="{StaticResource CustomAccentBrush}" Foreground="White"
+                            HorizontalAlignment="Right" Width="40" Height="40" CornerRadius="4"
+                            Click="AddFlightButton_Click" />
                 </Grid>
 
-                <TextBox x:Name="SearchTextBox" 
-         TextChanged="SearchTextBox_TextChanged" 
-         Grid.Row="1" 
-         PlaceholderText="Search flights by flight number..." 
-         Margin="20,0,20,15" 
-         Width="400" 
-         HorizontalAlignment="Center" 
-         Background="#3F3F46" 
-         Foreground="White" 
-         BorderThickness="1" 
-         BorderBrush="#3F3F46"/>
+                <TextBox x:Name="SearchTextBox"
+                         Grid.Row="1"
+                         PlaceholderText="Search flights by flight number..."
+                         Margin="20,0,20,15"
+                         Width="400"
+                         HorizontalAlignment="Center"
+                         Background="#3F3F46"
+                         Foreground="White"
+                         BorderThickness="1"
+                         BorderBrush="#3F3F46"
+                         Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 <Grid Grid.Row="2" Background="{StaticResource CustomAccentBrush}" Padding="15,10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.5*"/>
@@ -125,9 +140,10 @@
                     <TextBlock Grid.Column="4" Text="GATE" Foreground="White" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                 </Grid>
 
-                <ListView x:Name="FlightsListView" Grid.Row="3" ItemsSource="{x:Bind ViewModel.CompanyFlightsList, Mode=OneWay}" Padding="0" SelectionMode="None">
+                <ListView x:Name="FlightsListView" Grid.Row="3" Padding="0" SelectionMode="None"
+                          ItemsSource="{Binding CompanyFlightsList}">
                     <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="domain:Flight">
+                        <DataTemplate>
                             <Grid Padding="15,12" BorderThickness="0,0,0,1" BorderBrush="#3F3F46">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="0.5*"/>
@@ -138,20 +154,25 @@
                                     <ColumnDefinition Width="0.5*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0" Text="{x:Bind Id}" FontSize="14" HorizontalAlignment="Center" Foreground="#888888"/>
-                                <TextBlock Grid.Column="1" Text="{x:Bind FlightNumber}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center" Foreground="#E0E0E0"/>
-                                <TextBlock Grid.Column="2" Text="{x:Bind RouteId}" FontSize="14" HorizontalAlignment="Center" Foreground="#E0E0E0"/>
-                                <TextBlock Grid.Column="3" Text="{x:Bind Date}" FontSize="14" HorizontalAlignment="Center" Foreground="#E0E0E0"/>
-                                <TextBlock Grid.Column="4" Text="{x:Bind GateId}" FontSize="14" HorizontalAlignment="Center" Foreground="#E0E0E0"/>
-                                <Button Grid.Column="5" 
-                                    Content="&#xE711;" 
-                                    FontFamily="Segoe MDL2 Assets" 
-                                    Background="Transparent" 
-                                    Foreground="#FF5555" 
-                                    HorizontalAlignment="Center" 
-                                    VerticalAlignment="Center"
-                                    Tag="{x:Bind Id}"
-                                    Click="DeleteFlightButton_Click" />
+                                <TextBlock Grid.Column="0" FontSize="14" HorizontalAlignment="Center" Foreground="#888888"
+                                           Text="{Binding Id}"/>
+                                <TextBlock Grid.Column="1" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center" Foreground="#E0E0E0"
+                                           Text="{Binding FlightNumber}"/>
+                                <TextBlock Grid.Column="2" FontSize="14" HorizontalAlignment="Center" Foreground="#E0E0E0"
+                                           Text="{Binding RouteId}"/>
+                                <TextBlock Grid.Column="3" FontSize="14" HorizontalAlignment="Center" Foreground="#E0E0E0"
+                                           Text="{Binding Date}"/>
+                                <TextBlock Grid.Column="4" FontSize="14" HorizontalAlignment="Center" Foreground="#E0E0E0"
+                                           Text="{Binding GateId}"/>
+                                <Button Grid.Column="5"
+                                        Content="&#xE711;"
+                                        FontFamily="Segoe MDL2 Assets"
+                                        Background="Transparent"
+                                        Foreground="#FF5555"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Command="{Binding DataContext.DeleteFlightCommand, ElementName=FlightsListView}"
+                                        CommandParameter="{Binding Id}" />
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>

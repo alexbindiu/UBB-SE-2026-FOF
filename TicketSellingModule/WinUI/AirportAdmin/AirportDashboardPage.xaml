@@ -18,15 +18,30 @@
 
             <local:AirportSectionControl Grid.Column="0"
                                          x:Name="RunwaysSection"
-                                         Title="Runways"/>
+                                         Title="Runways"
+                                         Items="{Binding RunwaysList}"
+                                         SelectedItem="{Binding SelectedRunway, Mode=TwoWay}"
+                                         AddCommand="{Binding AddRunwayCommand}"
+                                         EditCommand="{Binding UpdateRunwayCommand}"
+                                         DeleteCommand="{Binding DeleteRunwayCommand}" />
 
             <local:AirportSectionControl Grid.Column="2"
                                          x:Name="GatesSection"
-                                         Title="Gates"/>
+                                         Title="Gates"
+                                         Items="{Binding GatesList}"
+                                         SelectedItem="{Binding SelectedGate, Mode=TwoWay}"
+                                         AddCommand="{Binding AddGateCommand}"
+                                         EditCommand="{Binding UpdateGateCommand}"
+                                         DeleteCommand="{Binding DeleteGateCommand}" />
 
             <local:AirportSectionControl Grid.Column="4"
                                          x:Name="AirportsSection"
-                                         Title="Destination Airports"/>
+                                         Title="Destination Airports"
+                                         Items="{Binding AirportsList}"
+                                         SelectedItem="{Binding SelectedAirport, Mode=TwoWay}"
+                                         AddCommand="{Binding AddAirportCommand}"
+                                         EditCommand="{Binding UpdateAirportCommand}"
+                                         DeleteCommand="{Binding DeleteAirportCommand}" />
         </Grid>
     </ScrollViewer>
 </Page>

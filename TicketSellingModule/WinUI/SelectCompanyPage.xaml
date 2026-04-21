@@ -7,11 +7,12 @@
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
         <TextBlock Text="SELECT YOUR AIRLINE" FontSize="24" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
 
-        
         <ComboBox x:Name="CompaniesComboBox" Width="300" PlaceholderText="Choose a company..."
-                  DisplayMemberPath="Name" Background="#252526" Foreground="White"/>
+                  DisplayMemberPath="Name" Background="#252526" Foreground="White"
+                  ItemsSource="{Binding Companies}"
+                  SelectedItem="{Binding SelectedCompany, Mode=TwoWay}"/>
 
         <Button Content="Go to Dashboard" Width="300" Height="40" Background="#2bb8c0" Foreground="White" FontWeight="Bold"
-                Click="GoButton_Click"/>
+                Command="{Binding NavigateToDashboardCommand}"/>
     </StackPanel>
 </Page>

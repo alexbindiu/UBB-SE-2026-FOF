@@ -7,10 +7,14 @@
     <Grid>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20" Width="300">
             <TextBlock Text="STAFF LOGIN" FontSize="24" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
-            <TextBox x:Name="EmployeeIdTextBox" PlaceholderText="Introduceți ID Angajat" HorizontalContentAlignment="Center"/>
-            <Button Content="Login" Click="LoginButton_Click" HorizontalAlignment="Stretch" Background="#2bb8c0" Foreground="White"/>
-            <TextBlock x:Name="ErrorTextBlock" Foreground="Red" Visibility="Collapsed" HorizontalAlignment="Center"/>
+            <TextBox x:Name="EmployeeIdTextBox" PlaceholderText="Enter Employee ID" HorizontalContentAlignment="Center"
+                     Text="{Binding EmployeeIdText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Button Content="Login" HorizontalAlignment="Stretch" Background="#2bb8c0" Foreground="White"
+                    Command="{Binding LoginCommand}"/>
+            <TextBlock x:Name="ErrorTextBlock" Foreground="Red" HorizontalAlignment="Center"
+                       Text="{Binding ErrorMessage}"
+                       Visibility="{Binding ErrorVisibility}"/>
         </StackPanel>
     </Grid>
-    
+
 </Page>
