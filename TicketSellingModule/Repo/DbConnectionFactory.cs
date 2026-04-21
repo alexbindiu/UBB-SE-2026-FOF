@@ -9,7 +9,7 @@ namespace TicketSellingModule.Repo
 
         public DbConnectionFactory()
         {
-            _connectionString = "Server=ALEX\\ALEXSQLEXPRESS;Database=AirportDB;Trusted_Connection=True;TrustServerCertificate=True;";
+            _connectionString = "Server=DESKTOP\\SQLEXPRESS;Database=AirportDB;Trusted_Connection=True;TrustServerCertificate=True;";
 
         }
 

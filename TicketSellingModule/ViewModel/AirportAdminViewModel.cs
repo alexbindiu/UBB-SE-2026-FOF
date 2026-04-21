@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.Input;
 
 using TicketSellingModule.Domain;
 using TicketSellingModule.Service;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TicketSellingModule.ViewModel
 {
@@ -29,12 +30,12 @@ namespace TicketSellingModule.ViewModel
 
         public AirportAdminViewModel()
         {
-            _airportService = airportService;
-            _runwayService = runwayService;
-            _gateService = gateService;
-            _employeeService = employeeService;
-            _flightRouteService = flightRouteService;
-            _flightEmployeeService = flightEmployeeService;
+            _airportService = App.Services.GetService<AirportService>();
+            _runwayService = App.Services.GetService<RunwayService>();
+            _gateService = App.Services.GetService<GateService>();
+            _employeeService = App.Services.GetRequiredService<EmployeeService>();
+            _flightRouteService = App.Services.GetRequiredService<FlightRouteService>();
+            _flightEmployeeService = App.Services.GetRequiredService<FlightEmployeeService>();
         }
 
         public void Initialize()
@@ -88,7 +89,7 @@ namespace TicketSellingModule.ViewModel
        
         
 
-        public Flight? GetFlightById(int flightId)
+        /*public Flight? GetFlightById(int flightId)
         {
             return _flightRouteService.GetFlightById(flightId);
         }
@@ -96,7 +97,7 @@ namespace TicketSellingModule.ViewModel
         public List<Employee> GetFlightCrew(int flightId)
         {
             return _flightEmployeeService.GetFlightCrew(flightId);
-        }
+        }*/
 
         // --- Flight/Crew ---
 
