@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using TicketSellingModule.Domain;
 using TicketSellingModule.Repo;
@@ -8,9 +9,11 @@ namespace TicketSellingModule.Service
     public class CompanyService
     {
         private readonly CompanyRepo _companyRepo;
-        public CompanyService (CompanyRepo companyRepo)
+        private readonly FlightRouteService _flightRouteService;
+        public CompanyService (CompanyRepo companyRepo, FlightRouteService flightRouteService)
         {
             _companyRepo = companyRepo;
+            _flightRouteService = flightRouteService;
         }
         
         public List<Company> GetAll()
@@ -40,16 +43,42 @@ namespace TicketSellingModule.Service
 
         public string GenerateFlightCode(int companyId)
         {
-            var company = GetCompanyById(companyId);
+            var company = _companyRepo.GetCompanyById(companyId);
             string prefix = "FL";
+
             if (company != null && !string.IsNullOrEmpty(company.Name))
             {
                 string[] words = company.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                prefix = words.Length >= 2
-                    ? (words[0][0].ToString() + words[1][0].ToString()).ToUpper()
-                    : company.Name.Substring(0, Math.Min(2, company.Name.Length)).ToUpper();
+                if (words.Length >= 2)
+                    prefix = (words[0][0].ToString() + words[1][0].ToString()).ToUpper();
+                else if (company.Name.Length >= 2)
+                    prefix = company.Name.Substring(0, 2).ToUpper();
             }
-            return $"{prefix}-{new Random().Next(1000, 9999)}";
+
+            var existingFlights = _flightRouteService.GetFlightsByCompany(companyId);
+
+            int nextNumber = 1000;
+
+            if (existingFlights != null && existingFlights.Any())
+            {
+                var maxNumber = existingFlights
+                    .Select(f => {
+                        if (string.IsNullOrEmpty(f.FlightNumber) || !f.FlightNumber.Contains("-"))
+                            return 0;
+
+                        string parts = f.FlightNumber.Split('-').Last();
+                        return int.TryParse(parts, out int val) ? val : 0;
+                    })
+                    .DefaultIfEmpty(0) 
+                    .Max();
+
+                if (maxNumber >= 1000)
+                {
+                    nextNumber = maxNumber + 1;
+                }
+            }
+
+            return $"{prefix}-{nextNumber}";
         }
 
         public void Update(int id, string? newName = null)

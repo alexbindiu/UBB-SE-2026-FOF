@@ -38,14 +38,14 @@ namespace TicketSellingModule.Service
 
         private bool CheckOverlappingTimes(TimeOnly start1, TimeOnly end1, TimeOnly start2, TimeOnly end2)
         {
-            // Convert to absolute minutes from start of day 1 to end of day 2
+            
             int s1 = start1.Hour * 60 + start1.Minute;
             int e1 = end1.Hour * 60 + end1.Minute;
-            if (e1 <= s1) e1 += 1440; // Add 24 hours if it crosses midnight
+            if (e1 <= s1) e1 += 1440; 
 
             int s2 = start2.Hour * 60 + start2.Minute;
             int e2 = end2.Hour * 60 + end2.Minute;
-            if (e2 <= s2) e2 += 1440; // Add 24 hours if it crosses midnight
+            if (e2 <= s2) e2 += 1440; 
 
             return s1 < e2 && s2 < e1;
         }
@@ -60,9 +60,6 @@ namespace TicketSellingModule.Service
             if (capacity <= 0)
                 throw new ArgumentException("Capacity must be greater than 0.");
             
-            //if (dep_time >= arr_time)
-            //    throw new ArgumentException("Departure time must be before arrival time.");
-            
             var allFlights = _flightRepo.GetAll();
             var flightsOnSameDate = allFlights.Where(f => f.Date.Date == start_date.Date).ToList();
 
@@ -74,7 +71,6 @@ namespace TicketSellingModule.Service
 
                     if (existingRoute != null)
                     {
-                        //bool isTimeOverlap = dep_time < existingRoute.ArrivalTime && arr_time > existingRoute.DepartureTime;
                         bool isTimeOverlap = CheckOverlappingTimes(dep_time, arr_time, existingRoute.DepartureTime, existingRoute.ArrivalTime);
 
                         if (isTimeOverlap)
@@ -158,6 +154,19 @@ namespace TicketSellingModule.Service
                 throw new ArgumentException("Flight with the given ID does not exist.");
 
             _flightRepo.Delete(flightId);
+        }
+
+        public List<Flight> GetFlightsByCompany(int companyId)
+        {
+            
+            var companyRouteIds = _routeRepo.GetAllRoutes()
+                .Where(r => r.CompanyId == companyId)
+                .Select(r => r.Id)
+                .ToList();
+
+            return _flightRepo.GetAll()
+                .Where(f => companyRouteIds.Contains(f.RouteId))
+                .ToList();
         }
     }
 }
