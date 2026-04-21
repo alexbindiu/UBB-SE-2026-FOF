@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using TicketSellingModule.Repo;
+using TicketSellingModule.Service;
 using TicketSellingModule.ViewModel;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -22,14 +24,18 @@ namespace TicketSellingModule.WinUI.AirportAdmin
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class AirportAdminPage : Page
+    public sealed partial class AirportAdminPage : Page         //NAVIGATIA DIN STANGA
     {
         private readonly AirportAdminViewModel _viewModel;
+        private readonly EmployeesDashboardViewModel _employeesViewModel;
 
         public AirportAdminPage()
         {
             this.InitializeComponent();
             _viewModel = new AirportAdminViewModel();
+            var connectionFactory = new DbConnectionFactory();
+            _employeesViewModel = new EmployeesDashboardViewModel(
+                new EmployeeService(new EmployeeRepo(connectionFactory)));
 
             Loaded += AirportAdminPage_Loaded;
         }
@@ -48,7 +54,7 @@ namespace TicketSellingModule.WinUI.AirportAdmin
 
         private void EmployeesButton_Click(object sender, RoutedEventArgs e)
         {
-            ContentFrame.Navigate(typeof(EmployeesDashboardPage), _viewModel);
+            ContentFrame.Navigate(typeof(EmployeesDashboardPage), _employeesViewModel);
             HighlightSelectedButton(EmployeesButton);
         }
 

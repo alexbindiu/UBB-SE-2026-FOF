@@ -114,12 +114,22 @@ namespace TicketSellingModule.ViewModel
 
         public List<Employee> GetAllEmployees()
         {
-            return _employeeService.GetAll();
+            if (EmployeesList.Count == 0)
+            {
+                RefreshEmployees();
+            }
+
+            return EmployeesList.ToList();
         }
 
         public List<Flight> GetAllFlights()
         {
-            return LoadFlightsWithDetails();
+            if (FlightsList.Count == 0)
+            {
+                RefreshFlights();
+            }
+
+            return FlightsList.ToList();
         }
 
         private List<Flight> LoadFlightsWithDetails()
