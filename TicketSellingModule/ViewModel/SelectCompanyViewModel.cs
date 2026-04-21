@@ -37,7 +37,7 @@ namespace TicketSellingModule.ViewModel
         {
             if (company != null)
             {
-                // Navigăm către dashboard-ul companiei folosind ID-ul ei
+                
                 _navigationService.NavigateToCompanyDashboard(company.Id);
             }
         }

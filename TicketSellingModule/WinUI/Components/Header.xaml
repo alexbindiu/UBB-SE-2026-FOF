@@ -16,33 +16,32 @@
         </Grid.ColumnDefinitions>
 
         <Button Grid.Column="0"
-            Background="Transparent"
-            BorderThickness="0"
-            Padding="0"
-            Width="48"
-            Height="48"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Center"
-            ToolTipService.ToolTip="Home"
-            Command="{x:Bind ViewModel.NavigateHomeCommand}"> <FontIcon Glyph="&#xE80F;" FontSize="28" Foreground="White"/>
+                Background="Transparent"
+                BorderThickness="0"
+                Padding="0"
+                Width="48"
+                Height="48"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                ToolTipService.ToolTip="Home"
+                Click="HomeButton_Click">
+            <FontIcon Glyph="&#xE80F;" FontSize="28" Foreground="White"/>
         </Button>
-        
-
 
         <StackPanel Grid.Column="1"
-            Orientation="Horizontal"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Spacing="10">
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="10">
             <FontIcon Glyph="&#xE709;"
-              FontSize="32"
-              Foreground="{StaticResource CustomAccentBrush}"
-              VerticalAlignment="Center"/>
+                      FontSize="32"
+                      Foreground="{StaticResource CustomAccentBrush}"
+                      VerticalAlignment="Center"/>
             <TextBlock Text="Flight Module"
-               FontSize="26"
-               FontWeight="SemiBold"
-               Foreground="White"
-               VerticalAlignment="Center"/>
+                       FontSize="26"
+                       FontWeight="SemiBold"
+                       Foreground="White"
+                       VerticalAlignment="Center"/>
         </StackPanel>
 
         <Border Grid.ColumnSpan="3" BorderThickness="0,0,0,1" BorderBrush="#333333" VerticalAlignment="Bottom" Margin="0,0,0,-15"/>

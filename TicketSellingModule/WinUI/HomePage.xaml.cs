@@ -1,5 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using TicketSellingModule.ViewModel;
 
 namespace TicketSellingModule.WinUI
@@ -7,17 +7,23 @@ namespace TicketSellingModule.WinUI
     public sealed partial class HomePage : Page
     {
         // Expunem proprietatea ViewModel pentru x:Bind
-        public HomeViewModel ViewModel { get; }
+        public HomeViewModel ViewModel { get; private set; } = null!;
 
         public HomePage()
         {
-            // Rezolvăm ViewModel-ul prin DI
-            ViewModel = App.Services.GetRequiredService<HomeViewModel>();
-
             this.InitializeComponent();
+        }
 
-            // Opțional: setăm DataContext pentru a menține compatibilitatea cu Bindings vechi
-            this.DataContext = ViewModel;
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            if (e.Parameter is HomeViewModel vm)
+            {
+                ViewModel = vm;
+                DataContext = ViewModel;
+                Bindings.Update();
+            }
         }
     }
 }
