@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -23,6 +24,29 @@ namespace TicketSellingModule.ViewModel
         [ObservableProperty]
         private Employee? _selectedEmployee;
 
+
+        // TODO MVVM: drive a ContentDialog from the View using these properties instead of creating dialogs in code-behind.
+        [ObservableProperty]
+        private Visibility _dialogVisibility = Visibility.Collapsed;
+
+        [ObservableProperty]
+        private string _dialogTitle = string.Empty;
+
+        [ObservableProperty]
+        private Employee _editingEmployee = new Employee();
+
+        [ObservableProperty]
+        private string _dialogErrorMessage = string.Empty;
+
+        [ObservableProperty]
+        private DateTimeOffset? _editingBirthday;
+
+        [ObservableProperty]
+        private DateTimeOffset? _editingHiringDate;
+
+        [ObservableProperty]
+        private string _editingSalaryText = string.Empty;
+
         public EmployeesDashboardViewModel(EmployeeService employeeService)
         {
             _employeeService = employeeService;
@@ -31,7 +55,6 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         public void LoadData()
         {
-            // Assuming your service has a method like GetAllEmployeesAsync()
             var allEmployees = _employeeService.GetAll();
 
             ClearAllCollections();
@@ -73,23 +96,113 @@ namespace TicketSellingModule.ViewModel
         }
 
         [RelayCommand]
-        private async Task DeleteEmployeeAsync(Employee employee)
+        private void DeleteEmployee(Employee employee)
         {
-            
+            if (employee == null) return;
+            _employeeService.Delete(employee.Id);
+
+            RemoveFromCollections(employee);
         }
 
+        // TODO MVVM: view should bind to this command; no UI code (dialogs) should be in the ViewModel.
         [RelayCommand]
         private void AddEmployee(string targetRole)
         {
-            // Logic to open an "Add Employee" dialog or navigate to an Add page.
-            // You can pass the targetRole so the dialog knows which type of employee to create.
+            EditingEmployee = new Employee { Role = targetRole };
+            EditingBirthday = null;
+            EditingHiringDate = null;
+            EditingSalaryText = string.Empty;
+
+            DialogTitle = $"Add New {targetRole}";
+            DialogErrorMessage = string.Empty; 
+            DialogVisibility = Visibility.Visible;
         }
 
+        // TODO MVVM: view should bind to this command; no UI code (dialogs) should be in the ViewModel.
         [RelayCommand]
         private void EditEmployee(Employee employee)
         {
-            // Logic to open an "Edit Employee" dialog or page, passing the selected employee.
+            if (employee == null) return;
+
+            EditingEmployee = new Employee
+            {
+                Id = employee.Id,
+                Name = employee.Name,
+                Role = employee.Role,
+                Salary = employee.Salary
+            };
+            EditingSalaryText = employee.Salary.ToString();
+            EditingBirthday = new DateTimeOffset(employee.Birthday.ToDateTime(TimeOnly.MinValue));
+            EditingHiringDate = new DateTimeOffset(employee.HiringDate.ToDateTime(TimeOnly.MinValue));
+
+            DialogTitle = $"Edit {employee.Role}";
+            DialogErrorMessage = string.Empty; 
+            DialogVisibility = Visibility.Visible;
         }
 
+
+        // TODO MVVM: view should bind to this command and the dialog should close via binding.
+        [RelayCommand]
+        private void CloseDialog()
+        {
+            DialogVisibility = Visibility.Collapsed;
+        }
+
+        // TODO MVVM: keep business logic here; view shows errors via bound properties.
+        [RelayCommand]
+        private void SaveEmployee()
+        {
+            try
+            {
+
+                if (EditingBirthday == null || EditingHiringDate == null)
+                {
+                    DialogErrorMessage = "Birthday and Hiring Date are required.";
+                    return;
+                }
+
+                if (!int.TryParse(EditingSalaryText, out int parsedSalary))
+                {
+                    DialogErrorMessage = "Salary must be a valid number.";
+                    return;
+                }
+
+
+                DateOnly finalBirthday = DateOnly.FromDateTime(EditingBirthday.Value.DateTime);
+                DateOnly finalHiringDate = DateOnly.FromDateTime(EditingHiringDate.Value.DateTime);
+                EditingEmployee.Salary = parsedSalary;
+
+  
+                if (EditingEmployee.Id == 0)
+                {
+                    _employeeService.Add(
+                        name: EditingEmployee.Name,
+                        role: EditingEmployee.Role,
+                        birthday: finalBirthday,
+                        salary: EditingEmployee.Salary,
+                        hiringDate: finalHiringDate
+                    );
+                }
+                else
+                {
+                    _employeeService.Update(
+                        id: EditingEmployee.Id,
+                        name: EditingEmployee.Name,
+                        role: EditingEmployee.Role,
+                        salary: EditingEmployee.Salary
+                    );
+                }
+
+
+                LoadData();
+                DialogVisibility = Visibility.Collapsed;
+            }
+            catch (Exception ex)
+            {
+
+                DialogErrorMessage = ex.Message;
+            }
+
+        }
     }
 }

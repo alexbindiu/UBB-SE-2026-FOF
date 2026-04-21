@@ -396,48 +396,8 @@ namespace TicketSellingModule.ViewModel
             }
         }
 
-        public int AddEmployee(string name, string position, DateOnly birthday, int salary, DateOnly hiringDate)
-        {
-            int id = _employeeService.Add(name, position, birthday, salary, hiringDate);
-            var employee = _employeeService.GetById(id);
-            if (employee != null)
-            {
-                EmployeesList.Add(employee);
-            }
-
-            return id;
-        }
-
-        public void UpdateEmployee(int employeeId, string? name = null, string? position = null, int? salary = null)
-        {
-            _employeeService.Update(employeeId, name, position, salary);
-            var updated = _employeeService.GetById(employeeId);
-            if (updated == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < EmployeesList.Count; i++)
-            {
-                if (EmployeesList[i].Id == employeeId)
-                {
-                    EmployeesList[i] = updated;
-                    return;
-                }
-            }
-
-            EmployeesList.Add(updated);
-        }
-
-        public void DeleteEmployee(int employeeId)
-        {
-            _employeeService.Delete(employeeId);
-            var existing = EmployeesList.FirstOrDefault(e => e.Id == employeeId);
-            if (existing != null)
-            {
-                EmployeesList.Remove(existing);
-            }
-        }
+       
+        
 
         public Flight? GetFlightById(int flightId)
         {
