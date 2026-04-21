@@ -10,6 +10,7 @@
 
     <Page.Resources>
         <SolidColorBrush x:Key="CustomAccentBrush" Color="#2bb8c0"/>
+        
         <Style x:Key="DashboardButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="260"/>
             <Setter Property="Height" Value="140"/>
@@ -32,8 +33,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        
-        <!-- Center content -->
         <Grid Grid.Row="1">
             <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center"
@@ -53,15 +52,27 @@
                            Margin="0,0,0,25"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Style="{StaticResource DashboardButtonStyle}" Command="{Binding NavigateToCompanyCommand}">
+                    
+                    <StackPanel.Resources>
+                        <ResourceDictionary>
+                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#1E293B"/> 
+                            <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="White"/> 
+                            <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="#2bb8c0"/> 
+                            <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#0F172A"/>
+                            <SolidColorBrush x:Key="ButtonForegroundPressed" Color="White"/>
+                            <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="#2bb8c0"/>
+                        </ResourceDictionary>
+                    </StackPanel.Resources>
+
+                    <Button Style="{StaticResource DashboardButtonStyle}" Command="{x:Bind ViewModel.NavigateToCompanyCommand}">
                         <TextBlock Text="Company Representative" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Button>
                     <Button Content="Airport Administrator"
                             Style="{StaticResource DashboardButtonStyle}"
-                            Command="{Binding NavigateToAdminCommand}" />
+                            Command="{x:Bind ViewModel.NavigateToAdminCommand}" />
                     <Button Content="Airport Staff Member"
                             Style="{StaticResource DashboardButtonStyle}"
-                            Command="{Binding NavigateToStaffCommand}" />
+                            Command="{x:Bind ViewModel.NavigateToStaffCommand}" />
                 </StackPanel>
             </StackPanel>
         </Grid>

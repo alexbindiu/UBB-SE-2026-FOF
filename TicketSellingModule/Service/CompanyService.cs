@@ -37,7 +37,21 @@ namespace TicketSellingModule.Service
 
             return _companyRepo.AddNewCompany(newCompany);
         }
-        
+
+        public string GenerateFlightCode(int companyId)
+        {
+            var company = GetCompanyById(companyId);
+            string prefix = "FL";
+            if (company != null && !string.IsNullOrEmpty(company.Name))
+            {
+                string[] words = company.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                prefix = words.Length >= 2
+                    ? (words[0][0].ToString() + words[1][0].ToString()).ToUpper()
+                    : company.Name.Substring(0, Math.Min(2, company.Name.Length)).ToUpper();
+            }
+            return $"{prefix}-{new Random().Next(1000, 9999)}";
+        }
+
         public void Update(int id, string? newName = null)
         {
             var existingCompany = _companyRepo.GetCompanyById(id);

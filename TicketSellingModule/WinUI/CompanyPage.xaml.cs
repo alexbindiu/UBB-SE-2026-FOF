@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
@@ -12,7 +13,7 @@ namespace TicketSellingModule.WinUI
 
         public CompanyPage()
         {
-            ViewModel = new CompanyViewModel();
+            ViewModel = App.Services.GetRequiredService<CompanyViewModel>();
             InitializeComponent();
             DataContext = ViewModel;
         }
