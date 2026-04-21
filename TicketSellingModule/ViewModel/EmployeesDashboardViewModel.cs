@@ -25,7 +25,6 @@ namespace TicketSellingModule.ViewModel
         private Employee? _selectedEmployee;
 
 
-        // TODO MVVM: drive a ContentDialog from the View using these properties instead of creating dialogs in code-behind.
         [ObservableProperty]
         private Visibility _dialogVisibility = Visibility.Collapsed;
 
@@ -104,7 +103,6 @@ namespace TicketSellingModule.ViewModel
             RemoveFromCollections(employee);
         }
 
-        // TODO MVVM: view should bind to this command; no UI code (dialogs) should be in the ViewModel.
         [RelayCommand]
         private void AddEmployee(string targetRole)
         {
@@ -118,7 +116,6 @@ namespace TicketSellingModule.ViewModel
             DialogVisibility = Visibility.Visible;
         }
 
-        // TODO MVVM: view should bind to this command; no UI code (dialogs) should be in the ViewModel.
         [RelayCommand]
         private void EditEmployee(Employee employee)
         {
@@ -141,14 +138,12 @@ namespace TicketSellingModule.ViewModel
         }
 
 
-        // TODO MVVM: view should bind to this command and the dialog should close via binding.
         [RelayCommand]
         private void CloseDialog()
         {
             DialogVisibility = Visibility.Collapsed;
         }
 
-        // TODO MVVM: keep business logic here; view shows errors via bound properties.
         [RelayCommand]
         private void SaveEmployee()
         {

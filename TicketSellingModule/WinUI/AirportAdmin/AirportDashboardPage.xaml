@@ -6,42 +6,107 @@
     xmlns:local="using:TicketSellingModule.WinUI.AirportAdmin.Components"
     Foreground="#F8FAFC">
 
-    <ScrollViewer>
-        <Grid Padding="20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="20"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="20"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+    <Grid>
+        <ScrollViewer>
+            <Grid Padding="20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-            <local:AirportSectionControl Grid.Column="0"
-                                         x:Name="RunwaysSection"
-                                         Title="Runways"
-                                         Items="{Binding RunwaysList}"
-                                         SelectedItem="{Binding SelectedRunway, Mode=TwoWay}"
-                                         AddCommand="{Binding AddRunwayCommand}"
-                                         EditCommand="{Binding UpdateRunwayCommand}"
-                                         DeleteCommand="{Binding DeleteRunwayCommand}" />
+                <local:AirportSectionControl Grid.Column="0"
+                                             Title="Runways"
+                                             Items="{x:Bind ViewModel.RunwaysList, Mode=OneWay}"
+                                             SelectedItem="{Binding SelectedRunway, Mode=TwoWay}"
+                                             DisplayMemberPath="Name"
+                                             AddCommand="{x:Bind ViewModel.OpenAddRunwayCommand}"
+                                             EditCommand="{x:Bind ViewModel.OpenEditRunwayCommand}"
+                                             DeleteCommand="{x:Bind ViewModel.DeleteRunwayCommand}" />
 
-            <local:AirportSectionControl Grid.Column="2"
-                                         x:Name="GatesSection"
-                                         Title="Gates"
-                                         Items="{Binding GatesList}"
-                                         SelectedItem="{Binding SelectedGate, Mode=TwoWay}"
-                                         AddCommand="{Binding AddGateCommand}"
-                                         EditCommand="{Binding UpdateGateCommand}"
-                                         DeleteCommand="{Binding DeleteGateCommand}" />
+                <local:AirportSectionControl Grid.Column="2"
+                                             Title="Gates"
+                                             Items="{x:Bind ViewModel.GatesList, Mode=OneWay}"
+                                             SelectedItem="{x:Bind ViewModel.SelectedGate, Mode=TwoWay}"
+                                             DisplayMemberPath="Name"
+                                             AddCommand="{x:Bind ViewModel.OpenAddGateCommand}"
+                                             EditCommand="{x:Bind ViewModel.OpenEditGateCommand}"
+                                             DeleteCommand="{x:Bind ViewModel.DeleteGateCommand}" />
+                                             
+                <local:AirportSectionControl Grid.Column="4"
+                                             Title="Destination Airports"
+                                             Items="{x:Bind ViewModel.AirportsList, Mode=OneWay}"
+                                             SelectedItem="{x:Bind ViewModel.SelectedAirport, Mode=TwoWay}"
+                                             DisplayMemberPath="AirportName"
+                                             AddCommand="{x:Bind ViewModel.OpenAddAirportCommand}"
+                                             EditCommand="{x:Bind ViewModel.OpenEditAirportCommand}"
+                                             DeleteCommand="{x:Bind ViewModel.DeleteAirportCommand}" />
+            </Grid>
+        </ScrollViewer>
 
-            <local:AirportSectionControl Grid.Column="4"
-                                         x:Name="AirportsSection"
-                                         Title="Destination Airports"
-                                         Items="{Binding AirportsList}"
-                                         SelectedItem="{Binding SelectedAirport, Mode=TwoWay}"
-                                         AddCommand="{Binding AddAirportCommand}"
-                                         EditCommand="{Binding UpdateAirportCommand}"
-                                         DeleteCommand="{Binding DeleteAirportCommand}" />
+        <Grid Background="#80000000" 
+              Visibility="{x:Bind ViewModel.DialogVisibility, Mode=OneWay}"
+              CornerRadius="8">
+            
+            <Border Background="#1E293B" 
+                    BorderBrush="#334155" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="24"
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"
+                    Width="350">
+                
+                <StackPanel Spacing="16">
+                    <TextBlock Text="{x:Bind ViewModel.DialogTitle, Mode=OneWay}" 
+                               FontSize="20" FontWeight="Bold" Foreground="White"/>
+
+                    <TextBox Header="Name" 
+                             Text="{x:Bind ViewModel.EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             PlaceholderText="Enter name"/>
+
+                    <TextBox Header="Handle Time (minutes)" 
+                             Text="{x:Bind ViewModel.EditingHandleTimeText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             PlaceholderText="Enter time"
+                             Visibility="{x:Bind ViewModel.HandleTimeVisibility, Mode=OneWay}"/>
+
+                    <TextBox Header="City" 
+                             Text="{x:Bind ViewModel.EditingCity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             PlaceholderText="Enter city"
+                             Visibility="{x:Bind ViewModel.CityCodeVisibility, Mode=OneWay}"/>
+                             
+                    <TextBox Header="Code" 
+                             Text="{x:Bind ViewModel.EditingCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             PlaceholderText="e.g. LAX"
+                             Visibility="{x:Bind ViewModel.CityCodeVisibility, Mode=OneWay}"/>
+
+                    <TextBlock Text="{x:Bind ViewModel.DialogErrorMessage, Mode=OneWay}"
+                               Foreground="#FF6B6B" 
+                               TextWrapping="Wrap"
+                               FontWeight="SemiBold"
+                               Margin="0,-4,0,0"/>
+
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Button Content="Cancel" 
+                                HorizontalAlignment="Stretch"
+                                Command="{x:Bind ViewModel.CloseDialogCommand}"/>
+                                
+                        <Button Grid.Column="2" 
+                                Content="Save" 
+                                Style="{StaticResource AccentButtonStyle}"
+                                HorizontalAlignment="Stretch"
+                                Command="{x:Bind ViewModel.SaveDialogCommand}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
         </Grid>
-    </ScrollViewer>
+    </Grid>
 </Page>

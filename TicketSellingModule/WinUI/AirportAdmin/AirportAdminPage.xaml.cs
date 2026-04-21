@@ -28,6 +28,7 @@ namespace TicketSellingModule.WinUI.AirportAdmin
     {
         private readonly AirportAdminViewModel _viewModel;
         private readonly EmployeesDashboardViewModel _employeesViewModel;
+        private readonly AirportDashboardViewModel _airportViewModel;
 
         public AirportAdminPage()
         {
@@ -36,6 +37,9 @@ namespace TicketSellingModule.WinUI.AirportAdmin
             var connectionFactory = new DbConnectionFactory();
             _employeesViewModel = new EmployeesDashboardViewModel(
                 new EmployeeService(new EmployeeRepo(connectionFactory)));
+            _airportViewModel = new AirportDashboardViewModel(new AirportService(new AirportRepo(connectionFactory)),
+                                                                new RunwayService(new RunwayRepo(connectionFactory)),
+                                                                new GateService(new GateRepo(connectionFactory)));
 
             Loaded += AirportAdminPage_Loaded;
         }
@@ -60,7 +64,7 @@ namespace TicketSellingModule.WinUI.AirportAdmin
 
         private void AirportButton_Click(object sender, RoutedEventArgs e)
         {
-            ContentFrame.Navigate(typeof(AirportDashboardPage), _viewModel);
+            ContentFrame.Navigate(typeof(AirportDashboardPage), _airportViewModel);
             HighlightSelectedButton(AirportButton);
         }
 

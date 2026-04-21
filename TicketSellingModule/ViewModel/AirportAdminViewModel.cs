@@ -21,20 +21,9 @@ namespace TicketSellingModule.ViewModel
         private readonly FlightRouteService _flightRouteService;
         private readonly FlightEmployeeService _flightEmployeeService;
 
-        public ObservableCollection<Runway> RunwaysList { get; } = new();
-        public ObservableCollection<Gate> GatesList { get; } = new();
-        public ObservableCollection<Airport> AirportsList { get; } = new();
-        public ObservableCollection<Employee> EmployeesList { get; } = new();
+       
         public ObservableCollection<Flight> FlightsList { get; } = new();
 
-        [ObservableProperty]
-        private Runway? _selectedRunway;
-
-        [ObservableProperty]
-        private Gate? _selectedGate;
-
-        [ObservableProperty]
-        private Airport? _selectedAirport;
 
         [ObservableProperty]
         private Flight? _selectedFlight;
@@ -65,20 +54,11 @@ namespace TicketSellingModule.ViewModel
 
         private void LoadInitialData()
         {
-            RefreshAirports();
-            RefreshRunways();
-            RefreshGates();
-            RefreshEmployees();
+
             RefreshFlights();
         }
 
-        [RelayCommand]
-        public void RefreshAirports()
-        {
-            var data = _airportService.GetAll();
-            AirportsList.Clear(); 
-            foreach (var item in data) AirportsList.Add(item);
-        }
+        
 
         [RelayCommand]
         public void RefreshFlights()
@@ -88,39 +68,9 @@ namespace TicketSellingModule.ViewModel
             foreach (var f in flights) FlightsList.Add(f);
         }
 
-        [RelayCommand]
-        public void RefreshRunways()
-        {
-            var data = _runwayService.GetAll();
-            RunwaysList.Clear();
-            foreach (var item in data) RunwaysList.Add(item);
-        }
+        
 
-        [RelayCommand]
-        public void RefreshGates()
-        {
-            var data = _gateService.GetAll();
-            GatesList.Clear();
-            foreach (var item in data) GatesList.Add(item);
-        }
-
-        [RelayCommand]
-        public void RefreshEmployees()
-        {
-            var data = _employeeService.GetAll();
-            EmployeesList.Clear();
-            foreach (var item in data) EmployeesList.Add(item);
-        }
-
-        public List<Employee> GetAllEmployees()
-        {
-            if (EmployeesList.Count == 0)
-            {
-                RefreshEmployees();
-            }
-
-            return EmployeesList.ToList();
-        }
+        
 
         public List<Flight> GetAllFlights()
         {
@@ -151,250 +101,8 @@ namespace TicketSellingModule.ViewModel
             return flights;
         }
 
-        [ObservableProperty]
-        private string? _runwayName;
 
-        [ObservableProperty]
-        private int _runwayHandleTime;
-
-        [ObservableProperty]
-        private string? _gateName;
-
-        [ObservableProperty]
-        private string? _airportCode;
-
-        [ObservableProperty]
-        private string? _airportName;
-
-        [ObservableProperty]
-        private string? _airportCity;
-
-        [RelayCommand]
-        public void AddRunway()
-        {
-            if (string.IsNullOrWhiteSpace(RunwayName))
-            {
-                return;
-            }
-
-            int id = AddRunway(RunwayName, RunwayHandleTime);
-            SelectedRunway = RunwaysList.FirstOrDefault(r => r.Id == id);
-        }
-
-        public int AddRunway(string runwayName, int handleTime)
-        {
-            int id = _runwayService.Add(runwayName, handleTime);
-            var runway = _runwayService.GetById(id);
-            RunwaysList.Add(runway);
-            return id;
-        }
-
-        [RelayCommand]
-        public void UpdateRunway()
-        {
-            if (SelectedRunway == null)
-            {
-                return;
-            }
-
-            UpdateRunway(SelectedRunway.Id, SelectedRunway.Name, SelectedRunway.HandleTime);
-        }
-
-        public void UpdateRunway(int runwayId, string runwayName, int handleTime)
-        {
-            _runwayService.Update(runwayId, runwayName, handleTime);
-            var updated = _runwayService.GetById(runwayId);
-            for (int i = 0; i < RunwaysList.Count; i++)
-            {
-                if (RunwaysList[i].Id == runwayId)
-                {
-                    RunwaysList[i] = updated;
-                    return;
-                }
-            }
-
-            RunwaysList.Add(updated);
-        }
-
-        [RelayCommand]
-        public void DeleteRunway()
-        {
-            if (SelectedRunway == null)
-            {
-                return;
-            }
-
-            DeleteRunway(SelectedRunway.Id);
-            SelectedRunway = null;
-        }
-
-        public void DeleteRunway(int runwayId)
-        {
-            _runwayService.Delete(runwayId);
-            var existing = RunwaysList.FirstOrDefault(r => r.Id == runwayId);
-            if (existing != null)
-            {
-                RunwaysList.Remove(existing);
-            }
-        }
-
-        [RelayCommand]
-        public void AddGate()
-        {
-            if (string.IsNullOrWhiteSpace(GateName))
-            {
-                return;
-            }
-
-            int id = AddGate(GateName);
-            SelectedGate = GatesList.FirstOrDefault(g => g.Id == id);
-        }
-
-        public int AddGate(string gateName)
-        {
-            int id = _gateService.Add(gateName);
-            var gate = _gateService.GetById(id);
-            if (gate != null)
-            {
-                GatesList.Add(gate);
-            }
-
-            return id;
-        }
-
-        [RelayCommand]
-        public void UpdateGate()
-        {
-            if (SelectedGate == null)
-            {
-                return;
-            }
-
-            UpdateGate(SelectedGate.Id, SelectedGate.Name);
-        }
-
-        public void UpdateGate(int gateId, string gateName)
-        {
-            _gateService.Update(gateId, gateName);
-            var updated = _gateService.GetById(gateId);
-            if (updated == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < GatesList.Count; i++)
-            {
-                if (GatesList[i].Id == gateId)
-                {
-                    GatesList[i] = updated;
-                    return;
-                }
-            }
-
-            GatesList.Add(updated);
-        }
-
-        [RelayCommand]
-        public void DeleteGate()
-        {
-            if (SelectedGate == null)
-            {
-                return;
-            }
-
-            DeleteGate(SelectedGate.Id);
-            SelectedGate = null;
-        }
-
-        public void DeleteGate(int gateId) 
-        {
-            _gateService.Delete(gateId);
-            var existing = GatesList.FirstOrDefault(g => g.Id == gateId);
-            if (existing != null)
-            {
-                GatesList.Remove(existing);
-            }
-        }
-
-        [RelayCommand]
-        public void AddAirport()
-        {
-            if (string.IsNullOrWhiteSpace(AirportCode) ||
-                string.IsNullOrWhiteSpace(AirportName) ||
-                string.IsNullOrWhiteSpace(AirportCity))
-            {
-                return;
-            }
-
-            int id = AddAirport(AirportCode, AirportName, AirportCity);
-            SelectedAirport = AirportsList.FirstOrDefault(a => a.Id == id);
-        }
-
-        public int AddAirport(string airportCode, string name, string city)
-        {
-            int id = _airportService.Add(airportCode, name, city);
-            var airport = _airportService.GetById(id);
-            if (airport != null)
-            {
-                AirportsList.Add(airport);
-            }
-
-            return id;
-        }
-
-        [RelayCommand]
-        public void UpdateAirport()
-        {
-            if (SelectedAirport == null)
-            {
-                return;
-            }
-
-            UpdateAirport(SelectedAirport.Id, SelectedAirport.City, SelectedAirport.AirportName, SelectedAirport.AirportCode);
-        }
-
-        public void UpdateAirport(int airportId, string? newCity = null, string? newName = null, string? newCode = null)
-        {
-            _airportService.Update(airportId, newCity, newName, newCode);
-            var updated = _airportService.GetById(airportId);
-            if (updated == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < AirportsList.Count; i++)
-            {
-                if (AirportsList[i].Id == airportId)
-                {
-                    AirportsList[i] = updated;
-                    return;
-                }
-            }
-
-            AirportsList.Add(updated);
-        }
-
-        [RelayCommand]
-        public void DeleteAirport()
-        {
-            if (SelectedAirport == null)
-            {
-                return;
-            }
-
-            DeleteAirport(SelectedAirport.Id);
-            SelectedAirport = null;
-        }
-
-        public void DeleteAirport(int airportId)
-        {
-            _airportService.Delete(airportId);
-            var existing = AirportsList.FirstOrDefault(a => a.Id == airportId);
-            if (existing != null)
-            {
-                AirportsList.Remove(existing);
-            }
-        }
+        
 
        
         
