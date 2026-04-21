@@ -15,6 +15,8 @@ namespace TicketSellingModule.WinUI
             ViewModel = new CompanyViewModel();
             InitializeComponent();
             DataContext = ViewModel;
+            ViewModel.LoadGates();
+            ViewModel.LoadRunways();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -29,6 +31,7 @@ namespace TicketSellingModule.WinUI
 
         private async void AddFlightButton_Click(object sender, RoutedEventArgs e)
         {
+            ViewModel.ClearInputs();
             await AddFlightDialog.ShowAsync();
         }
 
