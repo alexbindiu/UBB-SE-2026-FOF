@@ -12,10 +12,17 @@ namespace TicketSellingModule.WinUI.AirportAdmin
     {
         public AirportAdminViewModel ViewModel { get; }
         private readonly EmployeesDashboardViewModel _employeesViewModel;
+        private readonly AirportDashboardViewModel _airportViewModel;
 
         public AirportAdminPage()
         {
             this.InitializeComponent();
+            
+            _airportViewModel = new AirportDashboardViewModel(new AirportService(new AirportRepo(connectionFactory)),
+                                                                new RunwayService(new RunwayRepo(connectionFactory)),
+                                                                new GateService(new GateRepo(connectionFactory)));
+
+            Loaded += AirportAdminPage_Loaded;
             ViewModel = App.Services.GetRequiredService<AirportAdminViewModel>();
             _employeesViewModel = App.Services.GetRequiredService<EmployeesDashboardViewModel>();
         }
@@ -42,7 +49,7 @@ namespace TicketSellingModule.WinUI.AirportAdmin
 
         private void AirportButton_Click(object sender, RoutedEventArgs e)
         {
-            ContentFrame.Navigate(typeof(AirportDashboardPage), ViewModel);
+            ContentFrame.Navigate(typeof(AirportDashboardPage), _airportViewModel);
             HighlightSelectedButton(AirportButton);
         }
 

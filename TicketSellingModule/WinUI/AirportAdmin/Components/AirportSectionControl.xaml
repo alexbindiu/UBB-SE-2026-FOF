@@ -39,13 +39,13 @@
             <ListView x:Name="ListViewControl"
                       SelectionMode="Single"
                       SelectedItem="{x:Bind SelectedItem, Mode=TwoWay}">
-                <ListView.ItemTemplate>
+                <ListView>
                     <DataTemplate>
                         <StackPanel Padding="0,6">
-                            <TextBlock Text="{Binding DisplayText}"/>
+                            <TextBlock Text="{Binding}"/>
                         </StackPanel>
                     </DataTemplate>
-                </ListView.ItemTemplate>
+                </ListView>
             </ListView>
 
         </StackPanel>

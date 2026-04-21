@@ -20,16 +20,17 @@ namespace TicketSellingModule.WinUI.AirportAdmin.Components
                 typeof(AirportSectionControl),
                 new PropertyMetadata("Title"));
 
-        public ObservableCollection<object> Items
+
+        public object Items
         {
-            get => (ObservableCollection<object>)GetValue(ItemsProperty);
+            get => GetValue(ItemsProperty);
             set => SetValue(ItemsProperty, value);
         }
 
         public static readonly DependencyProperty ItemsProperty =
             DependencyProperty.Register(
                 nameof(Items),
-                typeof(ObservableCollection<object>),
+                typeof(object),
                 typeof(AirportSectionControl),
                 new PropertyMetadata(null, OnItemsChanged));
 
@@ -37,7 +38,8 @@ namespace TicketSellingModule.WinUI.AirportAdmin.Components
         {
             if (d is AirportSectionControl control)
             {
-                control.ListViewControl.ItemsSource = e.NewValue as ObservableCollection<object>;
+                
+                control.ListViewControl.ItemsSource = e.NewValue;
             }
         }
 
@@ -97,5 +99,26 @@ namespace TicketSellingModule.WinUI.AirportAdmin.Components
                 typeof(ICommand),
                 typeof(AirportSectionControl),
                 new PropertyMetadata(null));
+
+        public string DisplayMemberPath
+        {
+            get => (string)GetValue(DisplayMemberPathProperty);
+            set => SetValue(DisplayMemberPathProperty, value);
+        }
+
+        public static readonly DependencyProperty DisplayMemberPathProperty =
+            DependencyProperty.Register(
+                nameof(DisplayMemberPath),
+                typeof(string),
+                typeof(AirportSectionControl),
+                new PropertyMetadata(string.Empty, OnDisplayMemberPathChanged));
+
+        private static void OnDisplayMemberPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is AirportSectionControl control)
+            {
+                control.ListViewControl.DisplayMemberPath = e.NewValue as string ?? string.Empty;
+            }
+        }
     }
 }

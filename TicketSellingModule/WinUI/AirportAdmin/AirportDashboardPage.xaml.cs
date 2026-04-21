@@ -10,22 +10,27 @@ namespace TicketSellingModule.WinUI.AirportAdmin
 {
     public sealed partial class AirportDashboardPage : Page
     {
-        private AirportAdminViewModel _viewModel;
+        public AirportDashboardViewModel ViewModel { get; set; }
 
         public AirportDashboardPage()
         {
             this.InitializeComponent();
-            DataContext = _viewModel;
+            //DataContext = _viewModel;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            _viewModel = (AirportAdminViewModel)e.Parameter;
-            DataContext = _viewModel;
+
+            if (e.Parameter is AirportDashboardViewModel vm)
+            {
+                ViewModel = vm;
+                this.DataContext = ViewModel;
+                ViewModel.LoadData();
+            }
         }
     }
 }
         
 
-       
+              
