@@ -1,54 +1,41 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using TicketSellingModule.Repo;
-using TicketSellingModule.Service;
-using TicketSellingModule.ViewModel;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using TicketSellingModule.ViewModel;
 
 namespace TicketSellingModule.WinUI.AirportAdmin
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public sealed partial class AirportAdminPage : Page         //NAVIGATIA DIN STANGA
+    public sealed partial class AirportAdminPage : Page
     {
-        private readonly AirportAdminViewModel _viewModel;
+        public AirportAdminViewModel ViewModel { get; }
         private readonly EmployeesDashboardViewModel _employeesViewModel;
+        private readonly AirportDashboardViewModel _airportViewModel;
 
         public AirportAdminPage()
         {
             this.InitializeComponent();
-            _viewModel = new AirportAdminViewModel();
-            var connectionFactory = new DbConnectionFactory();
-            _employeesViewModel = new EmployeesDashboardViewModel(
-                new EmployeeService(new EmployeeRepo(connectionFactory)));
+            
+            _airportViewModel = App.Services.GetRequiredService<AirportDashboardViewModel>();
 
-            Loaded += AirportAdminPage_Loaded;
+            //Loaded += AirportAdminPage_Loaded;
+            ViewModel = App.Services.GetRequiredService<AirportAdminViewModel>();
+            _employeesViewModel = App.Services.GetRequiredService<EmployeesDashboardViewModel>();
         }
 
-        private void AirportAdminPage_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            ContentFrame.Navigate(typeof(FlightsDashboardPage), _viewModel);
+            base.OnNavigatedTo(e);
+            ViewModel.Initialize();
+            ContentFrame.Navigate(typeof(FlightsDashboardPage), ViewModel);
             HighlightSelectedButton(FlightsButton);
         }
 
         private void FlightsButton_Click(object sender, RoutedEventArgs e)
         {
-            ContentFrame.Navigate(typeof(FlightsDashboardPage), _viewModel);
+            ContentFrame.Navigate(typeof(FlightsDashboardPage), ViewModel);
             HighlightSelectedButton(FlightsButton);
         }
 
@@ -60,7 +47,7 @@ namespace TicketSellingModule.WinUI.AirportAdmin
 
         private void AirportButton_Click(object sender, RoutedEventArgs e)
         {
-            ContentFrame.Navigate(typeof(AirportDashboardPage), _viewModel);
+            ContentFrame.Navigate(typeof(AirportDashboardPage), _airportViewModel);
             HighlightSelectedButton(AirportButton);
         }
 
@@ -70,8 +57,7 @@ namespace TicketSellingModule.WinUI.AirportAdmin
             EmployeesButton.Background = null;
             AirportButton.Background = null;
 
-            selectedButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-                Microsoft.UI.Colors.LightGray);
+            selectedButton.Background = new SolidColorBrush(Microsoft.UI.Colors.LightGray);
         }
     }
 }

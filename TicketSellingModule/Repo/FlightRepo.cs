@@ -165,12 +165,30 @@ namespace TicketSellingModule.Repo
             using (SqlConnection connection = _connectionFactory.GetConnection())
             {
                 connection.Open();
-                string sql = "DELETE FROM Flights WHERE id = @id";
+                string delete_link_sql = "DELETE FROM Flight_employees WHERE id_flight = @id";
+                string delete_flight_sql = "DELETE FROM Flights WHERE id = @id";
 
-                using (SqlCommand command = new SqlCommand(sql, connection))
+                using (SqlTransaction transaction = connection.BeginTransaction())
                 {
-                    command.Parameters.AddWithValue("@id", id);
-                    command.ExecuteNonQuery();
+                    try
+                    {
+                        using (SqlCommand cmd1 = new SqlCommand(delete_link_sql, connection, transaction))
+                        {
+                            cmd1.Parameters.AddWithValue("@id", id);
+                            cmd1.ExecuteNonQuery();
+                        }
+                        using (SqlCommand cmd2 = new SqlCommand(delete_flight_sql, connection, transaction))
+                        {
+                            cmd2.Parameters.AddWithValue("@id", id);
+                            cmd2.ExecuteNonQuery();
+                        }
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw; 
+                    }
                 }
             }
         }

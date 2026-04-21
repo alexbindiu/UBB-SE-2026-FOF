@@ -1,66 +1,45 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
-using System.Windows.Input;
 using TicketSellingModule.Domain;
-using TicketSellingModule.Repo;
 using TicketSellingModule.Service;
 using TicketSellingModule.WinUI.Services;
 
 namespace TicketSellingModule.ViewModel
 {
-    public class SelectCompanyViewModel : ViewModelBase
+    public partial class SelectCompanyViewModel : ObservableObject
     {
         private readonly CompanyService _companyService;
-        private Company _selectedCompany;
-        private readonly RelayCommand _navigateCommand;
+        private readonly INavigationService _navigationService;
 
-        public SelectCompanyViewModel()
+        public ObservableCollection<Company> Companies { get; } = new();
+
+        public SelectCompanyViewModel(CompanyService companyService, INavigationService navigationService)
         {
-            var connectionFactory = new DbConnectionFactory();
-            _companyService = new CompanyService(new CompanyRepo(connectionFactory));
+            _companyService = companyService;
+            _navigationService = navigationService;
 
-            Companies = new ObservableCollection<Company>();
-            _navigateCommand = new RelayCommand(NavigateToDashboard, CanNavigateToDashboard);
-            NavigateToDashboardCommand = _navigateCommand;
+            LoadCompanies();
         }
 
-        public ObservableCollection<Company> Companies { get; }
-
-        public Company SelectedCompany
-        {
-            get => _selectedCompany;
-            set
-            {
-                if (SetProperty(ref _selectedCompany, value))
-                {
-                    _navigateCommand.RaiseCanExecuteChanged();
-                }
-            }
-        }
-
-        public ICommand NavigateToDashboardCommand { get; }
-
-        public void LoadCompanies()
+        private void LoadCompanies()
         {
             Companies.Clear();
-            foreach (var company in _companyService.GetAll())
+            var list = _companyService.GetAll();
+            foreach (var company in list)
             {
                 Companies.Add(company);
             }
         }
 
-        private bool CanNavigateToDashboard()
+        [RelayCommand]
+        private void SelectCompany(Company company)
         {
-            return SelectedCompany != null;
-        }
-
-        private void NavigateToDashboard()
-        {
-            if (SelectedCompany == null)
+            if (company != null)
             {
-                return;
+                // Navigăm către dashboard-ul companiei folosind ID-ul ei
+                _navigationService.NavigateToCompanyDashboard(company.Id);
             }
-
-            NavigationService.Instance?.NavigateToCompanyDashboard(SelectedCompany.Id);
         }
     }
 }

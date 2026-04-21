@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using TicketSellingModule.ViewModel;
@@ -11,7 +11,8 @@ namespace TicketSellingModule.WinUI
 
         public StaffPage()
         {
-            ViewModel = new StaffPageViewModel();
+            // Request the fully constructed ViewModel from Dependency Injection
+            ViewModel = App.Services.GetRequiredService<StaffPageViewModel>();
             InitializeComponent();
             DataContext = ViewModel;
         }

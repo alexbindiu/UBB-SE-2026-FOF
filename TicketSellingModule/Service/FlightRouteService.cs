@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using TicketSellingModule.Domain;
 using TicketSellingModule.Repo;
 
@@ -14,13 +13,26 @@ namespace TicketSellingModule.Service
         private readonly RouteRepo _routeRepo;
         private readonly CompanyRepo _companyRepo;
         private readonly AirportRepo _airportRepo;
+        private readonly RunwayService _runwayService;
+        private readonly GateService _gateService;
+        private readonly AirportService _airportService;
 
-        public FlightRouteService(FlightRepo flightRepo, RouteRepo routeRepo, CompanyRepo companyRepo, AirportRepo airportRepo)
+        public FlightRouteService(
+            FlightRepo flightRepo,
+            RouteRepo routeRepo,
+            CompanyRepo companyRepo,
+            AirportRepo airportRepo,
+            RunwayService runwayService,
+            GateService gateService,
+            AirportService airportService)
         {
             _flightRepo = flightRepo;
             _routeRepo = routeRepo;
             _companyRepo = companyRepo;
             _airportRepo = airportRepo;
+            _runwayService = runwayService;
+            _gateService = gateService;
+            _airportService = airportService;
         }
 
 
@@ -52,7 +64,6 @@ namespace TicketSellingModule.Service
             //    throw new ArgumentException("Departure time must be before arrival time.");
             
             var allFlights = _flightRepo.GetAll();
-            
             var flightsOnSameDate = allFlights.Where(f => f.Date.Date == start_date.Date).ToList();
 
             foreach (var existingFlight in flightsOnSameDate)
@@ -60,7 +71,7 @@ namespace TicketSellingModule.Service
                 if (existingFlight.GateId == gateID || existingFlight.RunwayId == runwayID)
                 {
                     var existingRoute = _routeRepo.GetRouteById(existingFlight.RouteId);
-                    
+
                     if (existingRoute != null)
                     {
                         //bool isTimeOverlap = dep_time < existingRoute.ArrivalTime && arr_time > existingRoute.DepartureTime;
@@ -69,18 +80,14 @@ namespace TicketSellingModule.Service
                         if (isTimeOverlap)
                         {
                             if (existingFlight.GateId == gateID)
-                            {
                                 throw new InvalidOperationException(
                                     $"Gate Conflict: Gate {gateID} is already occupied by Flight {existingFlight.FlightNumber} " +
                                     $"from {existingRoute.DepartureTime} to {existingRoute.ArrivalTime}.");
-                            }
-                            
+
                             if (existingFlight.RunwayId == runwayID)
-                            {
                                 throw new InvalidOperationException(
                                     $"Runway Conflict: Runway {runwayID} is already in use by Flight {existingFlight.FlightNumber} " +
                                     $"from {existingRoute.DepartureTime} to {existingRoute.ArrivalTime}.");
-                            }
                         }
                     }
                 }
@@ -102,14 +109,14 @@ namespace TicketSellingModule.Service
             };
 
             int routeId = _routeRepo.AddRoute(newRoute);
-            
+
             Flight initialFlight = new Flight
             {
                 RouteId = routeId,
                 Date = start_date,
                 FlightNumber = flight_number,
-                RunwayId = runwayID, 
-                GateId = gateID      
+                RunwayId = runwayID,
+                GateId = gateID
             };
 
             _flightRepo.Add(initialFlight);
@@ -117,25 +124,30 @@ namespace TicketSellingModule.Service
             return routeId;
         }
 
-        public Route? GetRouteById(int routeId)
+        public List<Flight> GetAllFlightsWithDetails()
         {
-            return _routeRepo.GetRouteById(routeId);
+            var flights = GetAllFlights();
+            foreach (var flight in flights)
+            {
+                if (flight.RunwayId > 0) flight.Runway = _runwayService.GetById(flight.RunwayId);
+                if (flight.GateId > 0) flight.Gate = _gateService.GetById(flight.GateId);
+                if (flight.RouteId > 0)
+                {
+                    flight.Route = GetRouteById(flight.RouteId);
+                    if (flight.Route?.AirportId > 0)
+                        flight.Route.Airport = _airportService.GetById(flight.Route.AirportId);
+                }
+            }
+            return flights;
         }
 
-        public Flight? GetFlightById(int flightId)
-        {
-            return _flightRepo.GetById(flightId);
-        }
+        public Route? GetRouteById(int routeId) => _routeRepo.GetRouteById(routeId);
 
-        public List<Route> GetAllRoutes()
-        {
-            return _routeRepo.GetAllRoutes();
-        }
+        public Flight? GetFlightById(int flightId) => _flightRepo.GetById(flightId);
 
-        public List<Flight> GetAllFlights()
-        {
-            return _flightRepo.GetAll();
-        }
+        public List<Route> GetAllRoutes() => _routeRepo.GetAllRoutes();
+
+        public List<Flight> GetAllFlights() => _flightRepo.GetAll();
 
         public void DeleteFlight(int flightId)
         {

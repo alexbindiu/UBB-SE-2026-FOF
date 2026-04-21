@@ -1,66 +1,47 @@
-using System;
-using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
-using TicketSellingModule.Repo;
 using TicketSellingModule.Service;
+using TicketSellingModule.WinUI.Services;
 
 namespace TicketSellingModule.ViewModel
 {
-    public class StaffLoginViewModel : ViewModelBase
+    public partial class StaffLoginViewModel : ObservableObject
     {
         private readonly EmployeeService _employeeService;
-        private string _employeeIdText;
-        private string _errorMessage;
-        private Visibility _errorVisibility = Visibility.Collapsed;
+        private readonly INavigationService _navigationService;
 
-        public StaffLoginViewModel()
+        [ObservableProperty] private string _employeeIdText;
+        [ObservableProperty] private string _errorMessage;
+        [ObservableProperty] private Visibility _errorVisibility = Visibility.Collapsed;
+
+        public StaffLoginViewModel(EmployeeService employeeService, INavigationService navigationService)
         {
-            var connectionFactory = new DbConnectionFactory();
-            _employeeService = new EmployeeService(new EmployeeRepo(connectionFactory));
-
-            LoginCommand = new RelayCommand(ExecuteLogin);
+            _employeeService = employeeService;
+            _navigationService = navigationService;
         }
 
-        public string EmployeeIdText
-        {
-            get => _employeeIdText;
-            set => SetProperty(ref _employeeIdText, value);
-        }
-
-        public string ErrorMessage
-        {
-            get => _errorMessage;
-            private set => SetProperty(ref _errorMessage, value);
-        }
-
-        public Visibility ErrorVisibility
-        {
-            get => _errorVisibility;
-            private set => SetProperty(ref _errorVisibility, value);
-        }
-
-        public ICommand LoginCommand { get; }
-
-        public event Action<int> LoginSucceeded;
-
-        private void ExecuteLogin()
+        [RelayCommand]
+        private void Login()
         {
             if (!int.TryParse(EmployeeIdText, out int id))
             {
-                ShowError("Invalid ID.");
+                ShowError("ID invalid.");
                 return;
             }
 
             var emp = _employeeService.GetById(id);
             if (emp == null)
             {
-                ShowError("ID not found!");
+                ShowError("ID-ul nu a fost găsit!");
                 return;
             }
 
             ErrorVisibility = Visibility.Collapsed;
             ErrorMessage = string.Empty;
-            LoginSucceeded?.Invoke(id);
+
+            // Navigăm direct din ViewModel
+            _navigationService.NavigateToStaffDashboard(id);
         }
 
         private void ShowError(string message)
