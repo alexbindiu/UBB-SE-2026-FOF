@@ -73,7 +73,7 @@ namespace TicketSellingModule.Repo
                 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
-                    cmd.Parameters.AddWithValue("flightId", flightId);
+                    cmd.Parameters.AddWithValue("@flightId", flightId);
                     using (SqlDataReader r = cmd.ExecuteReader())
                     {
                         while (r.Read())
@@ -84,6 +84,34 @@ namespace TicketSellingModule.Repo
                 }
             }
             return employeeIds;
+        }
+
+        public void RemoveAllByFlightId(int flightId)
+        {
+            using (SqlConnection conn = _connectionFactory.GetConnection())
+            {
+                conn.Open();
+                string query = "DELETE FROM Flight_employees WHERE id_flight = @flightId";
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@flightId", flightId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void RemoveAllByEmployeeId(int employeeId)
+        {
+            using (SqlConnection conn = _connectionFactory.GetConnection())
+            {
+                conn.Open();
+                string query = "DELETE FROM Flight_employees WHERE id_employee = @empId";
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@empId", employeeId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
 
     }

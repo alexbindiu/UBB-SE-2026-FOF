@@ -16,9 +16,7 @@ namespace TicketSellingModule.Domain
         public TimeOnly DepartureTime { get; set; }
         public TimeOnly ArrivalTime { get; set; }
         public int Capacity { get; set; }
-        public int CompanyId { get; set; }
         public Company Company { get; set; }
-        public int AirportId {  get; set; }
         public Airport Airport { get; set; }
     }
 }

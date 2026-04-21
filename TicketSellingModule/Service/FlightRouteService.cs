@@ -68,9 +68,9 @@ namespace TicketSellingModule.Service
 
             foreach (var existingFlight in flightsOnSameDate)
             {
-                if (existingFlight.GateId == gateID || existingFlight.RunwayId == runwayID)
+                if (existingFlight.Gate.Id == gateID || existingFlight.Runway.Id == runwayID)
                 {
-                    var existingRoute = _routeRepo.GetRouteById(existingFlight.RouteId);
+                    var existingRoute = _routeRepo.GetRouteById(existingFlight.Route.Id);
 
                     if (existingRoute != null)
                     {
@@ -79,12 +79,12 @@ namespace TicketSellingModule.Service
 
                         if (isTimeOverlap)
                         {
-                            if (existingFlight.GateId == gateID)
+                            if (existingFlight.Gate.Id == gateID)
                                 throw new InvalidOperationException(
                                     $"Gate Conflict: Gate {gateID} is already occupied by Flight {existingFlight.FlightNumber} " +
                                     $"from {existingRoute.DepartureTime} to {existingRoute.ArrivalTime}.");
 
-                            if (existingFlight.RunwayId == runwayID)
+                            if (existingFlight.Runway.Id == runwayID)
                                 throw new InvalidOperationException(
                                     $"Runway Conflict: Runway {runwayID} is already in use by Flight {existingFlight.FlightNumber} " +
                                     $"from {existingRoute.DepartureTime} to {existingRoute.ArrivalTime}.");
@@ -95,9 +95,7 @@ namespace TicketSellingModule.Service
 
             Route newRoute = new Route
             {
-                CompanyId = companyID,
                 Company = _companyRepo.GetCompanyById(companyID),
-                AirportId = airportID,
                 Airport = _airportRepo.GetAirportById(airportID),
                 RouteType = route_type,
                 RecurrenceInterval = recurrence_interval,
@@ -112,11 +110,11 @@ namespace TicketSellingModule.Service
 
             Flight initialFlight = new Flight
             {
-                RouteId = routeId,
+                Route = new Route { Id = routeId },
                 Date = start_date,
                 FlightNumber = flight_number,
-                RunwayId = runwayID,
-                GateId = gateID
+                Runway = new Runway { Id = runwayID },
+                Gate = new Gate { Id = gateID }
             };
 
             _flightRepo.Add(initialFlight);
@@ -129,13 +127,13 @@ namespace TicketSellingModule.Service
             var flights = GetAllFlights();
             foreach (var flight in flights)
             {
-                if (flight.RunwayId > 0) flight.Runway = _runwayService.GetById(flight.RunwayId);
-                if (flight.GateId > 0) flight.Gate = _gateService.GetById(flight.GateId);
-                if (flight.RouteId > 0)
+                if (flight.Runway?.Id > 0) flight.Runway = _runwayService.GetById(flight.Runway.Id);
+                if (flight.Gate?.Id > 0) flight.Gate = _gateService.GetById(flight.Gate.Id);
+                if (flight.Route?.Id > 0)
                 {
-                    flight.Route = GetRouteById(flight.RouteId);
-                    if (flight.Route?.AirportId > 0)
-                        flight.Route.Airport = _airportService.GetById(flight.Route.AirportId);
+                    flight.Route = GetRouteById(flight.Route.Id);
+                    if (flight.Route?.Airport?.Id > 0)
+                        flight.Route.Airport = _airportService.GetById(flight.Route.Airport.Id);
                 }
             }
             return flights;

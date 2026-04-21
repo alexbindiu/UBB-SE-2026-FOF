@@ -41,10 +41,10 @@ namespace TicketSellingModule.Service
             Flight newFlight = new Flight
             {
                 FlightNumber = flightNumber,
-                RouteId = routeId,
+                Route = new Route { Id = routeId },
                 Date = date,
-                RunwayId = runwayId,
-                GateId = gateId
+                Runway = new Runway { Id = runwayId },
+                Gate = new Gate { Id = gateId }
             };
 
             return _flightRepo.Add(newFlight);
@@ -59,8 +59,8 @@ namespace TicketSellingModule.Service
 
             if (date.HasValue) existing.Date = date.Value;
             if (flightNumber != null) existing.FlightNumber = flightNumber;
-            if (runwayId.HasValue) existing.RunwayId = runwayId.Value;
-            if (gateId.HasValue) existing.GateId = gateId.Value;
+            if (runwayId.HasValue) existing.Runway = new Runway { Id = runwayId.Value };
+            if (gateId.HasValue) existing.Gate = new Gate { Id = gateId.Value };
 
             _flightRepo.Update(existing);
         }

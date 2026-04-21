@@ -46,7 +46,7 @@ namespace TicketSellingModule
             services.AddTransient<EmployeeRepo>();
             services.AddTransient<FlightRepo>();
             services.AddTransient<RouteRepo>();
-            services.AddTransient<FlightEmployeeRepo>();
+            services.AddTransient<EmployeeFlightRepo>();
 
             // Services
             services.AddTransient<CompanyService>();
@@ -55,7 +55,7 @@ namespace TicketSellingModule
             services.AddTransient<GateService>();
             services.AddTransient<EmployeeService>();
             services.AddTransient<FlightRouteService>();
-            services.AddTransient<FlightEmployeeService>();
+            services.AddTransient<EmployeeFlightService>();
             services.AddSingleton<INavigationService, NavigationService>();
 
             // ViewModels

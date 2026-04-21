@@ -130,12 +130,12 @@ namespace TicketSellingModule.Repo
                 {
                     try
                     {
-                        string deleteJunctionQuery = "DELETE FROM Flight_employees WHERE id_employee = @id";
-                        using (SqlCommand junctionCmd = new SqlCommand(deleteJunctionQuery, conn, transaction))
-                        {
-                            junctionCmd.Parameters.AddWithValue("@id", id);
-                            junctionCmd.ExecuteNonQuery();
-                        }
+                        //string deleteJunctionQuery = "DELETE FROM Flight_employees WHERE id_employee = @id";
+                        //using (SqlCommand junctionCmd = new SqlCommand(deleteJunctionQuery, conn, transaction))
+                        //{
+                        //    junctionCmd.Parameters.AddWithValue("@id", id);
+                        //    junctionCmd.ExecuteNonQuery();
+                        //}
 
                         string deleteEmpQuery = "DELETE FROM Employees WHERE id = @id";
                         using (SqlCommand empCmd = new SqlCommand(deleteEmpQuery, conn, transaction))
