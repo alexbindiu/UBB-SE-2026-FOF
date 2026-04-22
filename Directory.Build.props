@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <AnalysisLevel>latest</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)SE.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,5 +22,10 @@
     <!-- <Using Include="TicketSellingModule.Data.Services.Interfaces" /> -->
     
     <Using Include="Microsoft.Data.SqlClient" />
+
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>

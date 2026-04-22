@@ -1,24 +1,23 @@
-﻿
-namespace TicketSellingModule.Data.Repositories
+﻿namespace TicketSellingModule.Data.Repositories
 {
     public class RouteRepo
     {
-        private readonly DbConnectionFactory _connectionFactory;
+        private readonly DbConnectionFactory connectionFactory;
         public RouteRepo(DbConnectionFactory factory)
         {
-            _connectionFactory = factory;
+            connectionFactory = factory;
         }
 
         public List<Route> GetAllRoutes()
         {
-            List<Route> AllRoutes = new List<Route>();
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            List<Route> allRoutes = new List<Route>();
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "Select id, company_id, route_type, airport_id, reccurence_interval, start_date, end_date, departure_time, arrival_time, capacity from Routes";
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
-                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
@@ -30,26 +29,23 @@ namespace TicketSellingModule.Data.Repositories
                             newRoute.RecurrenceInterval = reader.GetInt32(4);
                             newRoute.StartDate = DateOnly.FromDateTime(reader.GetDateTime(5));
                             newRoute.EndDate = DateOnly.FromDateTime(reader.GetDateTime(6));
-                            // 1. Get the raw value as a string (e.g., "01/01/1900 2:35:00 pm")
+
                             string rawDepTime = reader.GetValue(7).ToString();
                             string rawArrTime = reader.GetValue(8).ToString();
 
-                            // 2. Use DateTime.Parse first (it handles the 1900 date easily) 
-                            // and then convert the result to TimeOnly
                             newRoute.DepartureTime = TimeOnly.FromDateTime(DateTime.Parse(rawDepTime));
                             newRoute.ArrivalTime = TimeOnly.FromDateTime(DateTime.Parse(rawArrTime));
-                            AllRoutes.Add(newRoute);
+                            allRoutes.Add(newRoute);
                         }
                     }
                 }
-                return AllRoutes;
+                return allRoutes;
             }
         }
 
-
         public int AddRoute(Route newRoute)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
 
@@ -80,7 +76,7 @@ namespace TicketSellingModule.Data.Repositories
 
         public void DeleteRoute(int id)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "DELETE FROM Routes WHERE id = @id";
@@ -94,7 +90,7 @@ namespace TicketSellingModule.Data.Repositories
 
         public void UpdateRoute(Route updatedRoute)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = @"UPDATE Routes SET 
@@ -131,7 +127,7 @@ namespace TicketSellingModule.Data.Repositories
         }
         public Route GetRouteById(int id)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
 

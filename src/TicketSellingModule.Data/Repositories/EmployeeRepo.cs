@@ -1,19 +1,17 @@
-﻿
-namespace TicketSellingModule.Data.Repositories
+﻿namespace TicketSellingModule.Data.Repositories
 {
     public class EmployeeRepo
     {
-        private readonly DbConnectionFactory _connectionFactory;
+        private readonly DbConnectionFactory connectionFactory;
         public EmployeeRepo(DbConnectionFactory factory)
         {
-            _connectionFactory = factory;
+            connectionFactory = factory;
         }
-
 
         public List<Employee> GetAllEmployees()
         {
             List<Employee> allEmployees = new List<Employee>();
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "SELECT id, name, role, birthday, salary, hiring_date FROM Employees";
@@ -41,7 +39,7 @@ namespace TicketSellingModule.Data.Repositories
 
         public Employee GetEmployeeById(int id)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "SELECT id, name, role, birthday, salary, hiring_date FROM Employees WHERE id = @id";
@@ -70,7 +68,7 @@ namespace TicketSellingModule.Data.Repositories
 
         public int AddEmployee(Employee newEmployee)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = @"INSERT INTO Employees (name, role, birthday, salary, hiring_date) 
@@ -92,7 +90,7 @@ namespace TicketSellingModule.Data.Repositories
 
         public void UpdateEmployee(Employee updatedEmployee)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = @"UPDATE Employees SET 
@@ -119,19 +117,21 @@ namespace TicketSellingModule.Data.Repositories
 
         public void DeleteEmployee(int id)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 using (SqlTransaction transaction = conn.BeginTransaction())
                 {
                     try
                     {
-                        //string deleteJunctionQuery = "DELETE FROM Flight_employees WHERE id_employee = @id";
-                        //using (SqlCommand junctionCmd = new SqlCommand(deleteJunctionQuery, conn, transaction))
-                        //{
-                        //    junctionCmd.Parameters.AddWithValue("@id", id);
-                        //    junctionCmd.ExecuteNonQuery();
-                        //}
+                        /*
+                        string deleteJunctionQuery = "DELETE FROM Flight_employees WHERE id_employee = @id";
+                        using (SqlCommand junctionCmd = new SqlCommand(deleteJunctionQuery, conn, transaction))
+                        {
+                            junctionCmd.Parameters.AddWithValue("@id", id);
+                            junctionCmd.ExecuteNonQuery();
+                        }
+                        */
 
                         string deleteEmpQuery = "DELETE FROM Employees WHERE id = @id";
                         using (SqlCommand empCmd = new SqlCommand(deleteEmpQuery, conn, transaction))
@@ -139,7 +139,6 @@ namespace TicketSellingModule.Data.Repositories
                             empCmd.Parameters.AddWithValue("@id", id);
                             empCmd.ExecuteNonQuery();
                         }
-                        
                         transaction.Commit();
                     }
                     catch

@@ -1,24 +1,23 @@
-﻿
-namespace TicketSellingModule.Data.Repositories
+﻿namespace TicketSellingModule.Data.Repositories
 {
     public class AirportRepo
     {
-        private readonly DbConnectionFactory _connectionFactory;
+        private readonly DbConnectionFactory connectionFactory;
 
         public AirportRepo(DbConnectionFactory factory)
         {
-            _connectionFactory = factory;
+            connectionFactory = factory;
         }
 
         public List<Airport> GetAllAirports()
         {
-            List<Airport> AllAirports = new List<Airport>();
+            List<Airport> allAirports = new List<Airport>();
 
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "SELECT id, city, name, code FROM Airports";
-                using(SqlCommand cmd = new SqlCommand(query,conn))
+                using (SqlCommand cmd = new SqlCommand(query,conn))
                 {
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -28,23 +27,22 @@ namespace TicketSellingModule.Data.Repositories
                             string city = reader.GetString(1);
                             string name = reader.GetString(2);
                             string code = reader.GetString(3);
-                            Airport NewAirport = new Airport();
-                            NewAirport.City = city;
-                            NewAirport.Id = id;
-                            NewAirport.AirportName = name;
-                            NewAirport.AirportCode = code;
-                            AllAirports.Add(NewAirport);
+                            Airport newAirport = new Airport();
+                            newAirport.City = city;
+                            newAirport.Id = id;
+                            newAirport.AirportName = name;
+                            newAirport.AirportCode = code;
+                            allAirports.Add(newAirport);
                         }
                     }
                 }
             }
-            return AllAirports;
+            return allAirports;
         }
 
         public Airport GetAirportById(int id)
         {
-
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "Select id, city, name, code  from Airports WHERE id = @id";
@@ -73,11 +71,11 @@ namespace TicketSellingModule.Data.Repositories
 
         public int AddAirport(Airport newAirport)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
-                string SqlInsert = "Insert into Airports (city, name, code) OUTPUT INSERTED.id VALUES (@city, @name, @code)";
-                using (SqlCommand cmd = new SqlCommand(SqlInsert, conn))
+                string sqlInsert = "Insert into Airports (city, name, code) OUTPUT INSERTED.id VALUES (@city, @name, @code)";
+                using (SqlCommand cmd = new SqlCommand(sqlInsert, conn))
                 {
                     cmd.Parameters.AddWithValue("@city", newAirport.City);
                     cmd.Parameters.AddWithValue("@name", newAirport.AirportName);
@@ -87,12 +85,11 @@ namespace TicketSellingModule.Data.Repositories
                     return newId;
                 }
             }
-            
         }
 
         public void DeleteAirport(int id)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 using (SqlTransaction transaction = conn.BeginTransaction())
@@ -107,7 +104,6 @@ namespace TicketSellingModule.Data.Repositories
                             cmd1.ExecuteNonQuery();
                         }
 
-                        
                         string deleteRoutes = "DELETE FROM Routes WHERE airport_id = @id";
                         using (SqlCommand cmd2 = new SqlCommand(deleteRoutes, conn, transaction))
                         {
@@ -115,7 +111,6 @@ namespace TicketSellingModule.Data.Repositories
                             cmd2.ExecuteNonQuery();
                         }
 
-                        
                         string deleteAirport = "DELETE FROM Airports WHERE id = @id";
                         using (SqlCommand cmd3 = new SqlCommand(deleteAirport, conn, transaction))
                         {
@@ -135,7 +130,7 @@ namespace TicketSellingModule.Data.Repositories
         }
         public void UpdateAirport(Airport airport)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "Update Airports SET city = @city, name = @name, code = @code where id = @id";
@@ -146,7 +141,6 @@ namespace TicketSellingModule.Data.Repositories
                     cmd.Parameters.AddWithValue("@code", airport.AirportCode);
                     cmd.Parameters.AddWithValue("@id", airport.Id);
                     cmd.ExecuteNonQuery();
-
                 }
             }
         }

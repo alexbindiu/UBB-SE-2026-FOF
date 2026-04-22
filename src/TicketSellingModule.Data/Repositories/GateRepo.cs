@@ -1,67 +1,66 @@
-﻿
-namespace TicketSellingModule.Data.Repositories
+﻿namespace TicketSellingModule.Data.Repositories
 {
     public class GateRepo
     {
-        private readonly DbConnectionFactory _connectionFactory;
+        private readonly DbConnectionFactory connectionFactory;
         public GateRepo(DbConnectionFactory factory)
         {
-            _connectionFactory = factory;
+            connectionFactory = factory;
         }
 
         public List<Gate> GetAllGates()
         {
-            List<Gate> AllGates = new List<Gate>();
-            using(SqlConnection conn = _connectionFactory.GetConnection())
+            List<Gate> allGates = new List<Gate>();
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "Select id, name from gates";
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
-                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        while(reader.Read())
+                        while (reader.Read())
                         {
                             int id = reader.GetInt32(0);
                             string name = reader.GetString(1);
-                            Gate NewGate = new Gate();
-                            NewGate.Id = id;
-                            NewGate.Name = name;
-                            AllGates.Add(NewGate);
+                            Gate newGate = new Gate();
+                            newGate.Id = id;
+                            newGate.Name = name;
+                            allGates.Add(newGate);
                         }
                     }
-                }    
+                }
             }
-            return AllGates;
+            return allGates;
         }
         public Gate GetGateById(int id)
-        { 
-            using(SqlConnection conn = _connectionFactory.GetConnection())
+        {
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "Select id, name from gates where @id = id";
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@id", id);
-                    using(SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        if(reader.Read())
+                        if (reader.Read())
                         {
                             string name = reader.GetString(1);
-                            Gate NewGate = new Gate();
-                            NewGate.Id = id;
-                            NewGate.Name = name;
-                            return NewGate;
+                            Gate newGate = new Gate();
+                            newGate.Id = id;
+                            newGate.Name = name;
+                            return newGate;
                         }
                     }
-                }    
+                }
             }
             return null;
         }
 
         public int AddGate(Gate newGate)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "Insert into gates(name) OUTPUT INSERTED.id VALUES (@name)";
@@ -76,7 +75,7 @@ namespace TicketSellingModule.Data.Repositories
 
         public void DeleteGate(int id)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 using (SqlTransaction transaction = conn.BeginTransaction())
@@ -110,7 +109,7 @@ namespace TicketSellingModule.Data.Repositories
 
         public void UpdateGate(Gate updatedGate)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "Update gates SET name = @name where @id = id";
@@ -119,7 +118,7 @@ namespace TicketSellingModule.Data.Repositories
                     cmd.Parameters.AddWithValue("@id", updatedGate.Id);
                     cmd.Parameters.AddWithValue("@name", updatedGate.Name);
                     cmd.ExecuteNonQuery();
-                }    
+                }
             }
         }
     }

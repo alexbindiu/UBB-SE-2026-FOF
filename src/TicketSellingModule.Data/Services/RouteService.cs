@@ -1,31 +1,36 @@
-﻿
-namespace TicketSellingModule.Data.Services
+﻿namespace TicketSellingModule.Data.Services
 {
     public class RouteService
     {
-        private readonly RouteRepo _routeRepo;
-        private readonly FlightRepo _flightRepo;
-        private readonly CompanyRepo _companyRepo;
-        private readonly AirportRepo _airportRepo;
+        private readonly RouteRepo routeRepo;
+        private readonly FlightRepo flightRepo;
+        private readonly CompanyRepo companyRepo;
+        private readonly AirportRepo airportRepo;
 
         public RouteService(RouteRepo routeRepo, FlightRepo flightRepo,
                             CompanyRepo companyRepo, AirportRepo airportRepo)
         {
-            _routeRepo = routeRepo;
-            _flightRepo = flightRepo;
-            _companyRepo = companyRepo;
-            _airportRepo = airportRepo;
+            this.routeRepo = routeRepo;
+            this.flightRepo = flightRepo;
+            this.companyRepo = companyRepo;
+            this.airportRepo = airportRepo;
         }
 
         private bool CheckOverlappingTimes(TimeOnly start1, TimeOnly end1, TimeOnly start2, TimeOnly end2)
         {
-            int s1 = start1.Hour * 60 + start1.Minute;
-            int e1 = end1.Hour * 60 + end1.Minute;
-            if (e1 <= s1) e1 += 1440;
+            int s1 = (start1.Hour * 60) + start1.Minute;
+            int e1 = (end1.Hour * 60) + end1.Minute;
+            if (e1 <= s1)
+            {
+                e1 += 1440;
+            }
 
-            int s2 = start2.Hour * 60 + start2.Minute;
-            int e2 = end2.Hour * 60 + end2.Minute;
-            if (e2 <= s2) e2 += 1440;
+            int s2 = (start2.Hour * 60) + start2.Minute;
+            int e2 = (end2.Hour * 60) + end2.Minute;
+            if (e2 <= s2)
+            {
+                e2 += 1440;
+            }
 
             return s1 < e2 && s2 < e1;
         }
@@ -35,12 +40,12 @@ namespace TicketSellingModule.Data.Services
                                         TimeOnly dep, TimeOnly arr, int capacity,
                                         string flightNum, int runwayId, int gateId)
         {
-            var sameDayFlights = _flightRepo.GetAll().Where(f => f.Date.Date == start.Date);
+            var sameDayFlights = flightRepo.GetAll().Where(f => f.Date.Date == start.Date);
             foreach (var existing in sameDayFlights)
             {
                 if (existing.Gate?.Id == gateId || existing.Runway?.Id == runwayId)
                 {
-                    var existingRoute = _routeRepo.GetRouteById(existing.Route.Id);
+                    var existingRoute = routeRepo.GetRouteById(existing.Route.Id);
                     if (existingRoute != null && CheckOverlappingTimes(dep, arr, existingRoute.DepartureTime, existingRoute.ArrivalTime))
                     {
                         throw new InvalidOperationException("Resource Conflict: Gate or Runway occupied.");
@@ -50,8 +55,8 @@ namespace TicketSellingModule.Data.Services
 
             Route newRoute = new Route
             {
-                Company = _companyRepo.GetCompanyById(companyId),
-                Airport = _airportRepo.GetAirportById(airportId),
+                Company = companyRepo.GetCompanyById(companyId),
+                Airport = airportRepo.GetAirportById(airportId),
                 RouteType = routeType,
                 RecurrenceInterval = interval,
                 StartDate = DateOnly.FromDateTime(start),
@@ -61,7 +66,7 @@ namespace TicketSellingModule.Data.Services
                 Capacity = capacity
             };
 
-            int routeId = _routeRepo.AddRoute(newRoute);
+            int routeId = routeRepo.AddRoute(newRoute);
 
             Flight initialFlight = new Flight
             {
@@ -71,12 +76,12 @@ namespace TicketSellingModule.Data.Services
                 Runway = new Runway { Id = runwayId },
                 Gate = new Gate { Id = gateId }
             };
-            _flightRepo.Add(initialFlight);
+            flightRepo.Add(initialFlight);
 
             return routeId;
         }
 
-        public Route? GetById(int id) => _routeRepo.GetRouteById(id);
-        public List<Route> GetAll() => _routeRepo.GetAllRoutes();
+        public Route? GetById(int id) => routeRepo.GetRouteById(id);
+        public List<Route> GetAll() => routeRepo.GetAllRoutes();
     }
 }

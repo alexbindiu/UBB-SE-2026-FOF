@@ -1,29 +1,32 @@
-
 namespace TicketSellingModule.Data.Services
 {
     public class RunwayService
     {
-        private readonly RunwayRepo _runwayRepo;
-        private readonly FlightRepo _flightRepo;
+        private readonly RunwayRepo runwayRepo;
+        private readonly FlightRepo flightRepo;
         public RunwayService(RunwayRepo runwayRepo, FlightRepo flightRepo)
         {
-            _runwayRepo = runwayRepo;
-            _flightRepo = flightRepo;
+            this.runwayRepo = runwayRepo;
+            this.flightRepo = flightRepo;
         }
 
         public List<Runway> GetAll()
         {
-            return _runwayRepo.GetAllRunways();
+            return runwayRepo.GetAllRunways();
         }
 
         public Runway GetById(int id)
         {
             if (id <= 0)
+            {
                 throw new ArgumentException("Invalid runway ID.");
+            }
 
-            var runway = _runwayRepo.GetRunwayById(id);
+            var runway = runwayRepo.GetRunwayById(id);
             if (runway == null)
+            {
                 throw new InvalidOperationException($"Runway with ID {id} does not exist.");
+            }
 
             return runway;
         }
@@ -31,50 +34,62 @@ namespace TicketSellingModule.Data.Services
         public int Add(string name, int handleTime)
         {
             if (string.IsNullOrWhiteSpace(name))
+            {
                 throw new ArgumentException("Runway name cannot be empty.");
+            }
+
             if (handleTime <= 0)
+            {
                 throw new ArgumentException("HandleTime must be greater than zero.");
+            }
 
             Runway newRunway = new Runway { Name = name, HandleTime = handleTime };
-            return _runwayRepo.AddRunway(newRunway);
+            return runwayRepo.AddRunway(newRunway);
         }
 
         public void Update(int id, string? newName = null, int? newHandleTime = null)
         {
-            var existingRunway = _runwayRepo.GetRunwayById(id);
+            var existingRunway = runwayRepo.GetRunwayById(id);
             if (existingRunway == null)
+            {
                 throw new InvalidOperationException($"Runway with ID {id} does not exist.");
+            }
 
             if (newName != null)
             {
                 if (string.IsNullOrWhiteSpace(newName))
+                {
                     throw new ArgumentException("New runway name cannot be empty.");
+                }
+
                 existingRunway.Name = newName;
             }
-            
+
             if (newHandleTime != null)
             {
                 if (newHandleTime <= 0)
+                {
                     throw new ArgumentException("HandleTime must be greater than zero.");
+                }
+
                 existingRunway.HandleTime = newHandleTime.Value;
             }
-
-            _runwayRepo.UpdateRunway(existingRunway);
+            runwayRepo.UpdateRunway(existingRunway);
         }
 
         public void Delete(int id)
         {
-            var runway = _runwayRepo.GetRunwayById(id);
+            var runway = runwayRepo.GetRunwayById(id);
             if (runway == null)
+            {
                 throw new InvalidOperationException($"Runway with ID {id} does not exist.");
-
-            _runwayRepo.DeleteRunway(id);
-
+            }
+            runwayRepo.DeleteRunway(id);
         }
 
         public bool HasFlights(int runwayId)
         {
-            return _flightRepo.GetFlightsByRunway(runwayId).Any();
+            return flightRepo.GetFlightsByRunway(runwayId).Any();
         }
     }
 }

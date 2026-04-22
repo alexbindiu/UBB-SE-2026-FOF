@@ -1,19 +1,17 @@
-﻿
-namespace TicketSellingModule.Data.Repositories
+﻿namespace TicketSellingModule.Data.Repositories
 {
     public class RunwayRepo
     {
-        private readonly DbConnectionFactory _connectionFactory;
+        private readonly DbConnectionFactory connectionFactory;
         public RunwayRepo(DbConnectionFactory factory)
         {
-            _connectionFactory = factory;
+            connectionFactory = factory;
         }
-
 
         public List<Runway> GetAllRunways()
         {
             List<Runway> allRunways = new List<Runway>();
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "SELECT id, name, handle_time FROM runways";
@@ -38,7 +36,7 @@ namespace TicketSellingModule.Data.Repositories
 
         public Runway GetRunwayById(int id)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "SELECT id, name FROM runways WHERE id = @id";
@@ -60,7 +58,7 @@ namespace TicketSellingModule.Data.Repositories
 
         public int AddRunway(Runway newRunway)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "INSERT INTO runways(name, handle_time) OUTPUT INSERTED.id VALUES (@name, @handleTime)";
@@ -75,7 +73,7 @@ namespace TicketSellingModule.Data.Repositories
 
         public void UpdateRunway(Runway updatedRunway)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "UPDATE runways SET name = @name, handle_time = @handleTime WHERE id = @id";
@@ -83,7 +81,7 @@ namespace TicketSellingModule.Data.Repositories
                 {
                     cmd.Parameters.AddWithValue("@id", updatedRunway.Id);
                     cmd.Parameters.AddWithValue("@name", updatedRunway.Name);
-                    cmd.Parameters.AddWithValue("@handleTime", updatedRunway.HandleTime);   
+                    cmd.Parameters.AddWithValue("@handleTime", updatedRunway.HandleTime);
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -91,7 +89,7 @@ namespace TicketSellingModule.Data.Repositories
 
         public void DeleteRunway(int id)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 using (SqlTransaction transaction = conn.BeginTransaction())

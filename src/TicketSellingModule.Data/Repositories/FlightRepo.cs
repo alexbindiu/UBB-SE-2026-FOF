@@ -1,20 +1,19 @@
-
 namespace TicketSellingModule.Data.Repositories
 {
     public class FlightRepo
     {
-        private readonly DbConnectionFactory _connectionFactory;
+        private readonly DbConnectionFactory connectionFactory;
 
         public FlightRepo(DbConnectionFactory factory)
         {
-            _connectionFactory = factory;
+            connectionFactory = factory;
         }
 
         public List<Flight> GetAll()
         {
             List<Flight> flights = new List<Flight>();
 
-            using (SqlConnection connection = _connectionFactory.GetConnection())
+            using (SqlConnection connection = connectionFactory.GetConnection())
             {
                 connection.Open();
                 string sql = "SELECT id, date, flight_number, route_id, runway_id, gate_id FROM Flights";
@@ -28,7 +27,7 @@ namespace TicketSellingModule.Data.Repositories
                         {
                             Id = reader.GetInt32(0),
                             Date = reader.GetDateTime(1),
-                            FlightNumber = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                            FlightNumber = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
                             Route = new Route { Id = reader.IsDBNull(3) ? 0 : reader.GetInt32(3) },
                             Runway = new Runway { Id = reader.IsDBNull(4) ? 0 : reader.GetInt32(4) },
                             Gate = new Gate { Id = reader.IsDBNull(5) ? 0 : reader.GetInt32(5) }
@@ -44,7 +43,7 @@ namespace TicketSellingModule.Data.Repositories
         {
             Flight flight = null;
 
-            using (SqlConnection connection = _connectionFactory.GetConnection())
+            using (SqlConnection connection = connectionFactory.GetConnection())
             {
                 connection.Open();
                 string sql = "SELECT id, date, flight_number, route_id, runway_id, gate_id FROM Flights WHERE id = @id";
@@ -60,7 +59,7 @@ namespace TicketSellingModule.Data.Repositories
                             {
                                 Id = reader.GetInt32(0),
                                 Date = reader.GetDateTime(1),
-                                FlightNumber = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                FlightNumber = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
                                 Route = new Route { Id = reader.IsDBNull(3) ? 0 : reader.GetInt32(3) },
                                 Runway = new Runway { Id = reader.IsDBNull(4) ? 0 : reader.GetInt32(4) },
                                 Gate = new Gate { Id = reader.IsDBNull(5) ? 0 : reader.GetInt32(5) }
@@ -76,7 +75,7 @@ namespace TicketSellingModule.Data.Repositories
         {
             List<Flight> flights = new List<Flight>();
 
-            using (SqlConnection connection = _connectionFactory.GetConnection())
+            using (SqlConnection connection = connectionFactory.GetConnection())
             {
                 connection.Open();
                 string sql = "SELECT id, date, flight_number, route_id, runway_id, gate_id FROM Flights WHERE route_id = @route_id";
@@ -92,7 +91,7 @@ namespace TicketSellingModule.Data.Repositories
                             {
                                 Id = reader.GetInt32(0),
                                 Date = reader.GetDateTime(1),
-                                FlightNumber = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                FlightNumber = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
                                 Route = new Route { Id = reader.IsDBNull(3) ? 0 : reader.GetInt32(3) },
                                 Runway = new Runway { Id = reader.IsDBNull(4) ? 0 : reader.GetInt32(4) },
                                 Gate = new Gate { Id = reader.IsDBNull(5) ? 0 : reader.GetInt32(5) }
@@ -105,12 +104,11 @@ namespace TicketSellingModule.Data.Repositories
             return flights;
         }
 
-
         public List<Flight> GetFlightsByRunway(int runwayId)
         {
             List<Flight> flights = new List<Flight>();
 
-            using (SqlConnection connection = _connectionFactory.GetConnection())
+            using (SqlConnection connection = connectionFactory.GetConnection())
             {
                 connection.Open();
                 string sql = "SELECT id, date, flight_number, route_id, runway_id, gate_id FROM Flights WHERE runway_id = @runway_id";
@@ -126,7 +124,7 @@ namespace TicketSellingModule.Data.Repositories
                             {
                                 Id = reader.GetInt32(0),
                                 Date = reader.GetDateTime(1),
-                                FlightNumber = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                FlightNumber = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
                                 Route = new Route { Id = reader.IsDBNull(3) ? 0 : reader.GetInt32(3) },
                                 Runway = new Runway { Id = reader.IsDBNull(4) ? 0 : reader.GetInt32(4) },
                                 Gate = new Gate { Id = reader.IsDBNull(5) ? 0 : reader.GetInt32(5) }
@@ -138,11 +136,10 @@ namespace TicketSellingModule.Data.Repositories
             return flights;
         }
 
-
         public List<Flight> GetFlightsByGate(int gateId)
         {
             List<Flight> flights = new List<Flight>();
-            using (SqlConnection connection = _connectionFactory.GetConnection())
+            using (SqlConnection connection = connectionFactory.GetConnection())
             {
                 connection.Open();
                 string sql = "SELECT id, date, flight_number, route_id, runway_id, gate_id FROM Flights WHERE gate_id = @gate_id";
@@ -153,7 +150,7 @@ namespace TicketSellingModule.Data.Repositories
                     {
                         while (reader.Read())
                         {
-                            flights.Add(new Flight { Id = reader.GetInt32(0), FlightNumber = reader.IsDBNull(2) ? "" : reader.GetString(2) });
+                            flights.Add(new Flight { Id = reader.GetInt32(0), FlightNumber = reader.IsDBNull(2) ? string.Empty : reader.GetString(2) });
                         }
                     }
                 }
@@ -164,7 +161,7 @@ namespace TicketSellingModule.Data.Repositories
         public List<Flight> GetFlightsByAirport(int airportId)
         {
             List<Flight> flights = new List<Flight>();
-            using (SqlConnection connection = _connectionFactory.GetConnection())
+            using (SqlConnection connection = connectionFactory.GetConnection())
             {
                 connection.Open();
                 string sql = @"SELECT id, flight_number FROM Flights 
@@ -176,7 +173,7 @@ namespace TicketSellingModule.Data.Repositories
                     {
                         while (reader.Read())
                         {
-                            flights.Add(new Flight { Id = reader.GetInt32(0), FlightNumber = reader.IsDBNull(1) ? "" : reader.GetString(1) });
+                            flights.Add(new Flight { Id = reader.GetInt32(0), FlightNumber = reader.IsDBNull(1) ? string.Empty : reader.GetString(1) });
                         }
                     }
                 }
@@ -184,10 +181,9 @@ namespace TicketSellingModule.Data.Repositories
             return flights;
         }
 
-
         public int Add(Flight flight)
         {
-            using (SqlConnection connection = _connectionFactory.GetConnection())
+            using (SqlConnection connection = connectionFactory.GetConnection())
             {
                 connection.Open();
                 string sql = @"INSERT INTO Flights (route_id, date, runway_id, gate_id, flight_number)
@@ -207,11 +203,9 @@ namespace TicketSellingModule.Data.Repositories
             }
         }
 
-        
-
         public void Update(Flight flight)
         {
-            using (SqlConnection connection = _connectionFactory.GetConnection())
+            using (SqlConnection connection = connectionFactory.GetConnection())
             {
                 connection.Open();
                 string sql = @"UPDATE Flights
@@ -238,21 +232,23 @@ namespace TicketSellingModule.Data.Repositories
 
         public void Delete(int id)
         {
-            using (SqlConnection connection = _connectionFactory.GetConnection())
+            using (SqlConnection connection = connectionFactory.GetConnection())
             {
                 connection.Open();
-                //string delete_link_sql = "DELETE FROM Flight_employees WHERE id_flight = @id";
+                // string delete_link_sql = "DELETE FROM Flight_employees WHERE id_flight = @id";
                 string delete_flight_sql = "DELETE FROM Flights WHERE id = @id";
 
                 using (SqlTransaction transaction = connection.BeginTransaction())
                 {
                     try
                     {
-                        //using (SqlCommand cmd1 = new SqlCommand(delete_link_sql, connection, transaction))
-                        //{
-                        //    cmd1.Parameters.AddWithValue("@id", id);
-                        //    cmd1.ExecuteNonQuery();
-                        //}
+                        /*
+                        using (SqlCommand cmd1 = new SqlCommand(delete_link_sql, connection, transaction))
+                        {
+                            cmd1.Parameters.AddWithValue("@id", id);
+                            cmd1.ExecuteNonQuery();
+                        }
+                        */
                         using (SqlCommand cmd2 = new SqlCommand(delete_flight_sql, connection, transaction))
                         {
                             cmd2.Parameters.AddWithValue("@id", id);
@@ -263,7 +259,7 @@ namespace TicketSellingModule.Data.Repositories
                     catch
                     {
                         transaction.Rollback();
-                        throw; 
+                        throw;
                     }
                 }
             }
