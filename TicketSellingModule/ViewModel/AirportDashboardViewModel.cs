@@ -27,11 +27,11 @@ namespace TicketSellingModule.ViewModel
         [ObservableProperty] private Gate? _selectedGate;
         [ObservableProperty] private Airport? _selectedAirport;
 
-        [ObservableProperty] private Visibility _dialogVisibility = Visibility.Collapsed;
+        [ObservableProperty] private Visibility _dialogVisibility = Visibility.Visible;
         [ObservableProperty] private string _dialogTitle = string.Empty;
         [ObservableProperty] private string _dialogErrorMessage = string.Empty;
-        [ObservableProperty] private Visibility _handleTimeVisibility = Visibility.Collapsed;
-        [ObservableProperty] private Visibility _cityCodeVisibility = Visibility.Collapsed;
+        [ObservableProperty] private Visibility _handleTimeVisibility = Visibility.Visible;
+        [ObservableProperty] private Visibility _cityCodeVisibility = Visibility.Visible;
 
         [ObservableProperty] private int _editingId;
         [ObservableProperty] private string _editingName = string.Empty;
@@ -77,7 +77,7 @@ namespace TicketSellingModule.ViewModel
             EditingHandleTimeText = string.Empty;
 
             HandleTimeVisibility = Visibility.Visible;
-            CityCodeVisibility = Visibility.Collapsed;
+            CityCodeVisibility = Visibility.Visible;
 
             DialogTitle = "Add New Runway";
             DialogErrorMessage = string.Empty;
@@ -94,7 +94,7 @@ namespace TicketSellingModule.ViewModel
             EditingHandleTimeText = SelectedRunway.HandleTime.ToString();
 
             HandleTimeVisibility = Visibility.Visible;
-            CityCodeVisibility = Visibility.Collapsed;
+            CityCodeVisibility = Visibility.Visible;
 
             DialogTitle = "Edit Runway";
             DialogErrorMessage = string.Empty;
@@ -108,8 +108,8 @@ namespace TicketSellingModule.ViewModel
             EditingId = 0;
             EditingName = string.Empty;
 
-            HandleTimeVisibility = Visibility.Collapsed;
-            CityCodeVisibility = Visibility.Collapsed;
+            HandleTimeVisibility = Visibility.Visible;
+            CityCodeVisibility = Visibility.Visible;
 
             DialogTitle = "Add New Gate";
             DialogErrorMessage = string.Empty;
@@ -124,8 +124,8 @@ namespace TicketSellingModule.ViewModel
             EditingId = SelectedGate.Id;
             EditingName = SelectedGate.Name;
 
-            HandleTimeVisibility = Visibility.Collapsed;
-            CityCodeVisibility = Visibility.Collapsed;
+            HandleTimeVisibility = Visibility.Visible;
+            CityCodeVisibility = Visibility.Visible;
 
             DialogTitle = "Edit Gate";
             DialogErrorMessage = string.Empty;
@@ -141,7 +141,7 @@ namespace TicketSellingModule.ViewModel
             EditingCity = string.Empty;
             EditingCode = string.Empty;
 
-            HandleTimeVisibility = Visibility.Collapsed;
+            HandleTimeVisibility = Visibility.Visible;
             CityCodeVisibility = Visibility.Visible;
 
             DialogTitle = "Add New Airport";
@@ -159,7 +159,7 @@ namespace TicketSellingModule.ViewModel
             EditingCity = SelectedAirport.City;
             EditingCode = SelectedAirport.AirportCode;
 
-            HandleTimeVisibility = Visibility.Collapsed;
+            HandleTimeVisibility = Visibility.Visible;
             CityCodeVisibility = Visibility.Visible;
 
             DialogTitle = "Edit Airport";
@@ -170,7 +170,7 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void CloseDialog()
         {
-            DialogVisibility = Visibility.Collapsed;
+            DialogVisibility = Visibility.Visible;
         }
 
         [RelayCommand]
@@ -216,7 +216,7 @@ namespace TicketSellingModule.ViewModel
 
                 
                 LoadData();
-                DialogVisibility = Visibility.Collapsed;
+                DialogVisibility = Visibility.Visible;
             }
             catch (Exception ex)
             {
@@ -297,15 +297,17 @@ namespace TicketSellingModule.ViewModel
         private void DeleteAirport()
         {
             if (SelectedAirport == null) return;
-
-            _itemToDelete = SelectedAirport;
-
-            bool hasFlights = _airportService.HasFlights(SelectedAirport.Id);
-            DeleteWarningMessage = hasFlights
-                ? $"CRITICAL: '{SelectedAirport.AirportName}' has flights/routes assigned. Deleting it will remove EVERY related flight and route. Proceed?"
-                : $"Are you sure you want to delete '{SelectedAirport.AirportName}'?";
-
-            DeleteConfirmationVisibility = Visibility.Visible;
+            try
+            {
+                _airportService.Delete(SelectedAirport.Id);
+            }
+            catch(Exception ex)
+            {
+                DialogErrorMessage = $"Cannot delete airport: {ex.Message}";
+                DialogVisibility = Visibility.Visible;
+                return;
+            }
+            LoadData();
         }
     }
 }

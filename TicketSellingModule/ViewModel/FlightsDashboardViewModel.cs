@@ -13,7 +13,7 @@ namespace TicketSellingModule.ViewModel
     public partial class FlightsDashboardViewModel : ObservableObject
     {
         private readonly FlightRouteService _flightRouteService;
-        private readonly FlightEmployeeService _flightEmployeeService;
+        private readonly EmployeeFlightService _flightEmployeeService;
 
         private List<Flight> _allFlights = new();
 
@@ -28,7 +28,7 @@ namespace TicketSellingModule.ViewModel
 
         public FlightsDashboardViewModel(
             FlightRouteService flightRouteService,
-            FlightEmployeeService flightEmployeeService)
+            EmployeeFlightService flightEmployeeService)
         {
             _flightRouteService = flightRouteService;
             _flightEmployeeService = flightEmployeeService;

@@ -15,7 +15,7 @@ namespace TicketSellingModule.ViewModel
     public partial class EmployeesDashboardViewModel : ObservableObject
     {
         private readonly EmployeeService _employeeService;
-
+        private readonly EmployeeFlightService _employeeFlightService;
         public ObservableCollection<Employee> PilotEmployees { get; } = new();
         public ObservableCollection<Employee> FlightAttendantEmployees { get; } = new();
         public ObservableCollection<Employee> CoPilotEmployees { get; } = new();
@@ -46,9 +46,10 @@ namespace TicketSellingModule.ViewModel
         [ObservableProperty]
         private string _editingSalaryText = string.Empty;
 
-        public EmployeesDashboardViewModel(EmployeeService employeeService)
+        public EmployeesDashboardViewModel(EmployeeService employeeService, EmployeeFlightService employeeFlightService)
         {
             _employeeService = employeeService;
+            _employeeFlightService = employeeFlightService;
         }
 
         [RelayCommand]
@@ -95,12 +96,23 @@ namespace TicketSellingModule.ViewModel
         }
 
         [RelayCommand]
-        private void DeleteEmployee(Employee employee)
+        private void DeleteEmployee()
         {
-            if (employee == null) return;
-            _employeeService.Delete(employee.Id);
+            if (SelectedEmployee == null) return;
 
-            RemoveFromCollections(employee);
+            try
+            {
+                _employeeFlightService.CleanUpEmployeeAssignments(SelectedEmployee.Id);
+
+                _employeeService.Delete(SelectedEmployee.Id);
+
+                LoadData();
+            }
+            catch (Exception ex)
+            {
+                DialogErrorMessage = $"Could not delete employee: {ex.Message}";
+                DialogVisibility = Visibility.Visible;
+            }
         }
 
         [RelayCommand]

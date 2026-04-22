@@ -15,7 +15,7 @@ namespace TicketSellingModule.ViewModel
     public partial class StaffPageViewModel : ObservableObject
     {
         private readonly EmployeeService _employeeService;
-        private readonly FlightEmployeeService _flightEmployeeService;
+        private readonly EmployeeFlightService _flightEmployeeService;
         private readonly RouteService _routeService;
         private readonly GateService _gateService;
         private readonly RunwayService _runwayService;
@@ -31,7 +31,7 @@ namespace TicketSellingModule.ViewModel
 
         public StaffPageViewModel(
             EmployeeService employeeService,
-            FlightEmployeeService flightEmployeeService,
+            EmployeeFlightService flightEmployeeService,
             RouteService routeService,
             GateService gateService,
             RunwayService runwayService)
@@ -82,9 +82,9 @@ namespace TicketSellingModule.ViewModel
 
             foreach (var flight in _flightEmployeeService.GetEmployeeSchedule(employeeId).OrderBy(f => f.Date))
             {
-                var route = _routeService.GetById(flight.RouteId);
-                var gate = flight.GateId > 0 ? _gateService.GetById(flight.GateId) : null;
-                var runway = GetRunwaySafe(flight.RunwayId);
+                var route = _routeService.GetById(flight.Route.Id);
+                var gate = flight.Gate?.Id > 0 ? _gateService.GetById(flight.Gate.Id) : null;
+                var runway = GetRunwaySafe(flight.Runway?.Id ?? 0);
 
                 ScheduledFlights.Add(new EmployeeScheduleItem
                 {
