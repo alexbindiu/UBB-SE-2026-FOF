@@ -1,14 +1,13 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System;
-
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-
 using TicketSellingModule.Domain;
 using TicketSellingModule.Service;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace TicketSellingModule.ViewModel
 {
@@ -23,6 +22,12 @@ namespace TicketSellingModule.ViewModel
 
        
         public ObservableCollection<Flight> FlightsList { get; } = new();
+
+        //public ObservableCollection<Runway> RunwaysList { get; } = new();
+        //public ObservableCollection<Gate> GatesList { get; } = new();
+        //public ObservableCollection<Airport> AirportsList { get; } = new();
+
+        
 
 
         [ObservableProperty]
@@ -50,7 +55,6 @@ namespace TicketSellingModule.ViewModel
         public void RefreshFlights()
         {
             FlightsList.Clear();
-            // Business logic moved to FlightRouteService.GetAllFlightsWithDetails()
             foreach (var f in _flightRouteService.GetAllFlightsWithDetails()) FlightsList.Add(f);
         }
 
@@ -107,15 +111,14 @@ namespace TicketSellingModule.ViewModel
         public List<Employee> GetFlightCrew(int flightId) =>
             _flightEmployeeService.GetFlightCrew(flightId);
 
-        // Business logic moved to FlightEmployeeService.GetAvailableEmployeesForFlight()
         public List<Employee> GetAvailableEmployeesForFlight(Flight targetFlight) =>
             _flightEmployeeService.GetAvailableEmployeesForFlight(targetFlight);
 
-        // Business logic moved to FlightEmployeeService.UpdateCrewForFlight()
         public void AssignCrewToFlight(int flightId, List<int> employeeIds) =>
             _flightEmployeeService.AssignCrewToFlight(flightId, employeeIds);
 
         public void UpdateCrewForFlight(int flightId, List<int> newEmployeeIds) =>
             _flightEmployeeService.UpdateCrewForFlight(flightId, newEmployeeIds);
+
     }
 }

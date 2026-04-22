@@ -108,6 +108,87 @@ namespace TicketSellingModule.Repo
             }
             return flights;
         }
+
+
+        public List<Flight> GetFlightsByRunway(int runwayId)
+        {
+            List<Flight> flights = new List<Flight>();
+
+            using (SqlConnection connection = _connectionFactory.GetConnection())
+            {
+                connection.Open();
+                string sql = "SELECT id, date, flight_number, route_id, runway_id, gate_id FROM Flights WHERE runway_id = @runway_id";
+
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@runway_id", runwayId);
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            flights.Add(new Flight
+                            {
+                                Id = reader.GetInt32(0),
+                                Date = reader.GetDateTime(1),
+                                FlightNumber = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                RouteId = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
+                                RunwayId = reader.IsDBNull(4) ? 0 : reader.GetInt32(4),
+                                GateId = reader.IsDBNull(5) ? 0 : reader.GetInt32(5)
+                            });
+                        }
+                    }
+                }
+            }
+            return flights;
+        }
+
+
+        public List<Flight> GetFlightsByGate(int gateId)
+        {
+            List<Flight> flights = new List<Flight>();
+            using (SqlConnection connection = _connectionFactory.GetConnection())
+            {
+                connection.Open();
+                string sql = "SELECT id, date, flight_number, route_id, runway_id, gate_id FROM Flights WHERE gate_id = @gate_id";
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@gate_id", gateId);
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            flights.Add(new Flight { Id = reader.GetInt32(0), FlightNumber = reader.IsDBNull(2) ? "" : reader.GetString(2) });
+                        }
+                    }
+                }
+            }
+            return flights;
+        }
+
+        public List<Flight> GetFlightsByAirport(int airportId)
+        {
+            List<Flight> flights = new List<Flight>();
+            using (SqlConnection connection = _connectionFactory.GetConnection())
+            {
+                connection.Open();
+                string sql = @"SELECT id, flight_number FROM Flights 
+                       WHERE route_id IN (SELECT id FROM Routes WHERE airport_id = @airportId)";
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@airportId", airportId);
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            flights.Add(new Flight { Id = reader.GetInt32(0), FlightNumber = reader.IsDBNull(1) ? "" : reader.GetString(1) });
+                        }
+                    }
+                }
+            }
+            return flights;
+        }
+
+
         public int Add(Flight flight)
         {
             using (SqlConnection connection = _connectionFactory.GetConnection())
@@ -119,7 +200,6 @@ namespace TicketSellingModule.Repo
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
-                    // Adding DBNull checks so C# doesn't crash if the user leaves these blank!
                     command.Parameters.AddWithValue("@route_id", (object)flight.RouteId ?? DBNull.Value);
                     command.Parameters.AddWithValue("@date", flight.Date);
                     command.Parameters.AddWithValue("@runway_id", (object)flight.RunwayId ?? DBNull.Value);
