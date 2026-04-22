@@ -27,11 +27,11 @@ namespace TicketSellingModule.ViewModel
         [ObservableProperty] private Gate? _selectedGate;
         [ObservableProperty] private Airport? _selectedAirport;
 
-        [ObservableProperty] private Visibility _dialogVisibility = Visibility.Visible;
+        [ObservableProperty] private Visibility _dialogVisibility = Visibility.Collapsed;
         [ObservableProperty] private string _dialogTitle = string.Empty;
         [ObservableProperty] private string _dialogErrorMessage = string.Empty;
-        [ObservableProperty] private Visibility _handleTimeVisibility = Visibility.Visible;
-        [ObservableProperty] private Visibility _cityCodeVisibility = Visibility.Visible;
+        [ObservableProperty] private Visibility _handleTimeVisibility = Visibility.Collapsed;
+        [ObservableProperty] private Visibility _cityCodeVisibility = Visibility.Collapsed;
 
         [ObservableProperty] private int _editingId;
         [ObservableProperty] private string _editingName = string.Empty;
@@ -170,7 +170,7 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void CloseDialog()
         {
-            DialogVisibility = Visibility.Visible;
+            DialogVisibility = Visibility.Collapsed;
         }
 
         [RelayCommand]
@@ -216,7 +216,7 @@ namespace TicketSellingModule.ViewModel
 
                 
                 LoadData();
-                DialogVisibility = Visibility.Visible;
+                DialogVisibility = Visibility.Collapsed;
             }
             catch (Exception ex)
             {
