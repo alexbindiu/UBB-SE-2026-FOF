@@ -48,7 +48,7 @@ namespace TicketSellingModule.ViewModel
 
         public EmployeesDashboardViewModel(EmployeeService employeeService)
         {
-            employeeService = employeeService;
+            this.employeeService = employeeService;
         }
 
         [RelayCommand]

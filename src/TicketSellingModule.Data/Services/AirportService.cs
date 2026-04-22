@@ -6,8 +6,8 @@
         private readonly FlightRepo flightRepo;
         public AirportService(AirportRepo airportRepo, FlightRepo flightRepo)
         {
-            airportRepo = airportRepo;
-            flightRepo = flightRepo;
+            this.airportRepo = airportRepo;
+            this.flightRepo = flightRepo;
         }
 
         public List<Airport> GetAll()

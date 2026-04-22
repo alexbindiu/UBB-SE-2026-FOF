@@ -94,8 +94,6 @@
                 }
             }
 
-
-
             Route newRoute = new Route
             {
                 Company = companyRepo.GetCompanyById(companyID),

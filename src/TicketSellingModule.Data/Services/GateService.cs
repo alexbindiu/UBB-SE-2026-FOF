@@ -6,8 +6,8 @@ namespace TicketSellingModule.Data.Services
         private readonly FlightRepo flightRepo;
         public GateService(GateRepo gateRepo, FlightRepo flightRepo)
         {
-            gateRepo = gateRepo;
-            flightRepo = flightRepo;
+            this.gateRepo = gateRepo;
+            this.flightRepo = flightRepo;
         }
 
         public List<Gate> GetAll()
@@ -70,9 +70,13 @@ namespace TicketSellingModule.Data.Services
         public void SaveGate(int id, string name)
         {
             if (id == 0)
+            {
                 Add(name);
+            }
             else
+            {
                 Update(id, name);
+            }
         }
 
         public bool HasFlights(int gateId)

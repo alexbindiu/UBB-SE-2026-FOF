@@ -11,7 +11,7 @@ namespace TicketSellingModule.ViewModel
 
         public HeaderViewModel(INavigationService navigationService)
         {
-            navigationService = navigationService;
+            this.navigationService = navigationService;
         }
 
         [RelayCommand]

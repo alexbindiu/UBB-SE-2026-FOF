@@ -18,8 +18,8 @@ namespace TicketSellingModule.ViewModel
 
         public StaffLoginViewModel(EmployeeService employeeService, INavigationService navigationService)
         {
-            employeeService = employeeService;
-            navigationService = navigationService;
+            this.employeeService = employeeService;
+            this.navigationService = navigationService;
         }
 
         [RelayCommand]

@@ -4,10 +4,10 @@ namespace TicketSellingModule.Data.Services
     {
         private readonly CompanyRepo companyRepo;
         private readonly FlightRouteService flightRouteService;
-        public CompanyService (CompanyRepo companyRepo, FlightRouteService flightRouteService)
+        public CompanyService(CompanyRepo companyRepo, FlightRouteService flightRouteService)
         {
-            companyRepo = companyRepo;
-            flightRouteService = flightRouteService;
+            this.companyRepo = companyRepo;
+            this.flightRouteService = flightRouteService;
         }
 
         public List<Company> GetAll()

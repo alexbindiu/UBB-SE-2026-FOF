@@ -25,8 +25,8 @@ namespace TicketSellingModule.ViewModel
             EmployeeService employeeService,
             EmployeeFlightService flightEmployeeService)
         {
-            employeeService = employeeService;
-            flightEmployeeService = flightEmployeeService;
+            this.employeeService = employeeService;
+            this.flightEmployeeService = flightEmployeeService;
         }
 
         public void Initialize(int employeeId)

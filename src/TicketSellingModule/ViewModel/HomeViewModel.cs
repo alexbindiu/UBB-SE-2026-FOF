@@ -11,25 +11,25 @@ namespace TicketSellingModule.ViewModel
 
         public HomeViewModel(INavigationService navigationService)
         {
-            navigationService = navigationService;
+            this.navigationService = navigationService;
         }
 
         [RelayCommand]
         private void NavigateToCompany()
         {
-            navigationService.NavigateToSelectCompany();
+            this.navigationService.NavigateToSelectCompany();
         }
 
         [RelayCommand]
         private void NavigateToAdmin()
         {
-            navigationService.NavigateToAirportAdmin();
+            this.navigationService.NavigateToAirportAdmin();
         }
 
         [RelayCommand]
         private void NavigateToStaff()
         {
-            navigationService.NavigateToStaffLogin();
+            this.navigationService.NavigateToStaffLogin();
         }
     }
 }

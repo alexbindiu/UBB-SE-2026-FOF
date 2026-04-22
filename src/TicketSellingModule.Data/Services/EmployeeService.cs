@@ -68,8 +68,7 @@
                     role: editingEmployee.Role,
                     birthday: finalBirthday,
                     salary: editingEmployee.Salary,
-                    hiringDate: finalHiringDate
-                );
+                    hiringDate: finalHiringDate);
             }
             else
             {
@@ -77,8 +76,7 @@
                     id: editingEmployee.Id,
                     name: editingEmployee.Name,
                     role: editingEmployee.Role,
-                    salary: editingEmployee.Salary
-                );
+                    salary: editingEmployee.Salary);
             }
         }
 

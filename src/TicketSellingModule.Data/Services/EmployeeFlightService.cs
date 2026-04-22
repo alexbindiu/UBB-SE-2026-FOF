@@ -19,13 +19,13 @@
             RunwayService runwayService,
             RouteService routeService)
         {
-            linkRepo = linkRepo;
-            employeeRepo = employeeRepo;
-            flightRepo = flightRepo;
-            routeRepo = routeRepo;
-            gateService = gateService;
-            runwayService = runwayService;
-            routeService = routeService;
+            this.linkRepo = linkRepo;
+            this.employeeRepo = employeeRepo;
+            this.flightRepo = flightRepo;
+            this.routeRepo = routeRepo;
+            this.gateService = gateService;
+            this.runwayService = runwayService;
+            this.routeService = routeService;
         }
 
         public void AssignCrewMember(int flightId, int employeeId)

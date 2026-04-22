@@ -27,8 +27,8 @@ namespace TicketSellingModule.ViewModel
             FlightRouteService flightRouteService,
             EmployeeFlightService flightEmployeeService)
         {
-            flightRouteService = flightRouteService;
-            flightEmployeeService = flightEmployeeService;
+            this.flightRouteService = flightRouteService;
+            this.flightEmployeeService = flightEmployeeService;
         }
 
         [RelayCommand]
