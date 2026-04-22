@@ -1,11 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using Microsoft.UI.Xaml;
-using TicketSellingModule.Domain;
-using TicketSellingModule.Service;
 using TicketSellingModule.WinUI.AirportAdmin.Components;
 
 namespace TicketSellingModule.ViewModel

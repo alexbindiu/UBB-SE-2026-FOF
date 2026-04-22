@@ -2,8 +2,8 @@
 using Microsoft.UI.Xaml;
 using System;
 
-using TicketSellingModule.Repo;
-using TicketSellingModule.Service;
+using TicketSellingModule.Data.Repositories;
+using TicketSellingModule.Data.Services;
 using TicketSellingModule.ViewModel;
 using TicketSellingModule.WinUI.Services;
 

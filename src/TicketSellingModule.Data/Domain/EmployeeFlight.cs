@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TicketSellingModule.Domain
+﻿
+namespace TicketSellingModule.Data.Domain
 {
     internal class EmployeeFlight
     {

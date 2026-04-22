@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TicketSellingModule.Domain;
-using TicketSellingModule.Repo;
-
-namespace TicketSellingModule.Service
+﻿
+namespace TicketSellingModule.Data.Services
 {
     public class EmployeeService
     {

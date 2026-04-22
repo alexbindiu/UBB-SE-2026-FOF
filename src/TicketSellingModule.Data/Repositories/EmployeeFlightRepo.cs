@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
-
-namespace TicketSellingModule.Repo
+﻿
+namespace TicketSellingModule.Data.Repositories
 {
     public class EmployeeFlightRepo
     {

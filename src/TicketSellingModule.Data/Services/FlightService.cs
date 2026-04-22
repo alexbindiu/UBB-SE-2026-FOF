@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using TicketSellingModule.Domain;
-using TicketSellingModule.Repo;
-
-namespace TicketSellingModule.Service
+﻿
+namespace TicketSellingModule.Data.Services
 {
     public class FlightService
     {

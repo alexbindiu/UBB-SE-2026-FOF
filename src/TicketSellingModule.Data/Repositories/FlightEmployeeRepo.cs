@@ -1,7 +1,5 @@
-﻿//using System.Collections.Generic;
-//using Microsoft.Data.SqlClient;
-
-//namespace TicketSellingModule.Repo
+﻿
+//namespace TicketSellingModule.Data.Repositories
 //{
 //    public class FlightEmployeeRepo
 //    {
@@ -70,7 +68,7 @@
 //            {
 //                conn.Open();
 //                string query = "select id_employee from Flight_employees where id_flight = @flightId";
-                
+
 //                using (SqlCommand cmd = new SqlCommand(query, conn))
 //                {
 //                    cmd.Parameters.AddWithValue("flightId", flightId);

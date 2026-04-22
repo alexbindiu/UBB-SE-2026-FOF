@@ -1,14 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.UI.Xaml.Media.Animation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using TicketSellingModule.Domain;
-
-namespace TicketSellingModule.Repo
+﻿
+namespace TicketSellingModule.Data.Repositories
 {
     public class AirportRepo
     {

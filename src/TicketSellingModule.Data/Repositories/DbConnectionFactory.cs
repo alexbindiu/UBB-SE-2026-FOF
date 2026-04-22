@@ -1,10 +1,8 @@
-﻿using Microsoft.Data.SqlClient;
-
-namespace TicketSellingModule.Repo
+﻿
+namespace TicketSellingModule.Data.Repositories
 {
     public class DbConnectionFactory
     {
-        // This holds your map to the database safely inside the class
         private readonly string _connectionString;
 
         public DbConnectionFactory()
@@ -13,7 +11,6 @@ namespace TicketSellingModule.Repo
             _connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=AirportDB;Trusted_Connection=True;TrustServerCertificate=True;";
         }
 
-        // Every repository will call this method when it needs to talk to the database
         public SqlConnection GetConnection()
         {
             return new SqlConnection(_connectionString);
