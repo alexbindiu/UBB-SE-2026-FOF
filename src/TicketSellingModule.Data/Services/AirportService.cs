@@ -5,7 +5,8 @@ namespace TicketSellingModule.Data.Services
     {
         private readonly AirportRepo _airportRepo;
         private readonly FlightRepo _flightRepo;
-        public AirportService (AirportRepo airportRepo, FlightRepo flightRepo)
+
+        public AirportService(AirportRepo airportRepo, FlightRepo flightRepo)
         {
             _airportRepo = airportRepo;
             _flightRepo = flightRepo;
@@ -37,7 +38,6 @@ namespace TicketSellingModule.Data.Services
             {
                 throw new ArgumentException("City cannot be empty.");
             }
-
 
             Airport newAirport = new Airport
             {

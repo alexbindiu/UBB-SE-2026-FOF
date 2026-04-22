@@ -1,4 +1,4 @@
-namespace TicketSellingModule.ViewModel
+namespace TicketSellingModule.Data
 {
     public class EmployeeScheduleItem
     {

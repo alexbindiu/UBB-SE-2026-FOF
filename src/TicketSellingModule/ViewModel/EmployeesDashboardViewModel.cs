@@ -7,7 +7,6 @@ namespace TicketSellingModule.ViewModel
     public partial class EmployeesDashboardViewModel : ObservableObject
     {
         private readonly EmployeeService _employeeService;
-        private readonly EmployeeFlightService _employeeFlightService;
         public ObservableCollection<Employee> PilotEmployees { get; } = new();
         public ObservableCollection<Employee> FlightAttendantEmployees { get; } = new();
         public ObservableCollection<Employee> CoPilotEmployees { get; } = new();
@@ -38,37 +37,36 @@ namespace TicketSellingModule.ViewModel
         [ObservableProperty]
         private string _editingSalaryText = string.Empty;
 
-        public EmployeesDashboardViewModel(EmployeeService employeeService, EmployeeFlightService employeeFlightService)
+        [ObservableProperty]
+        private Visibility _confirmDeleteDialogVisibility = Visibility.Collapsed;
+
+        [ObservableProperty]
+        private Employee? _employeeToDelete;
+
+        [ObservableProperty]
+        private string _deleteErrorMessage = string.Empty;
+
+        public EmployeesDashboardViewModel(EmployeeService employeeService)
         {
             _employeeService = employeeService;
-            _employeeFlightService = employeeFlightService;
         }
 
         [RelayCommand]
         public void LoadData()
         {
-            var allEmployees = _employeeService.GetAll();
-
             ClearAllCollections();
 
-            foreach (var employee in allEmployees)
-            {
-                switch (employee.Role)
-                {
-                    case "Pilot":
-                        PilotEmployees.Add(employee);
-                        break;
-                    case "Flight Attendant":
-                        FlightAttendantEmployees.Add(employee);
-                        break;
-                    case "Co-Pilot":
-                        CoPilotEmployees.Add(employee);
-                        break;
-                    case "Flight Dispatcher":
-                        FlightDispatcherEmployees.Add(employee);
-                        break;
-                }
-            }
+            foreach (var employee in _employeeService.GetPilots())
+                PilotEmployees.Add(employee);
+
+            foreach (var employee in _employeeService.GetFlightAttendants())
+                FlightAttendantEmployees.Add(employee);
+
+            foreach (var employee in _employeeService.GetCoPilots())
+                CoPilotEmployees.Add(employee);
+
+            foreach (var employee in _employeeService.GetFlightDispatchers())
+                FlightDispatcherEmployees.Add(employee);
         }
 
         private void ClearAllCollections()
@@ -79,32 +77,54 @@ namespace TicketSellingModule.ViewModel
             FlightDispatcherEmployees.Clear();
         }
 
-        private void RemoveFromCollections(Employee employee)
+        
+
+        [RelayCommand]
+        private void DeleteEmployee(object parameter)
         {
-            PilotEmployees.Remove(employee);
-            FlightAttendantEmployees.Remove(employee);
-            CoPilotEmployees.Remove(employee);
-            FlightDispatcherEmployees.Remove(employee);
+            if (parameter is not Employee employee || employee.Id == 0)
+            {
+                DeleteErrorMessage = "Please select an employee to delete.";
+                ConfirmDeleteDialogVisibility = Visibility.Visible;
+                return;
+            }
+
+            EmployeeToDelete = employee;
+            DeleteErrorMessage = string.Empty;
+            ConfirmDeleteDialogVisibility = Visibility.Visible;
         }
 
         [RelayCommand]
-        private void DeleteEmployee()
+        private void ConfirmDelete()
         {
-            if (SelectedEmployee == null) return;
+            if (EmployeeToDelete == null || EmployeeToDelete.Id == 0)
+            {
+                DeleteErrorMessage = "Invalid employee selected.";
+                return;
+            }
 
             try
             {
-                _employeeFlightService.CleanUpEmployeeAssignments(SelectedEmployee.Id);
+                _employeeService.DeleteWithAssignments(EmployeeToDelete.Id);
 
-                _employeeService.Delete(SelectedEmployee.Id);
+                ConfirmDeleteDialogVisibility = Visibility.Collapsed;
+                DeleteErrorMessage = string.Empty;
+                EmployeeToDelete = null;
 
                 LoadData();
             }
             catch (Exception ex)
             {
-                DialogErrorMessage = $"Could not delete employee: {ex.Message}";
-                DialogVisibility = Visibility.Visible;
+                DeleteErrorMessage = $"Could not delete employee: {ex.Message}";
             }
+        }
+
+        [RelayCommand]
+        private void CancelDelete()
+        {
+            ConfirmDeleteDialogVisibility = Visibility.Collapsed;
+            DeleteErrorMessage = string.Empty;
+            EmployeeToDelete = null;
         }
 
         [RelayCommand]
@@ -153,52 +173,13 @@ namespace TicketSellingModule.ViewModel
         {
             try
             {
-
-                if (EditingBirthday == null || EditingHiringDate == null)
-                {
-                    DialogErrorMessage = "Birthday and Hiring Date are required.";
-                    return;
-                }
-
-                if (!int.TryParse(EditingSalaryText, out int parsedSalary))
-                {
-                    DialogErrorMessage = "Salary must be a valid number.";
-                    return;
-                }
-
-
-                DateOnly finalBirthday = DateOnly.FromDateTime(EditingBirthday.Value.DateTime);
-                DateOnly finalHiringDate = DateOnly.FromDateTime(EditingHiringDate.Value.DateTime);
-                EditingEmployee.Salary = parsedSalary;
-
-  
-                if (EditingEmployee.Id == 0)
-                {
-                    _employeeService.Add(
-                        name: EditingEmployee.Name,
-                        role: EditingEmployee.Role,
-                        birthday: finalBirthday,
-                        salary: EditingEmployee.Salary,
-                        hiringDate: finalHiringDate
-                    );
-                }
-                else
-                {
-                    _employeeService.Update(
-                        id: EditingEmployee.Id,
-                        name: EditingEmployee.Name,
-                        role: EditingEmployee.Role,
-                        salary: EditingEmployee.Salary
-                    );
-                }
-
+                _employeeService.SaveEmployee(EditingEmployee, EditingBirthday, EditingHiringDate, EditingSalaryText);
 
                 LoadData();
                 DialogVisibility = Visibility.Collapsed;
             }
             catch (Exception ex)
             {
-
                 DialogErrorMessage = ex.Message;
             }
 

@@ -128,26 +128,9 @@ namespace TicketSellingModule.ViewModel
             return airports;
         }
 
-        public int AddAirport(string airportCode, string city, string name)
-        {
-            int newId = _airportService.Add(airportCode, name, city);
-            GetAllAirports();
-            return newId;
-        }
+        
 
-        public int AddFlight(string flightNumber, int companyId, string routeType, int airportId,
-                             int capacity, TimeOnly departureTime, TimeOnly arrivalTime,
-                             int recurrenceInterval, DateTime startDate, DateTime endDate,
-                             int runwayId, int gateId)
-        {
-            int newRouteId = _flightRouteService.Add(
-                companyId, airportId, routeType, recurrenceInterval,
-                startDate, endDate, departureTime, arrivalTime,
-                capacity, flightNumber, runwayId, gateId);
-
-            GetCompanyFlights(companyId);
-            return newRouteId;
-        }
+        
 
         public void GetCompanyFlights(int companyId)
         {
@@ -180,10 +163,8 @@ namespace TicketSellingModule.ViewModel
             if (_currentCompanyId == 0) return;
             try
             {
-                // 1. Clear crew first
+                
                 _employeeFlightService.CleanUpFlightAssignments(flightId);
-
-                // 2. Delete the flight
                 _flightRouteService.DeleteFlight(flightId);
 
                 GetCompanyFlights(_currentCompanyId);
@@ -195,92 +176,37 @@ namespace TicketSellingModule.ViewModel
 
         public void AddFlightFromInputs()
         {
-            DateTime? start = null;
-            DateTime? end = null;
-
-            if (_currentCompanyId == 0)
-                throw new InvalidOperationException("Company not selected.");
-            if (string.IsNullOrWhiteSpace(SelectedRouteType))
-                throw new InvalidOperationException("Route type is required.");
-            if (SelectedAirport == null)
-                throw new InvalidOperationException("Airport is required.");
-            if (!int.TryParse(CapacityText, out int capacity) || capacity <= 0)
-                throw new InvalidOperationException("Capacity must be a positive number.");
             
-            if (SelectedRunway == null)
-            {
-                throw new InvalidOperationException("Please select a Runway.");
-            }
-            if (SelectedGate == null)
-            {
-                throw new InvalidOperationException("Please select a Gate.");
-            }
+            if (_currentCompanyId == 0) throw new InvalidOperationException("Company not selected.");
+            if (SelectedAirport == null || SelectedRunway == null || SelectedGate == null)
+                throw new InvalidOperationException("Please fill all required fields.");
 
-            string type = SelectedRouteType switch
-            {
-                "Arrival" => "ARR",
-                "Departure" => "DEP",
-                _ => throw new InvalidOperationException("Invalid route type selected.")
-            };
+            if (!int.TryParse(CapacityText, out int capacity))
+                throw new InvalidOperationException("Invalid capacity.");
 
-
-            bool isRecurrent = IsRecurrent;
-
-            DateTime baseDate = isRecurrent ? StartDate.Value.DateTime.Date : SingleDate.Value.DateTime.Date;
-            DateTime fullDep = baseDate.Add(DepartureTime);
-            DateTime fullArr = baseDate.Add(ArrivalTime);
+            string typeCode = SelectedRouteType == "Arrival" ? "ARR" : "DEP";
 
             
-            if (fullArr <= fullDep)
-            {
-                fullArr = fullArr.AddDays(1);
-            }
-            TimeOnly depTime = TimeOnly.FromTimeSpan(DepartureTime);
-            TimeOnly arrTime = TimeOnly.FromTimeSpan(ArrivalTime);
-            if (fullArr == fullDep)
-            {
-                throw new InvalidOperationException("Arrival time cannot be the same as departure time.");
-            }
-
-
-            int interval = 0;
-
-            if (IsRecurrent)
-            {
-                if (StartDate == null || EndDate == null)
-                    throw new InvalidOperationException("Start and end dates are required for recurrent flights.");
-
-                start = StartDate.Value.DateTime;
-                end = EndDate.Value.DateTime;
-
-                if (end < start)
-                    throw new InvalidOperationException("End date must be after start date.");
-
-                interval = RecurrenceType switch
-                {
-                    "Daily" => 1,
-                    "Weekly" => 7,
-                    "Monthly" => 30,
-                    "Custom" => int.TryParse(CustomDaysText, out int custom) && custom > 0
-                        ? custom
-                        : throw new InvalidOperationException("Custom recurrence must be a positive number of days."),
-                    _ => throw new InvalidOperationException("Recurrence type is required.")
-                };
-            }
-            else
-            {
-                if (SingleDate == null)
-                    throw new InvalidOperationException("Flight date is required.");
-                start = SingleDate.Value.DateTime;
-                end = start;
-            }
-
-            string flightNum = _companyService.GenerateFlightCode(_currentCompanyId);
-
-            AddFlight(flightNum, _currentCompanyId, type, SelectedAirport.Id,
-                capacity, depTime, arrTime, interval, start.Value, end.Value, SelectedRunway.Id, SelectedGate.Id);
+            _flightRouteService.CreateFlightWithSchedule(
+                _currentCompanyId,
+                typeCode,
+                SelectedAirport.Id,
+                capacity,
+                DepartureTime,
+                ArrivalTime,
+                IsRecurrent,
+                StartDate?.DateTime,
+                EndDate?.DateTime,
+                SingleDate?.DateTime,
+                RecurrenceType,
+                CustomDaysText,
+                SelectedRunway.Id,
+                SelectedGate.Id,
+                _companyService.GenerateFlightCode
+            );
 
             GetCompanyFlights(_currentCompanyId);
+            ClearInputs();
         }
 
         public void ClearInputs()

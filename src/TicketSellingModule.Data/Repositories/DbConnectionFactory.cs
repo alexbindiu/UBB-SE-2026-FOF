@@ -8,7 +8,7 @@ namespace TicketSellingModule.Data.Repositories
         public DbConnectionFactory()
         {
             //_connectionString = "Server=DESKTOP-1JCJMN6\\SQLEXPRESS;Database=AirportDB;Trusted_Connection=True;TrustServerCertificate=True;";
-            _connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=AirportDB;Trusted_Connection=True;TrustServerCertificate=True;";
+            _connectionString = @"Server=DESKTOP\SQLEXPRESS;Database=AirportDB;Trusted_Connection=True;TrustServerCertificate=True;";
         }
 
         public SqlConnection GetConnection()
