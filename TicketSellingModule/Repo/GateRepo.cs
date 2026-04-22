@@ -87,14 +87,35 @@ namespace TicketSellingModule.Repo
             using (SqlConnection conn = _connectionFactory.GetConnection())
             {
                 conn.Open();
-                string query = "Delete from gates where id = @id";
-                using (SqlCommand cmd = new SqlCommand(query, conn))
+                using (SqlTransaction transaction = conn.BeginTransaction())
                 {
-                    cmd.Parameters.AddWithValue("@id", id);
-                    cmd.ExecuteNonQuery();
-                }    
+                    try
+                    {
+                        string deleteFlights = "DELETE FROM Flights WHERE gate_id = @id";
+                        using (SqlCommand cmd1 = new SqlCommand(deleteFlights, conn, transaction))
+                        {
+                            cmd1.Parameters.AddWithValue("@id", id);
+                            cmd1.ExecuteNonQuery();
+                        }
+
+                        string deleteGate = "DELETE FROM gates WHERE id = @id";
+                        using (SqlCommand cmd2 = new SqlCommand(deleteGate, conn, transaction))
+                        {
+                            cmd2.Parameters.AddWithValue("@id", id);
+                            cmd2.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
             }
         }
+
         public void UpdateGate(Gate updatedGate)
         {
             using (SqlConnection conn = _connectionFactory.GetConnection())
