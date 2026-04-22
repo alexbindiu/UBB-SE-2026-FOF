@@ -1,5 +1,4 @@
-﻿
-namespace TicketSellingModule.Data.Domain
+﻿namespace TicketSellingModule.Data.Domain
 {
     public class Runway
     {

@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+
 using TicketSellingModule.ViewModel;
 
 namespace TicketSellingModule.WinUI.AirportAdmin

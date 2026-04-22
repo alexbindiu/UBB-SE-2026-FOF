@@ -7,20 +7,20 @@ namespace TicketSellingModule.ViewModel
 {
     public partial class StaffPageViewModel : ObservableObject
     {
-        private readonly EmployeeService _employeeService;
-        private readonly EmployeeFlightService _flightEmployeeService;
-        private readonly RouteService _routeService;
-        private readonly GateService _gateService;
-        private readonly RunwayService _runwayService;
+        private readonly EmployeeService employeeService;
+        private readonly EmployeeFlightService flightEmployeeService;
+        private readonly RouteService routeService;
+        private readonly GateService gateService;
+        private readonly RunwayService runwayService;
 
-        private int _currentEmployeeId;
+        private int currentEmployeeId;
 
         public ObservableCollection<EmployeeScheduleItem> ScheduledFlights { get; } = new();
 
-        [ObservableProperty] private string _employeeIdText = "-";
-        [ObservableProperty] private string _roleText = "-";
-        [ObservableProperty] private string _flightsCountText = "0";
-        [ObservableProperty] private Visibility _emptyStateVisibility = Visibility.Collapsed;
+        [ObservableProperty] private string employeeIdText = "-";
+        [ObservableProperty] private string roleText = "-";
+        [ObservableProperty] private string flightsCountText = "0";
+        [ObservableProperty] private Visibility emptyStateVisibility = Visibility.Collapsed;
 
         public StaffPageViewModel(
             EmployeeService employeeService,
@@ -29,11 +29,11 @@ namespace TicketSellingModule.ViewModel
             GateService gateService,
             RunwayService runwayService)
         {
-            _employeeService = employeeService;
-            _flightEmployeeService = flightEmployeeService;
-            _routeService = routeService;
-            _gateService = gateService;
-            _runwayService = runwayService;
+            employeeService = employeeService;
+            flightEmployeeService = flightEmployeeService;
+            routeService = routeService;
+            gateService = gateService;
+            runwayService = runwayService;
         }
 
         public void Initialize(int employeeId)
@@ -43,12 +43,16 @@ namespace TicketSellingModule.ViewModel
         }
 
         [RelayCommand]
-        private void Refresh() => LoadEmployeeSchedule(_currentEmployeeId);
+        private void Refresh() => LoadEmployeeSchedule(currentEmployeeId);
 
         private int ResolveEmployeeId(int employeeId)
         {
-            if (employeeId > 0) return employeeId;
-            return _employeeService.GetAll().FirstOrDefault()?.Id ?? 0;
+            if (employeeId > 0)
+            {
+                return employeeId;
+            }
+
+            return employeeService.GetAll().FirstOrDefault()?.Id ?? 0;
         }
 
         private void LoadEmployeeSchedule(int employeeId)
@@ -61,9 +65,9 @@ namespace TicketSellingModule.ViewModel
                 return;
             }
 
-            _currentEmployeeId = employeeId;
+            currentEmployeeId = employeeId;
 
-            var employee = _employeeService.GetById(employeeId);
+            var employee = employeeService.GetById(employeeId);
             if (employee == null)
             {
                 ResetEmployeeInfo();
@@ -73,10 +77,10 @@ namespace TicketSellingModule.ViewModel
             EmployeeIdText = employee.Id.ToString();
             RoleText = employee.Role;
 
-            foreach (var flight in _flightEmployeeService.GetEmployeeSchedule(employeeId).OrderBy(f => f.Date))
+            foreach (var flight in flightEmployeeService.GetEmployeeSchedule(employeeId).OrderBy(f => f.Date))
             {
-                var route = _routeService.GetById(flight.Route.Id);
-                var gate = flight.Gate?.Id > 0 ? _gateService.GetById(flight.Gate.Id) : null;
+                var route = routeService.GetById(flight.Route.Id);
+                var gate = flight.Gate?.Id > 0 ? gateService.GetById(flight.Gate.Id) : null;
                 var runway = GetRunwaySafe(flight.Runway?.Id ?? 0);
 
                 ScheduledFlights.Add(new EmployeeScheduleItem
@@ -105,23 +109,49 @@ namespace TicketSellingModule.ViewModel
 
         private Runway? GetRunwaySafe(int runwayId)
         {
-            if (runwayId <= 0) return null;
-            try { return _runwayService.GetById(runwayId); }
-            catch { return null; }
+            if (runwayId <= 0)
+            {
+                return null;
+            }
+
+            try
+            {
+                return runwayService.GetById(runwayId);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private static string NormalizeFlightType(string? routeType)
         {
-            if (string.IsNullOrWhiteSpace(routeType)) return "-";
+            if (string.IsNullOrWhiteSpace(routeType))
+            {
+                return "-";
+            }
+
             string value = routeType.Trim().ToUpperInvariant();
-            if (value.StartsWith("ARR") || value.StartsWith("ARRIVAL")) return "ARR";
-            if (value.StartsWith("DEP") || value.StartsWith("DEPARTURE")) return "DEP";
+            if (value.StartsWith("ARR") || value.StartsWith("ARRIVAL"))
+            {
+                return "ARR";
+            }
+
+            if (value.StartsWith("DEP") || value.StartsWith("DEPARTURE"))
+            {
+                return "DEP";
+            }
+
             return value;
         }
 
         private static string GetRelevantTime(Route? route)
         {
-            if (route == null) return "-";
+            if (route == null)
+            {
+                return "-";
+            }
+
             return NormalizeFlightType(route.RouteType) == "ARR"
                 ? route.ArrivalTime.ToString("HH:mm")
                 : route.DepartureTime.ToString("HH:mm");

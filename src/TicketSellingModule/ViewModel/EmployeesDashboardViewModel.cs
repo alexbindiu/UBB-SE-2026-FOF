@@ -1,53 +1,53 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
 using Microsoft.UI.Xaml;
 
 namespace TicketSellingModule.ViewModel
 {
     public partial class EmployeesDashboardViewModel : ObservableObject
     {
-        private readonly EmployeeService _employeeService;
-        private readonly EmployeeFlightService _employeeFlightService;
+        private readonly EmployeeService employeeService;
+        private readonly EmployeeFlightService employeeFlightService;
         public ObservableCollection<Employee> PilotEmployees { get; } = new();
         public ObservableCollection<Employee> FlightAttendantEmployees { get; } = new();
         public ObservableCollection<Employee> CoPilotEmployees { get; } = new();
         public ObservableCollection<Employee> FlightDispatcherEmployees { get; } = new();
 
         [ObservableProperty]
-        private Employee? _selectedEmployee;
-
-
-        [ObservableProperty]
-        private Visibility _dialogVisibility = Visibility.Collapsed;
+        private Employee? selectedEmployee;
 
         [ObservableProperty]
-        private string _dialogTitle = string.Empty;
+        private Visibility dialogVisibility = Visibility.Collapsed;
 
         [ObservableProperty]
-        private Employee _editingEmployee = new Employee();
+        private string dialogTitle = string.Empty;
 
         [ObservableProperty]
-        private string _dialogErrorMessage = string.Empty;
+        private Employee editingEmployee = new Employee();
 
         [ObservableProperty]
-        private DateTimeOffset? _editingBirthday;
+        private string dialogErrorMessage = string.Empty;
 
         [ObservableProperty]
-        private DateTimeOffset? _editingHiringDate;
+        private DateTimeOffset? editingBirthday;
 
         [ObservableProperty]
-        private string _editingSalaryText = string.Empty;
+        private DateTimeOffset? editingHiringDate;
+
+        [ObservableProperty]
+        private string editingSalaryText = string.Empty;
 
         public EmployeesDashboardViewModel(EmployeeService employeeService, EmployeeFlightService employeeFlightService)
         {
-            _employeeService = employeeService;
-            _employeeFlightService = employeeFlightService;
+            employeeService = employeeService;
+            employeeFlightService = employeeFlightService;
         }
 
         [RelayCommand]
         public void LoadData()
         {
-            var allEmployees = _employeeService.GetAll();
+            var allEmployees = employeeService.GetAll();
 
             ClearAllCollections();
 
@@ -90,13 +90,16 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void DeleteEmployee()
         {
-            if (SelectedEmployee == null) return;
+            if (SelectedEmployee == null)
+            {
+                return;
+            }
 
             try
             {
-                _employeeFlightService.CleanUpEmployeeAssignments(SelectedEmployee.Id);
+                employeeFlightService.CleanUpEmployeeAssignments(SelectedEmployee.Id);
 
-                _employeeService.Delete(SelectedEmployee.Id);
+                employeeService.Delete(SelectedEmployee.Id);
 
                 LoadData();
             }
@@ -116,14 +119,17 @@ namespace TicketSellingModule.ViewModel
             EditingSalaryText = string.Empty;
 
             DialogTitle = $"Add New {targetRole}";
-            DialogErrorMessage = string.Empty; 
+            DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
         }
 
         [RelayCommand]
         private void EditEmployee(Employee employee)
         {
-            if (employee == null) return;
+            if (employee == null)
+            {
+                return;
+            }
 
             EditingEmployee = new Employee
             {
@@ -137,10 +143,9 @@ namespace TicketSellingModule.ViewModel
             EditingHiringDate = new DateTimeOffset(employee.HiringDate.ToDateTime(TimeOnly.MinValue));
 
             DialogTitle = $"Edit {employee.Role}";
-            DialogErrorMessage = string.Empty; 
+            DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
         }
-
 
         [RelayCommand]
         private void CloseDialog()
@@ -153,7 +158,6 @@ namespace TicketSellingModule.ViewModel
         {
             try
             {
-
                 if (EditingBirthday == null || EditingHiringDate == null)
                 {
                     DialogErrorMessage = "Birthday and Hiring Date are required.";
@@ -166,42 +170,35 @@ namespace TicketSellingModule.ViewModel
                     return;
                 }
 
-
                 DateOnly finalBirthday = DateOnly.FromDateTime(EditingBirthday.Value.DateTime);
                 DateOnly finalHiringDate = DateOnly.FromDateTime(EditingHiringDate.Value.DateTime);
                 EditingEmployee.Salary = parsedSalary;
 
-  
                 if (EditingEmployee.Id == 0)
                 {
-                    _employeeService.Add(
+                    employeeService.Add(
                         name: EditingEmployee.Name,
                         role: EditingEmployee.Role,
                         birthday: finalBirthday,
                         salary: EditingEmployee.Salary,
-                        hiringDate: finalHiringDate
-                    );
+                        hiringDate: finalHiringDate);
                 }
                 else
                 {
-                    _employeeService.Update(
+                    employeeService.Update(
                         id: EditingEmployee.Id,
                         name: EditingEmployee.Name,
                         role: EditingEmployee.Role,
-                        salary: EditingEmployee.Salary
-                    );
+                        salary: EditingEmployee.Salary);
                 }
-
 
                 LoadData();
                 DialogVisibility = Visibility.Collapsed;
             }
             catch (Exception ex)
             {
-
                 DialogErrorMessage = ex.Message;
             }
-
         }
     }
 }

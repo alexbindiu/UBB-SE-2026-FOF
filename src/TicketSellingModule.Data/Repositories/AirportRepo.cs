@@ -17,7 +17,7 @@
             {
                 conn.Open();
                 string query = "SELECT id, city, name, code FROM Airports";
-                using (SqlCommand cmd = new SqlCommand(query,conn))
+                using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -134,7 +134,7 @@
             {
                 conn.Open();
                 string query = "Update Airports SET city = @city, name = @name, code = @code where id = @id";
-                using (SqlCommand cmd = new SqlCommand(query,conn))
+                using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@city", airport.City);
                     cmd.Parameters.AddWithValue("@name", airport.AirportName);

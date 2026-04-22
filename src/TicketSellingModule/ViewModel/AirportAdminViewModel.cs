@@ -13,7 +13,7 @@ namespace TicketSellingModule.ViewModel
     public partial class AirportAdminViewModel : ObservableObject
     {
         [ObservableProperty]
-        private AirportAdminSection _selectedSection = AirportAdminSection.Flights;
+        private AirportAdminSection selectedSection = AirportAdminSection.Flights;
 
         public AirportAdminViewModel()
         {

@@ -1,23 +1,25 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
 using Microsoft.UI.Xaml;
+
 using TicketSellingModule.WinUI.Services;
 
 namespace TicketSellingModule.ViewModel
 {
     public partial class StaffLoginViewModel : ObservableObject
     {
-        private readonly EmployeeService _employeeService;
-        private readonly INavigationService _navigationService;
+        private readonly EmployeeService employeeService;
+        private readonly INavigationService navigationService;
 
-        [ObservableProperty] private string _employeeIdText;
-        [ObservableProperty] private string _errorMessage;
-        [ObservableProperty] private Visibility _errorVisibility = Visibility.Collapsed;
+        [ObservableProperty] private string employeeIdText;
+        [ObservableProperty] private string errorMessage;
+        [ObservableProperty] private Visibility errorVisibility = Visibility.Collapsed;
 
         public StaffLoginViewModel(EmployeeService employeeService, INavigationService navigationService)
         {
-            _employeeService = employeeService;
-            _navigationService = navigationService;
+            employeeService = employeeService;
+            navigationService = navigationService;
         }
 
         [RelayCommand]
@@ -29,7 +31,7 @@ namespace TicketSellingModule.ViewModel
                 return;
             }
 
-            var emp = _employeeService.GetById(id);
+            var emp = employeeService.GetById(id);
             if (emp == null)
             {
                 ShowError("ID-ul nu a fost găsit!");
@@ -39,8 +41,7 @@ namespace TicketSellingModule.ViewModel
             ErrorVisibility = Visibility.Collapsed;
             ErrorMessage = string.Empty;
 
-            
-            _navigationService.NavigateToStaffDashboard(id);
+            navigationService.NavigateToStaffDashboard(id);
         }
 
         private void ShowError(string message)

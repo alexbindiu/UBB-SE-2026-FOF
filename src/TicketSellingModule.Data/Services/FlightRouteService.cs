@@ -28,10 +28,8 @@
             this.airportService = airportService;
         }
 
-
         private bool CheckOverlappingTimes(TimeOnly start1, TimeOnly end1, TimeOnly start2, TimeOnly end2)
         {
-
             int s1 = (start1.Hour * 60) + start1.Minute;
             int e1 = (end1.Hour * 60) + end1.Minute;
             if (e1 <= s1)
@@ -177,7 +175,6 @@
 
         public List<Flight> GetFlightsByCompany(int companyId)
         {
-
             var companyRouteIds = routeRepo.GetAllRoutes()
                 .Where(r => r.Company.Id == companyId)
                 .Select(r => r.Id)

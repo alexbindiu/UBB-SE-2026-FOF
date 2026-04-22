@@ -1,5 +1,5 @@
-using System;
 using System.ComponentModel;
+
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
@@ -11,9 +11,9 @@ namespace TicketSellingModule.WinUI.AirportAdmin
     public sealed partial class AirportAdminPage : Page
     {
         public AirportAdminViewModel ViewModel { get; private set; } = null!;
-        private FlightsDashboardViewModel _flightsViewModel = null!;
-        private EmployeesDashboardViewModel _employeesViewModel = null!;
-        private AirportDashboardViewModel _airportViewModel = null!;
+        private FlightsDashboardViewModel flightsViewModel = null!;
+        private EmployeesDashboardViewModel employeesViewModel = null!;
+        private AirportDashboardViewModel airportViewModel = null!;
 
         public AirportAdminPage()
         {
@@ -27,9 +27,9 @@ namespace TicketSellingModule.WinUI.AirportAdmin
             if (e.Parameter is ValueTuple<AirportAdminViewModel, FlightsDashboardViewModel, EmployeesDashboardViewModel, AirportDashboardViewModel> context)
             {
                 ViewModel = context.Item1;
-                _flightsViewModel = context.Item2;
-                _employeesViewModel = context.Item3;
-                _airportViewModel = context.Item4;
+                flightsViewModel = context.Item2;
+                employeesViewModel = context.Item3;
+                airportViewModel = context.Item4;
 
                 DataContext = ViewModel;
                 Bindings.Update();
@@ -65,19 +65,27 @@ namespace TicketSellingModule.WinUI.AirportAdmin
             {
                 case AirportAdminSection.Flights:
                     if (ContentFrame.CurrentSourcePageType != typeof(FlightsDashboardPage))
-                        ContentFrame.Navigate(typeof(FlightsDashboardPage), _flightsViewModel);
+                    {
+                        ContentFrame.Navigate(typeof(FlightsDashboardPage), flightsViewModel);
+                    }
                     HighlightSelectedButton(FlightsButton);
                     break;
 
                 case AirportAdminSection.Employees:
                     if (ContentFrame.CurrentSourcePageType != typeof(EmployeesDashboardPage))
-                        ContentFrame.Navigate(typeof(EmployeesDashboardPage), _employeesViewModel);
+                    {
+                        ContentFrame.Navigate(typeof(EmployeesDashboardPage), employeesViewModel);
+                    }
+
                     HighlightSelectedButton(EmployeesButton);
                     break;
 
                 case AirportAdminSection.Airport:
                     if (ContentFrame.CurrentSourcePageType != typeof(AirportDashboardPage))
-                        ContentFrame.Navigate(typeof(AirportDashboardPage), _airportViewModel);
+                    {
+                        ContentFrame.Navigate(typeof(AirportDashboardPage), airportViewModel);
+                    }
+
                     HighlightSelectedButton(AirportButton);
                     break;
             }

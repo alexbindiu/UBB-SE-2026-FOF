@@ -118,8 +118,14 @@
         {
             foreach (var empId in employeeIds)
             {
-                try { AssignCrewMember(flightId, empId); }
-                catch { /* already assigned, ignore */ }
+                try
+                {
+                    AssignCrewMember(flightId, empId);
+                }
+                catch
+                {
+                    /* already assigned, ignore */
+                }
             }
         }
 
