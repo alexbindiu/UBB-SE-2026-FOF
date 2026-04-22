@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="TicketSellingModule.WinUI.SelectCompanyPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:domain="using:TicketSellingModule.Data.Domain"
+    mc:Ignorable="d"
+    Background="#0F172A">
+
+    <Grid Padding="40">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Spacing="10" Margin="0,0,0,30">
+            <TextBlock Text="SELECT YOUR COMPANY" 
+                       FontSize="28" 
+                       FontWeight="Bold" 
+                       Foreground="White" 
+                       HorizontalAlignment="Center"/>
+            <TextBlock Text="Please choose the airline you represent to continue" 
+                       Foreground="#94A3B8" 
+                       HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <GridView x:Name="CompaniesGrid"
+                  Grid.Row="1"
+                  HorizontalAlignment="Center"
+                  ItemsSource="{x:Bind ViewModel.Companies}"
+                  SelectionMode="None"
+                  IsItemClickEnabled="False">
+
+            <GridView.ItemTemplate>
+                <DataTemplate x:DataType="domain:Company">
+                    <Button Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            Command="{Binding DataContext.SelectCompanyCommand, ElementName=CompaniesGrid}"
+                            CommandParameter="{Binding}">
+                        <Grid Width="200" Height="120" Margin="10"
+                              Background="#1E293B"
+                              BorderBrush="#334155"
+                              BorderThickness="1"
+                              CornerRadius="8">
+                            <StackPanel Spacing="5" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <FontIcon Glyph="&#xEB4D;" FontSize="32" Foreground="#2bb8c0"/>
+                                <TextBlock Text="{x:Bind Name}"
+                                           Foreground="White"
+                                           FontWeight="SemiBold"
+                                           FontSize="16"
+                                           TextAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </Button>
+                </DataTemplate>
+            </GridView.ItemTemplate>
+        </GridView>
+    </Grid>
+</Page>

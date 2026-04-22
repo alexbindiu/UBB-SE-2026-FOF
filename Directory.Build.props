@@ -1,0 +1,24 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Collections.ObjectModel" />
+    
+    <Using Include="TicketSellingModule.Data.Domain" />
+    <Using Include="TicketSellingModule.Data.Repositories" />
+    <!-- <Using Include="TicketSellingModule.Data.Repositories.Interfaces" /> -->
+    <Using Include="TicketSellingModule.Data.Services" />
+    <!-- <Using Include="TicketSellingModule.Data.Services.Interfaces" /> -->
+    
+    <Using Include="Microsoft.Data.SqlClient" />
+  </ItemGroup>
+</Project>
