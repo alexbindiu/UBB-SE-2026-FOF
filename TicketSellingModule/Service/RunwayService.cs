@@ -33,6 +33,13 @@ namespace TicketSellingModule.Service
             return runway;
         }
 
+        public Runway? GetByIdSafe(int id)
+        {
+            if (id <= 0) return null;
+            try { return _runwayRepo.GetRunwayById(id); }
+            catch { return null; }
+        }
+
         public int Add(string name, int handleTime)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -74,7 +81,17 @@ namespace TicketSellingModule.Service
                 throw new InvalidOperationException($"Runway with ID {id} does not exist.");
 
             _runwayRepo.DeleteRunway(id);
+        }
 
+        public void SaveRunway(int id, string name, string handleTimeText)
+        {
+            if (!int.TryParse(handleTimeText, out int handleTime) || handleTime <= 0)
+                throw new ArgumentException("Handle Time must be a valid positive number.");
+
+            if (id == 0)
+                Add(name, handleTime);
+            else
+                Update(id, name, handleTime);
         }
 
         public bool HasFlights(int runwayId)

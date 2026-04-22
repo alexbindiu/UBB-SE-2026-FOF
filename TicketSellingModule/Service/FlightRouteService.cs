@@ -166,5 +166,13 @@ namespace TicketSellingModule.Service
                 .Where(f => companyRouteIds.Contains(f.Route.Id))
                 .ToList();
         }
+
+        public string GetDestinationText(Flight flight)
+        {
+            if (flight.Route?.Airport == null)
+                return "-";
+
+            return $"{flight.Route.Airport.AirportCode} - {flight.Route.Airport.AirportName}";
+        }
     }
 }

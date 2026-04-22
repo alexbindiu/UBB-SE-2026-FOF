@@ -62,6 +62,14 @@ namespace TicketSellingModule.Service
                 _gateRepo.DeleteGate(id);
         }
 
+        public void SaveGate(int id, string name)
+        {
+            if (id == 0)
+                Add(name);
+            else
+                Update(id, name);
+        }
+
         public bool HasFlights(int gateId)
         {
             return _flightRepo.GetFlightsByGate(gateId).Any();

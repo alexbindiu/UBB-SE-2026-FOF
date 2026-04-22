@@ -83,5 +83,22 @@ namespace TicketSellingModule.Service
 
         public Route? GetById(int id) => _routeRepo.GetRouteById(id);
         public List<Route> GetAll() => _routeRepo.GetAllRoutes();
+
+        public string NormalizeFlightType(string? routeType)
+        {
+            if (string.IsNullOrWhiteSpace(routeType)) return "-";
+            string value = routeType.Trim().ToUpperInvariant();
+            if (value.StartsWith("ARR") || value.StartsWith("ARRIVAL")) return "ARR";
+            if (value.StartsWith("DEP") || value.StartsWith("DEPARTURE")) return "DEP";
+            return value;
+        }
+
+        public string GetRelevantTime(Route? route)
+        {
+            if (route == null) return "-";
+            return NormalizeFlightType(route.RouteType) == "ARR"
+                ? route.ArrivalTime.ToString("HH:mm")
+                : route.DepartureTime.ToString("HH:mm");
+        }
     }
 }
