@@ -30,7 +30,7 @@
             {
                 throw new ArgumentException("Airport code cannot be empty.");
             }
-             if (string.IsNullOrWhiteSpace(namde))
+            if (string.IsNullOrWhiteSpace(namde))
             {
                 throw new ArgumentException("Airport name cannot be empty.");
             }

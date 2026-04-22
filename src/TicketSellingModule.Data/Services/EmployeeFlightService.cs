@@ -6,16 +6,26 @@
         private readonly EmployeeRepo employeeRepo;
         private readonly FlightRepo flightRepo;
         private readonly RouteRepo routeRepo;
+        private readonly GateService gateService;
+        private readonly RunwayService runwayService;
+        private readonly RouteService routeService;
+
         public EmployeeFlightService(
             EmployeeFlightRepo linkRepo,
             EmployeeRepo employeeRepo,
             FlightRepo flightRepo,
-            RouteRepo routeRepo)
+            RouteRepo routeRepo,
+            GateService gateService,
+            RunwayService runwayService,
+            RouteService routeService)
         {
             linkRepo = linkRepo;
             employeeRepo = employeeRepo;
             flightRepo = flightRepo;
             routeRepo = routeRepo;
+            gateService = gateService;
+            runwayService = runwayService;
+            routeService = routeService;
         }
 
         public void AssignCrewMember(int flightId, int employeeId)
@@ -157,6 +167,80 @@
             {
                 linkRepo.RemoveAllByEmployeeId(employeeId);
             }
+        }
+
+        public List<EmployeeScheduleItem> GetFormattedEmployeeSchedule(int employeeId)
+        {
+            var scheduleItems = new List<EmployeeScheduleItem>();
+
+            if (employeeId <= 0)
+            {
+                return scheduleItems;
+            }
+
+            var flights = GetEmployeeSchedule(employeeId).OrderBy(f => f.Date).ToList();
+
+            foreach (var flight in flights)
+            {
+                var route = routeRepo.GetRouteById(flight.Route.Id);
+                var gate = flight.Gate?.Id > 0 ? gateService.GetById(flight.Gate.Id) : null;
+                var runway = runwayService.GetByIdSafe(flight.Runway?.Id ?? 0);
+
+                scheduleItems.Add(new EmployeeScheduleItem
+                {
+                    Id = flight.Id.ToString(),
+                    FlightNumber = flight.FlightNumber,
+                    FlightType = routeService.NormalizeFlightType(route?.RouteType),
+                    Date = flight.Date.ToString("dd MMM yyyy"),
+                    GateName = gate?.Name ?? "-",
+                    RunwayName = runway?.Name ?? "-",
+                    FlightTime = routeService.GetRelevantTime(route)
+                });
+            }
+
+            return scheduleItems;
+        }
+
+        public static string NormalizeEmployeeRole(string? role)
+        {
+            if (string.IsNullOrWhiteSpace(role))
+            {
+                return "Other";
+            }
+
+            return role.Trim();
+        }
+
+        public bool IsValidEmployeeRole(string? role)
+        {
+            var validRoles = new[] { "Pilot", "Co-Pilot", "Flight Attendant", "Flight Dispatcher" };
+            string normalized = NormalizeEmployeeRole(role);
+            return validRoles.Contains(normalized);
+        }
+
+        public List<Employee> GetAvailableCrewGroupedByRole(Flight flight)
+        {
+            var available = GetAvailableEmployeesForFlight(flight);
+
+            var roleOrder = new Dictionary<string, int>
+            {
+                ["Pilot"] = 0,
+                ["Co-Pilot"] = 1,
+                ["Flight Attendant"] = 2,
+                ["Flight Dispatcher"] = 3
+            };
+
+            // Filter out employees with "Other" role and invalid roles
+            var validEmployees = available.Where(e => IsValidEmployeeRole(e.Role)).ToList();
+
+            var grouped = validEmployees
+                .GroupBy(e => NormalizeEmployeeRole(e.Role))
+                .OrderBy(g => roleOrder.TryGetValue(g.Key, out var idx) ? idx : int.MaxValue)
+                .ThenBy(g => g.Key)
+                .SelectMany(g => g.OrderBy(e => e.Name))
+                .ToList();
+
+            return grouped;
         }
     }
 }

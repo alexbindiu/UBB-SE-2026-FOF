@@ -14,12 +14,12 @@ namespace TicketSellingModule.WinUI.Services
 
         public NavigationService(IServiceProvider services)
         {
-            services = services;
+            this.services = services;
         }
 
         public void Initialize(Frame frame)
         {
-            frame = frame;
+            this.frame = frame;
         }
 
         public void NavigateToHome() =>

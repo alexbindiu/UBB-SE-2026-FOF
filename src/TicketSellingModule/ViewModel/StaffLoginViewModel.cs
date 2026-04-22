@@ -27,14 +27,14 @@ namespace TicketSellingModule.ViewModel
         {
             if (!int.TryParse(EmployeeIdText, out int id))
             {
-                ShowError("ID invalid.");
+                ShowError("Invalid ID.");
                 return;
             }
 
             var emp = employeeService.GetById(id);
             if (emp == null)
             {
-                ShowError("ID-ul nu a fost găsit!");
+                ShowError("ID was not found!");
                 return;
             }
 

@@ -54,52 +54,27 @@ namespace TicketSellingModule.ViewModel
                 return;
             }
 
-            var available = flightEmployeeService.GetAvailableEmployeesForFlight(flight);
             var currentIds = flightEmployeeService.GetFlightCrew(flight.Id).Select(c => c.Id).ToList();
+            var availableEmployees = flightEmployeeService.GetAvailableCrewGroupedByRole(flight);
 
             AvailableCrew.Clear();
 
-            var roleOrder = new Dictionary<string, int>
+            string previousRole = null;
+            foreach (var emp in availableEmployees)
             {
-                ["Pilot"] = 0,
-                ["Co-Pilot"] = 1,
-                ["Flight Attendant"] = 2,
-                ["Flight Dispatcher"] = 3,
-                ["Other"] = 4
-            };
+                string currentRole = emp.Role?.Trim() ?? "Other";
+                bool isFirstInGroup = currentRole != previousRole;
 
-            static string NormalizeRole(string? role)
-            {
-                if (string.IsNullOrWhiteSpace(role))
+                AvailableCrew.Add(new CrewSelectionWrapper
                 {
-                    return "Other";
-                }
+                    Employee = emp,
+                    IsSelected = currentIds.Contains(emp.Id),
+                    ShowRoleHeader = isFirstInGroup,
+                    RoleHeader = currentRole,
+                    RoleHeaderVisibility = isFirstInGroup ? Visibility.Visible : Visibility.Collapsed
+                });
 
-                return role.Trim();
-            }
-
-            var grouped = available
-                .GroupBy(e => NormalizeRole(e.Role))
-                .OrderBy(g => roleOrder.TryGetValue(g.Key, out var idx) ? idx : int.MaxValue)
-                .ThenBy(g => g.Key);
-
-            foreach (var group in grouped)
-            {
-                bool firstInGroup = true;
-
-                foreach (var emp in group.OrderBy(e => e.Name))
-                {
-                    AvailableCrew.Add(new CrewSelectionWrapper
-                    {
-                        Employee = emp,
-                        IsSelected = currentIds.Contains(emp.Id),
-                        ShowRoleHeader = firstInGroup,
-                        RoleHeader = group.Key,
-                        RoleHeaderVisibility = firstInGroup ? Visibility.Visible : Visibility.Collapsed
-                    });
-
-                    firstInGroup = false;
-                }
+                previousRole = currentRole;
             }
 
             DialogError = string.Empty;
@@ -115,12 +90,6 @@ namespace TicketSellingModule.ViewModel
             }
 
             var selectedIds = AvailableCrew.Where(x => x.IsSelected).Select(x => x.Employee.Id).ToList();
-
-            if (selectedIds.Count < 4)
-            {
-                DialogError = "You must select at least 4 employees.";
-                return;
-            }
 
             flightEmployeeService.UpdateCrewForFlight(SelectedFlight.Id, selectedIds);
             CrewDialogVisibility = Visibility.Collapsed;
@@ -139,7 +108,7 @@ namespace TicketSellingModule.ViewModel
                 : allFlights.Where(f =>
                        (f.FlightNumber?.ToLowerInvariant().Contains(text) ?? false) ||
                        f.Date.ToString("dd.MM.yyyy HH:mm").ToLowerInvariant().Contains(text) ||
-                       (GetDestinationText(f).ToLowerInvariant().Contains(text)) ||
+                       (flightRouteService.GetDestinationText(f).ToLowerInvariant().Contains(text)) ||
                        (f.Runway?.Name?.ToLowerInvariant().Contains(text) ?? false) ||
                        (f.Gate?.Name?.ToLowerInvariant().Contains(text) ?? false))
                     .ToList();
@@ -153,7 +122,7 @@ namespace TicketSellingModule.ViewModel
                     Id = flight.Id,
                     FlightNumber = flight.FlightNumber ?? string.Empty,
                     DateText = flight.Date.ToString("dd.MM.yyyy HH:mm"),
-                    DestinationText = GetDestinationText(flight),
+                    DestinationText = flightRouteService.GetDestinationText(flight),
                     RunwayText = flight.Runway?.Name ?? "-",
                     GateText = flight.Gate?.Name ?? "-",
                     CrewText = crew.Count > 0 ? string.Join(", ", crew.Select(c => c.Name)) : "Unassigned"
