@@ -39,8 +39,10 @@
             </Grid>
 
             <ListView x:Name="FlightsListView"
-          Grid.Row="1"
-          SelectionMode="Single">
+                      Grid.Row="1"
+                      SelectionMode="Single"
+                      ItemsSource="{x:Bind Items, Mode=OneWay}"
+                      SelectedItem="{x:Bind SelectedItem, Mode=TwoWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Grid Padding="0,8">
@@ -59,7 +61,6 @@
                             <TextBlock Grid.Column="3" Text="{Binding RunwayText}"/>
                             <TextBlock Grid.Column="4" Text="{Binding GateText}"/>
                             <TextBlock Grid.Column="5" Text="{Binding CrewText}" TextWrapping="Wrap"/>
-                            
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>

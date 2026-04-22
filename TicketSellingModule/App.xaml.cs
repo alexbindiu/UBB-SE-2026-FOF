@@ -64,8 +64,6 @@ namespace TicketSellingModule
             services.AddTransient<EmployeesDashboardViewModel>();
             services.AddTransient<AirportDashboardViewModel>();
             services.AddTransient<FlightsDashboardViewModel>();
-
-
             services.AddTransient<RouteRepo>();
             services.AddTransient<RouteService>();
             services.AddTransient<CompanyViewModel>();
@@ -73,13 +71,16 @@ namespace TicketSellingModule
             services.AddTransient<HeaderViewModel>();
             services.AddTransient<HomeViewModel>();
             services.AddTransient<StaffLoginViewModel>();
+
+            // Shell
+            services.AddSingleton<MainWindow>();
         }
 
         protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
             try
             {
-                _window = new MainWindow();
+                _window = Services.GetRequiredService<MainWindow>();
                 _window.Activate();
             }
             catch (Exception ex)

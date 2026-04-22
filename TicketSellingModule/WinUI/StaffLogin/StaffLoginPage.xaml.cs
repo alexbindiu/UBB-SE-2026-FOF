@@ -1,19 +1,27 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using TicketSellingModule.ViewModel;
 
 namespace TicketSellingModule.WinUI.StaffLogin
 {
     public sealed partial class StaffLoginPage : Page
     {
-        public StaffLoginViewModel ViewModel { get; }
+        public StaffLoginViewModel ViewModel { get; private set; } = null!;
 
         public StaffLoginPage()
         {
-            // Rezolvăm prin DI (care injectează automat EmployeeService și NavigationService)
-            ViewModel = App.Services.GetRequiredService<StaffLoginViewModel>();
             this.InitializeComponent();
-            this.DataContext = ViewModel;
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            if (e.Parameter is StaffLoginViewModel vm)
+            {
+                ViewModel = vm;
+                DataContext = ViewModel;
+            }
         }
     }
 }
