@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
 
+using TicketSellingModule.Data;
+
 namespace TicketSellingModule.ViewModel
 {
     public partial class StaffPageViewModel : ObservableObject

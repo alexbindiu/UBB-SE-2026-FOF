@@ -80,11 +80,7 @@ namespace TicketSellingModule.ViewModel
 
             var selectedIds = AvailableCrew.Where(x => x.IsSelected).Select(x => x.Employee.Id).ToList();
 
-            if (selectedIds.Count < 4)   ///validation logic 
-            {
-                DialogError = "You must select at least 4 employees.";
-                return;
-            }
+            
 
             _flightEmployeeService.UpdateCrewForFlight(SelectedFlight.Id, selectedIds);
             CrewDialogVisibility = Visibility.Collapsed;

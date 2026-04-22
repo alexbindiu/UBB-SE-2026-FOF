@@ -1,5 +1,4 @@
-﻿
-namespace TicketSellingModule.Data.Repositories
+﻿namespace TicketSellingModule.Data.Repositories
 {
     public class EmployeeFlightRepo
     {

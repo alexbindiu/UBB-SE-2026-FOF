@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:components="using:TicketSellingModule.WinUI.Components"
+    xmlns:data="using:TicketSellingModule.Data"
     mc:Ignorable="d"
     Background="#0F172A">
 
@@ -115,7 +116,7 @@
                               BorderThickness="0"
                               ItemsSource="{Binding ScheduledFlights}">
                         <ListView.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:DataType="data:EmployeeScheduleItem">
                                 <Grid Padding="15,12" BorderThickness="0,0,0,1" BorderBrush="#1E293B">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="0.6*"/>

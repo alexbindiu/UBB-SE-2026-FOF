@@ -83,6 +83,8 @@ namespace TicketSellingModule.Data.Services
                 }
             }
 
+
+
             Route newRoute = new Route
             {
                 Company = _companyRepo.GetCompanyById(companyID),
@@ -110,6 +112,47 @@ namespace TicketSellingModule.Data.Services
             _flightRepo.Add(initialFlight);
 
             return routeId;
+        }
+
+
+        public void CreateFlightWithSchedule(
+            int companyId, string routeType, int airportId, int capacity, TimeSpan departureOffset, TimeSpan arrivalOffset,
+            bool isRecurrent, DateTime? startDate, DateTime? endDate, DateTime? singleDate, string recurrenceType, string customDaysText,
+            int runwayId, int gateId, Func<int, string> flightCodeGenerator)
+        {
+            
+            DateTime start = isRecurrent ? startDate?.Date ?? DateTime.Today : singleDate?.Date ?? DateTime.Today;
+            DateTime end = isRecurrent ? endDate?.Date ?? start : start;
+
+            if (isRecurrent && end < start)
+                throw new InvalidOperationException("End date must be after start date.");
+
+            
+            int interval = 0;
+            if (isRecurrent)
+            {
+                interval = recurrenceType switch
+                {
+                    "Daily" => 1,
+                    "Weekly" => 7,
+                    "Monthly" => 30,
+                    "Custom" => int.TryParse(customDaysText, out int custom) && custom > 0 ? custom : throw new InvalidOperationException("Invalid custom interval."),
+                    _ => throw new InvalidOperationException("Recurrence type is required.")
+                };
+            }
+
+            
+            TimeOnly depTime = TimeOnly.FromTimeSpan(departureOffset);
+            TimeOnly arrTime = TimeOnly.FromTimeSpan(arrivalOffset);
+
+            if (depTime == arrTime)
+                throw new InvalidOperationException("Arrival time cannot be the same as departure time.");
+
+            
+            string flightNum = flightCodeGenerator(companyId);
+
+            
+            Add(companyId, airportId, routeType, interval, start, end, depTime, arrTime, capacity, flightNum, runwayId, gateId);
         }
 
         public List<Flight> GetAllFlightsWithDetails()
