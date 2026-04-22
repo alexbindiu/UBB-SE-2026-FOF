@@ -1,6 +1,7 @@
+using System.Windows.Input;
+
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System.Windows.Input;
 
 namespace TicketSellingModule.WinUI.AirportAdmin.Components
 {

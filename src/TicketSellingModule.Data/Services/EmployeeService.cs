@@ -1,26 +1,29 @@
-﻿
-namespace TicketSellingModule.Data.Services
+﻿namespace TicketSellingModule.Data.Services
 {
     public class EmployeeService
     {
-        private readonly EmployeeRepo _employeeRepo;
-        private readonly EmployeeFlightService _employeeFlightService;
+        private readonly EmployeeRepo employeeRepo;
+        private readonly EmployeeFlightService employeeFlightService;
 
         public EmployeeService(EmployeeRepo employeeRepo, EmployeeFlightService employeeFlightService)
         {
-            _employeeRepo = employeeRepo;
-            _employeeFlightService = employeeFlightService;
+            this.employeeRepo = employeeRepo;
+            this.employeeFlightService = employeeFlightService;
         }
 
         public List<Employee> GetAll()
         {
-            return _employeeRepo.GetAllEmployees();
+            return employeeRepo.GetAllEmployees();
         }
 
         public Employee? GetById(int id)
         {
-            if (id <= 0) return null;
-            return _employeeRepo.GetEmployeeById(id);
+            if (id <= 0)
+            {
+                return null;
+            }
+
+            return employeeRepo.GetEmployeeById(id);
         }
 
         public List<Employee> GetPilots() => GetByRole("Pilot");
@@ -39,13 +42,19 @@ namespace TicketSellingModule.Data.Services
         public void SaveEmployee(Employee editingEmployee, DateTimeOffset? birthday, DateTimeOffset? hiringDate, string salaryText)
         {
             if (editingEmployee == null)
+            {
                 throw new ArgumentException("Invalid employee selected.");
+            }
 
             if (birthday == null || hiringDate == null)
+            {
                 throw new ArgumentException("Birthday and Hiring Date are required.");
+            }
 
             if (!int.TryParse(salaryText, out int parsedSalary))
+            {
                 throw new ArgumentException("Salary must be a valid number.");
+            }
 
             var finalBirthday = DateOnly.FromDateTime(birthday.Value.DateTime);
             var finalHiringDate = DateOnly.FromDateTime(hiringDate.Value.DateTime);
@@ -59,8 +68,7 @@ namespace TicketSellingModule.Data.Services
                     role: editingEmployee.Role,
                     birthday: finalBirthday,
                     salary: editingEmployee.Salary,
-                    hiringDate: finalHiringDate
-                );
+                    hiringDate: finalHiringDate);
             }
             else
             {
@@ -68,26 +76,41 @@ namespace TicketSellingModule.Data.Services
                     id: editingEmployee.Id,
                     name: editingEmployee.Name,
                     role: editingEmployee.Role,
-                    salary: editingEmployee.Salary
-                );
+                    salary: editingEmployee.Salary);
             }
         }
 
         public void DeleteWithAssignments(int id)
         {
             if (id <= 0)
+            {
                 throw new ArgumentException("Invalid employee selected.");
+            }
 
-            _employeeFlightService.CleanUpEmployeeAssignments(id);
+            employeeFlightService.CleanUpEmployeeAssignments(id);
             Delete(id);
         }
 
         public int Add(string name, string role, DateOnly birthday, int salary, DateOnly hiringDate)
         {
-            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name can not be empty.");
-            if (string.IsNullOrWhiteSpace(role)) throw new ArgumentException("Role can not be empty.");
-            if (salary < 0) throw new ArgumentException("Salary can not be negative.");
-            if (hiringDate > DateOnly.FromDateTime(DateTime.Now)) throw new ArgumentException("Hiring date can not be in the future.");
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Name can not be empty.");
+            }
+            if (string.IsNullOrWhiteSpace(role))
+            {
+                throw new ArgumentException("Role can not be empty.");
+            }
+
+            if (salary < 0)
+            {
+                throw new ArgumentException("Salary can not be negative.");
+            }
+
+            if (hiringDate > DateOnly.FromDateTime(DateTime.Now))
+            {
+                throw new ArgumentException("Hiring date can not be in the future.");
+            }
 
             Employee newEmp = new Employee
             {
@@ -98,25 +121,43 @@ namespace TicketSellingModule.Data.Services
                 HiringDate = hiringDate
             };
 
-            return _employeeRepo.AddEmployee(newEmp);
+            return employeeRepo.AddEmployee(newEmp);
         }
 
         public void Update(int id, string? name = null, string? role = null, int? salary = null)
         {
-            var existingEmp = _employeeRepo.GetEmployeeById(id);
-            if (existingEmp == null) return;
+            var existingEmp = employeeRepo.GetEmployeeById(id);
+            if (existingEmp == null)
+            {
+                return;
+            }
 
-            if (name != null) existingEmp.Name = name;
-            if (role != null) existingEmp.Role = role;
-            if (salary.HasValue) existingEmp.Salary = salary.Value;
+            if (name != null)
+            {
+                existingEmp.Name = name;
+            }
 
-            _employeeRepo.UpdateEmployee(existingEmp);
+            if (role != null)
+            {
+                existingEmp.Role = role;
+            }
+
+            if (salary.HasValue)
+            {
+                existingEmp.Salary = salary.Value;
+            }
+
+            employeeRepo.UpdateEmployee(existingEmp);
         }
 
         public void Delete(int id)
         {
-            if (id <= 0) return;
-            _employeeRepo.DeleteEmployee(id);
+            if (id <= 0)
+            {
+                return;
+            }
+
+            employeeRepo.DeleteEmployee(id);
         }
     }
 }

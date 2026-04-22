@@ -9,36 +9,34 @@ namespace TicketSellingModule.ViewModel
 {
     public partial class StaffPageViewModel : ObservableObject
     {
-        private readonly EmployeeService _employeeService;
-        private readonly EmployeeFlightService _flightEmployeeService;
+        private readonly EmployeeService employeeService;
+        private readonly EmployeeFlightService flightEmployeeService;
 
-        private int _currentEmployeeId;
+        private int currentEmployeeId;
 
         public ObservableCollection<EmployeeScheduleItem> ScheduledFlights { get; } = new();
 
-        [ObservableProperty] private string _employeeIdText = "-";
-        [ObservableProperty] private string _roleText = "-";
-        [ObservableProperty] private string _flightsCountText = "0";
-        [ObservableProperty] private Visibility _emptyStateVisibility = Visibility.Collapsed;
+        [ObservableProperty] private string employeeIdText = "-";
+        [ObservableProperty] private string roleText = "-";
+        [ObservableProperty] private string flightsCountText = "0";
+        [ObservableProperty] private Visibility emptyStateVisibility = Visibility.Collapsed;
 
         public StaffPageViewModel(
             EmployeeService employeeService,
             EmployeeFlightService flightEmployeeService)
         {
-            _employeeService = employeeService;
-            _flightEmployeeService = flightEmployeeService;
+            this.employeeService = employeeService;
+            this.flightEmployeeService = flightEmployeeService;
         }
 
         public void Initialize(int employeeId)
         {
-            //int resolvedId = ResolveEmployeeId(employeeId);
+            // int resolvedId = ResolveEmployeeId(employeeId);
             LoadEmployeeSchedule(employeeId);
         }
 
         [RelayCommand]
-        private void Refresh() => LoadEmployeeSchedule(_currentEmployeeId);
-
-        
+        private void Refresh() => LoadEmployeeSchedule(currentEmployeeId);
 
         private void LoadEmployeeSchedule(int employeeId)
         {
@@ -50,9 +48,9 @@ namespace TicketSellingModule.ViewModel
                 return;
             }
 
-            _currentEmployeeId = employeeId;
+            currentEmployeeId = employeeId;
 
-            var employee = _employeeService.GetById(employeeId);
+            var employee = employeeService.GetById(employeeId);
             if (employee == null)
             {
                 ResetEmployeeInfo();
@@ -61,8 +59,7 @@ namespace TicketSellingModule.ViewModel
 
             EmployeeIdText = employee.Id.ToString();
             RoleText = employee.Role;
-
-            var scheduleItems = _flightEmployeeService.GetFormattedEmployeeSchedule(employeeId);
+            var scheduleItems = flightEmployeeService.GetFormattedEmployeeSchedule(employeeId);
             foreach (var item in scheduleItems)
             {
                 ScheduledFlights.Add(item);

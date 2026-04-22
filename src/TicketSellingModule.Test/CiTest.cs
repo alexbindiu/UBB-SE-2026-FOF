@@ -1,6 +1,4 @@
-﻿using Xunit;
-
-namespace Boards_WP.Tests;
+﻿namespace Boards_WP.Tests;
 
 public class SanityCheck
 {

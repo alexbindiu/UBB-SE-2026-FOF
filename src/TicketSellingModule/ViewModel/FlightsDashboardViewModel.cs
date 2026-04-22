@@ -1,22 +1,24 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
 using Microsoft.UI.Xaml;
+
 using TicketSellingModule.WinUI.AirportAdmin.Components;
 
 namespace TicketSellingModule.ViewModel
 {
     public partial class FlightsDashboardViewModel : ObservableObject
     {
-        private readonly FlightRouteService _flightRouteService;
-        private readonly EmployeeFlightService _flightEmployeeService;
+        private readonly FlightRouteService flightRouteService;
+        private readonly EmployeeFlightService flightEmployeeService;
 
-        private List<Flight> _allFlights = new();
+        private List<Flight> allFlights = new();
 
-        [ObservableProperty] private string _searchText = string.Empty;
-        [ObservableProperty] private FlightRow? _selectedFlight;
+        [ObservableProperty] private string searchText = string.Empty;
+        [ObservableProperty] private FlightRow? selectedFlight;
 
-        [ObservableProperty] private Visibility _crewDialogVisibility = Visibility.Collapsed;
-        [ObservableProperty] private string _dialogError = string.Empty;
+        [ObservableProperty] private Visibility crewDialogVisibility = Visibility.Collapsed;
+        [ObservableProperty] private string dialogError = string.Empty;
 
         public ObservableCollection<CrewSelectionWrapper> AvailableCrew { get; } = new();
         public ObservableCollection<FlightRow> FilteredFlights { get; } = new();
@@ -25,14 +27,14 @@ namespace TicketSellingModule.ViewModel
             FlightRouteService flightRouteService,
             EmployeeFlightService flightEmployeeService)
         {
-            _flightRouteService = flightRouteService;
-            _flightEmployeeService = flightEmployeeService;
+            this.flightRouteService = flightRouteService;
+            this.flightEmployeeService = flightEmployeeService;
         }
 
         [RelayCommand]
         public void LoadFlights()
         {
-            _allFlights = _flightRouteService.GetAllFlightsWithDetails();
+            allFlights = flightRouteService.GetAllFlightsWithDetails();
             ApplyFilter();
         }
 
@@ -41,13 +43,19 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void OpenCrewManagement()
         {
-            if (SelectedFlight == null) return;
+            if (SelectedFlight == null)
+            {
+                return;
+            }
 
-            var flight = _flightRouteService.GetFlightById(SelectedFlight.Id);
-            if (flight == null) return;
+            var flight = flightRouteService.GetFlightById(SelectedFlight.Id);
+            if (flight == null)
+            {
+                return;
+            }
 
-            var currentIds = _flightEmployeeService.GetFlightCrew(flight.Id).Select(c => c.Id).ToList();
-            var availableEmployees = _flightEmployeeService.GetAvailableCrewGroupedByRole(flight);
+            var currentIds = flightEmployeeService.GetFlightCrew(flight.Id).Select(c => c.Id).ToList();
+            var availableEmployees = flightEmployeeService.GetAvailableCrewGroupedByRole(flight);
 
             AvailableCrew.Clear();
 
@@ -76,13 +84,14 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void SaveCrew()
         {
-            if (SelectedFlight == null) return;
+            if (SelectedFlight == null)
+            {
+                return;
+            }
 
             var selectedIds = AvailableCrew.Where(x => x.IsSelected).Select(x => x.Employee.Id).ToList();
 
-            
-
-            _flightEmployeeService.UpdateCrewForFlight(SelectedFlight.Id, selectedIds);
+            flightEmployeeService.UpdateCrewForFlight(SelectedFlight.Id, selectedIds);
             CrewDialogVisibility = Visibility.Collapsed;
             LoadFlights();
         }
@@ -95,11 +104,11 @@ namespace TicketSellingModule.ViewModel
             string text = SearchText?.Trim().ToLowerInvariant() ?? string.Empty;
 
             var filtered = string.IsNullOrWhiteSpace(text)
-                ? _allFlights
-                : _allFlights.Where(f =>
+                ? allFlights
+                : allFlights.Where(f =>
                        (f.FlightNumber?.ToLowerInvariant().Contains(text) ?? false) ||
                        f.Date.ToString("dd.MM.yyyy HH:mm").ToLowerInvariant().Contains(text) ||
-                       (_flightRouteService.GetDestinationText(f).ToLowerInvariant().Contains(text)) ||
+                       (flightRouteService.GetDestinationText(f).ToLowerInvariant().Contains(text)) ||
                        (f.Runway?.Name?.ToLowerInvariant().Contains(text) ?? false) ||
                        (f.Gate?.Name?.ToLowerInvariant().Contains(text) ?? false))
                     .ToList();
@@ -107,18 +116,28 @@ namespace TicketSellingModule.ViewModel
             FilteredFlights.Clear();
             foreach (var flight in filtered)
             {
-                var crew = _flightEmployeeService.GetFlightCrew(flight.Id);
+                var crew = flightEmployeeService.GetFlightCrew(flight.Id);
                 FilteredFlights.Add(new FlightRow
                 {
                     Id = flight.Id,
                     FlightNumber = flight.FlightNumber ?? string.Empty,
                     DateText = flight.Date.ToString("dd.MM.yyyy HH:mm"),
-                    DestinationText = _flightRouteService.GetDestinationText(flight),
+                    DestinationText = flightRouteService.GetDestinationText(flight),
                     RunwayText = flight.Runway?.Name ?? "-",
                     GateText = flight.Gate?.Name ?? "-",
                     CrewText = crew.Count > 0 ? string.Join(", ", crew.Select(c => c.Name)) : "Unassigned"
                 });
             }
+        }
+
+        private static string GetDestinationText(Flight flight)
+        {
+            if (flight.Route?.Airport == null)
+            {
+                return "-";
+            }
+
+            return $"{flight.Route.Airport.AirportCode} - {flight.Route.Airport.AirportName}";
         }
     }
 

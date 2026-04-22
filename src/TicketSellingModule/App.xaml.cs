@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
-using System;
 
-using TicketSellingModule.Data.Repositories;
-using TicketSellingModule.Data.Services;
 using TicketSellingModule.ViewModel;
 using TicketSellingModule.WinUI.Services;
 
@@ -13,7 +10,7 @@ namespace TicketSellingModule
     {
         public static IServiceProvider Services { get; private set; }
 
-        private Window _window;
+        private Window window;
 
         public App()
         {
@@ -80,8 +77,8 @@ namespace TicketSellingModule
         {
             try
             {
-                _window = Services.GetRequiredService<MainWindow>();
-                _window.Activate();
+                window = Services.GetRequiredService<MainWindow>();
+                window.Activate();
             }
             catch (Exception ex)
             {

@@ -1,69 +1,78 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
 using Microsoft.UI.Xaml;
 
 namespace TicketSellingModule.ViewModel
 {
     public partial class AirportDashboardViewModel : ObservableObject
     {
-
-        private readonly AirportService _airportService;
-        private readonly RunwayService _runwayService;
-        private readonly GateService _gateService;
+        private readonly AirportService airportService;
+        private readonly RunwayService runwayService;
+        private readonly GateService gateService;
 
         public ObservableCollection<Runway> RunwaysList { get; } = new();
         public ObservableCollection<Gate> GatesList { get; } = new();
         public ObservableCollection<Airport> AirportsList { get; } = new();
 
-        [ObservableProperty] private Runway? _selectedRunway;
-        [ObservableProperty] private Gate? _selectedGate;
-        [ObservableProperty] private Airport? _selectedAirport;
+        [ObservableProperty] private Runway? selectedRunway;
+        [ObservableProperty] private Gate? selectedGate;
+        [ObservableProperty] private Airport? selectedAirport;
 
-        [ObservableProperty] private Visibility _dialogVisibility = Visibility.Collapsed;
-        [ObservableProperty] private string _dialogTitle = string.Empty;
-        [ObservableProperty] private string _dialogErrorMessage = string.Empty;
-        [ObservableProperty] private Visibility _handleTimeVisibility = Visibility.Collapsed;
-        [ObservableProperty] private Visibility _cityCodeVisibility = Visibility.Collapsed;
+        [ObservableProperty] private Visibility dialogVisibility = Visibility.Collapsed;
+        [ObservableProperty] private string dialogTitle = string.Empty;
+        [ObservableProperty] private string dialogErrorMessage = string.Empty;
+        [ObservableProperty] private Visibility handleTimeVisibility = Visibility.Collapsed;
+        [ObservableProperty] private Visibility cityCodeVisibility = Visibility.Collapsed;
 
-        [ObservableProperty] private int _editingId;
-        [ObservableProperty] private string _editingName = string.Empty;
-        [ObservableProperty] private string _editingHandleTimeText = string.Empty;
-        [ObservableProperty] private string _editingCity = string.Empty;
-        [ObservableProperty] private string _editingCode = string.Empty;
+        [ObservableProperty] private int editingId;
+        [ObservableProperty] private string editingName = string.Empty;
+        [ObservableProperty] private string editingHandleTimeText = string.Empty;
+        [ObservableProperty] private string editingCity = string.Empty;
+        [ObservableProperty] private string editingCode = string.Empty;
 
-        [ObservableProperty] private Visibility _deleteConfirmationVisibility = Visibility.Collapsed;
-        [ObservableProperty] private string _deleteWarningMessage;
-        private object _itemToDelete;
+        [ObservableProperty] private Visibility deleteConfirmationVisibility = Visibility.Collapsed;
+        [ObservableProperty] private string deleteWarningMessage;
+        private object itemToDelete;
 
-        private string _currentEntity = string.Empty;
+        private string currentEntity = string.Empty;
 
         public AirportDashboardViewModel(AirportService airportService, RunwayService runwayService, GateService gateService)
         {
-            _airportService = airportService;
-            _runwayService = runwayService;
-            _gateService = gateService;
+            this.airportService = airportService;
+            this.runwayService = runwayService;
+            this.gateService = gateService;
         }
 
         [RelayCommand]
         public void LoadData()
         {
-            var runways = _runwayService.GetAll();
+            var runways = runwayService.GetAll();
             RunwaysList.Clear();
-            foreach (var r in runways) RunwaysList.Add(r);
+            foreach (var r in runways)
+            {
+                RunwaysList.Add(r);
+            }
 
-            var gates = _gateService.GetAll();
+            var gates = gateService.GetAll();
             GatesList.Clear();
-            foreach (var g in gates) GatesList.Add(g);
+            foreach (var g in gates)
+            {
+                GatesList.Add(g);
+            }
 
-            var airports = _airportService.GetAll();
+            var airports = airportService.GetAll();
             AirportsList.Clear();
-            foreach (var a in airports) AirportsList.Add(a);
+            foreach (var a in airports)
+            {
+                AirportsList.Add(a);
+            }
         }
 
         [RelayCommand]
         private void OpenAddRunway()
         {
-            _currentEntity = "Runway";
+            currentEntity = "Runway";
             EditingId = 0;
             EditingName = string.Empty;
             EditingHandleTimeText = string.Empty;
@@ -79,8 +88,12 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void OpenEditRunway()
         {
-            if (SelectedRunway == null) return;
-            _currentEntity = "Runway";
+            if (SelectedRunway == null)
+            {
+                return;
+            }
+
+            currentEntity = "Runway";
             EditingId = SelectedRunway.Id;
             EditingName = SelectedRunway.Name;
             EditingHandleTimeText = SelectedRunway.HandleTime.ToString();
@@ -96,7 +109,7 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void OpenAddGate()
         {
-            _currentEntity = "Gate";
+            currentEntity = "Gate";
             EditingId = 0;
             EditingName = string.Empty;
 
@@ -111,8 +124,12 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void OpenEditGate()
         {
-            if (SelectedGate == null) return;
-            _currentEntity = "Gate";
+            if (SelectedGate == null)
+            {
+                return;
+            }
+
+            currentEntity = "Gate";
             EditingId = SelectedGate.Id;
             EditingName = SelectedGate.Name;
 
@@ -127,7 +144,7 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void OpenAddAirport()
         {
-            _currentEntity = "Airport";
+            currentEntity = "Airport";
             EditingId = 0;
             EditingName = string.Empty;
             EditingCity = string.Empty;
@@ -144,8 +161,12 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void OpenEditAirport()
         {
-            if (SelectedAirport == null) return;
-            _currentEntity = "Airport";
+            if (SelectedAirport == null)
+            {
+                return;
+            }
+
+            currentEntity = "Airport";
             EditingId = SelectedAirport.Id;
             EditingName = SelectedAirport.AirportName;
             EditingCity = SelectedAirport.City;
@@ -172,7 +193,7 @@ namespace TicketSellingModule.ViewModel
             {
                 DialogErrorMessage = string.Empty;
                 SaveDashboardEntity(
-                    _currentEntity,
+                    currentEntity,
                     EditingId,
                     EditingName,
                     EditingHandleTimeText,
@@ -192,22 +213,27 @@ namespace TicketSellingModule.ViewModel
         {
             if (entityType == "Runway")
             {
-                _runwayService.SaveRunway(editingId, name, handleTimeText);
+                runwayService.SaveRunway(editingId, name, handleTimeText);
                 return;
             }
 
             if (entityType == "Gate")
             {
-                _gateService.SaveGate(editingId, name);
+                gateService.SaveGate(editingId, name);
                 return;
             }
 
             if (entityType == "Airport")
             {
                 if (editingId == 0)
-                    _airportService.Add(code, name, city);
+                {
+                    airportService.Add(code, name, city);
+                }
                 else
-                    _airportService.Update(editingId, city, name, code);
+                {
+                    airportService.Update(editingId, city, name, code);
+                }
+
                 return;
             }
 
@@ -218,7 +244,7 @@ namespace TicketSellingModule.ViewModel
         private void CloseDeleteDialog()
         {
             DeleteConfirmationVisibility = Visibility.Collapsed;
-            _itemToDelete = null;
+            itemToDelete = null;
         }
 
         [RelayCommand]
@@ -226,7 +252,7 @@ namespace TicketSellingModule.ViewModel
         {
             try
             {
-                DeleteDashboardEntity(_itemToDelete);
+                DeleteDashboardEntity(itemToDelete);
                 LoadData();
             }
             catch (Exception ex)
@@ -243,19 +269,19 @@ namespace TicketSellingModule.ViewModel
         {
             if (itemToDelete is Runway runway)
             {
-                _runwayService.Delete(runway.Id);
+                runwayService.Delete(runway.Id);
                 return;
             }
 
             if (itemToDelete is Gate gate)
             {
-                _gateService.Delete(gate.Id);
+                gateService.Delete(gate.Id);
                 return;
             }
 
             if (itemToDelete is Airport airport)
             {
-                _airportService.Delete(airport.Id);
+                airportService.Delete(airport.Id);
                 return;
             }
 
@@ -266,7 +292,7 @@ namespace TicketSellingModule.ViewModel
         {
             if (itemToDelete is Runway runway)
             {
-                bool hasFlights = _runwayService.HasFlights(runway.Id);
+                bool hasFlights = runwayService.HasFlights(runway.Id);
                 return hasFlights
                     ? $"Warning: Runway '{runway.Name}' has flights assigned. Deleting it will remove ALL associated flights. Continue?"
                     : $"Are you sure you want to delete runway '{runway.Name}'?";
@@ -274,7 +300,7 @@ namespace TicketSellingModule.ViewModel
 
             if (itemToDelete is Gate gate)
             {
-                bool hasFlights = _gateService.HasFlights(gate.Id);
+                bool hasFlights = gateService.HasFlights(gate.Id);
                 return hasFlights
                     ? $"Warning: Gate '{gate.Name}' has flights assigned. Deleting it will remove ALL associated flights. Continue?"
                     : $"Are you sure you want to delete gate '{gate.Name}'?";
@@ -282,7 +308,7 @@ namespace TicketSellingModule.ViewModel
 
             if (itemToDelete is Airport airport)
             {
-                bool hasFlights = _airportService.HasFlights(airport.Id);
+                bool hasFlights = airportService.HasFlights(airport.Id);
                 return hasFlights
                     ? $"Warning: Airport '{airport.AirportName}' has flights assigned. Deleting it will remove ALL associated flights. Continue?"
                     : $"Are you sure you want to delete airport '{airport.AirportName}'?";
@@ -294,30 +320,38 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void DeleteRunway()
         {
-            if (SelectedRunway == null) return;
+            if (SelectedRunway == null)
+            {
+                return;
+            }
 
-            _itemToDelete = SelectedRunway;
-            DeleteWarningMessage = BuildDeleteWarning(_itemToDelete);
+            itemToDelete = SelectedRunway;
+            DeleteWarningMessage = BuildDeleteWarning(itemToDelete);
             DeleteConfirmationVisibility = Visibility.Visible;
         }
 
         [RelayCommand]
         private void DeleteGate()
         {
-            if (SelectedGate == null) return;
-
-            _itemToDelete = SelectedGate;
-            DeleteWarningMessage = BuildDeleteWarning(_itemToDelete);
+            if (SelectedGate == null)
+            {
+                return;
+            }
+            itemToDelete = SelectedGate;
+            DeleteWarningMessage = BuildDeleteWarning(itemToDelete);
             DeleteConfirmationVisibility = Visibility.Visible;
         }
 
         [RelayCommand]
         private void DeleteAirport()
         {
-            if (SelectedAirport == null) return;
+            if (SelectedAirport == null)
+            {
+                return;
+            }
 
-            _itemToDelete = SelectedAirport;
-            DeleteWarningMessage = BuildDeleteWarning(_itemToDelete);
+            itemToDelete = SelectedAirport;
+            DeleteWarningMessage = BuildDeleteWarning(itemToDelete);
             DeleteConfirmationVisibility = Visibility.Visible;
         }
     }

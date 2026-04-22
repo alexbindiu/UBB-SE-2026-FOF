@@ -1,5 +1,5 @@
-using System.Collections.ObjectModel;
 using System.Windows.Input;
+
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -20,7 +20,6 @@ namespace TicketSellingModule.WinUI.AirportAdmin.Components
                 typeof(AirportSectionControl),
                 new PropertyMetadata("Title"));
 
-
         public object Items
         {
             get => GetValue(ItemsProperty);
@@ -38,7 +37,6 @@ namespace TicketSellingModule.WinUI.AirportAdmin.Components
         {
             if (d is AirportSectionControl control)
             {
-                
                 control.ListViewControl.ItemsSource = e.NewValue;
             }
         }

@@ -1,52 +1,50 @@
-﻿
-namespace TicketSellingModule.Data.Repositories
+﻿namespace TicketSellingModule.Data.Repositories
 {
     public class CompanyRepo
     {
-        private readonly DbConnectionFactory _connectionFactory;
+        private readonly DbConnectionFactory connectionFactory;
         public CompanyRepo(DbConnectionFactory factory)
         {
-            _connectionFactory = factory;
+            connectionFactory = factory;
         }
-
 
         public List<Company> GetAllCompanies()
         {
-            List<Company> AllCompanies = new List<Company>();
-            using(SqlConnection conn = _connectionFactory.GetConnection())
+            List<Company> allCompanies = new List<Company>();
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "Select id, name from companies";
-                using(SqlCommand cmd = new SqlCommand(query, conn))
+                using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        while(reader.Read())
+                        while (reader.Read())
                         {
                             int id = reader.GetInt32(0);
                             string name = reader.GetString(1);
                             Company newCompany = new Company();
                             newCompany.Name = name;
                             newCompany.Id = id;
-                            AllCompanies.Add(newCompany);
+                            allCompanies.Add(newCompany);
                         }
                     }
                 }
-                return AllCompanies;
+                return allCompanies;
             }
         }
         public Company GetCompanyById(int id)
         {
-            using(SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "Select id, name from companies where @id = id";
-                using(SqlCommand cmd = new SqlCommand(query, conn))
+                using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@id", id);
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        if(reader.Read())
+                        if (reader.Read())
                         {
                             string name = reader.GetString(1);
                             Company newCompany = new Company();
@@ -59,14 +57,14 @@ namespace TicketSellingModule.Data.Repositories
                 return null;
             }
         }
-        
+
         public int AddNewCompany(Company company)
         {
-            using(SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "Insert into Companies (name) OUTPUT INSERTED.id VALUES (@name)";
-                using(SqlCommand cmd = new SqlCommand(query, conn))
+                using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@name", company.Name);
                     int newId = (int)cmd.ExecuteScalar();
@@ -77,7 +75,7 @@ namespace TicketSellingModule.Data.Repositories
 
         public void DeleteCompany(int id)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "Delete from Companies Where @id = id";
@@ -90,7 +88,7 @@ namespace TicketSellingModule.Data.Repositories
         }
         public void UpdateCompany(Company company)
         {
-            using (SqlConnection conn = _connectionFactory.GetConnection())
+            using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
                 string query = "Update Companies SET name = @name Where @id = id";

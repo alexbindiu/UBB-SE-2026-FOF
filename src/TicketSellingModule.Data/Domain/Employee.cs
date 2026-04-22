@@ -1,5 +1,4 @@
-﻿
-namespace TicketSellingModule.Data.Domain
+﻿namespace TicketSellingModule.Data.Domain
 {
     public class Employee
     {
@@ -9,7 +8,5 @@ namespace TicketSellingModule.Data.Domain
         public DateOnly Birthday { get; set; }
         public DateOnly HiringDate { get; set; }
         public int Salary { get; set; }
-
-       
     }
 }

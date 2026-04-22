@@ -7,15 +7,15 @@ namespace TicketSellingModule.ViewModel
 {
     public partial class CompanyViewModel : ObservableObject
     {
-        private readonly CompanyService _companyService;
-        private readonly AirportService _airportService;
-        private readonly RunwayService _runwayService;
-        private readonly GateService _gateService;
-        private readonly FlightRouteService _flightRouteService;
-        private readonly EmployeeFlightService _employeeFlightService;
+        private readonly CompanyService companyService;
+        private readonly AirportService airportService;
+        private readonly RunwayService runwayService;
+        private readonly GateService gateService;
+        private readonly FlightRouteService flightRouteService;
+        private readonly EmployeeFlightService employeeFlightService;
 
-        private int _currentCompanyId;
-        private List<Flight> _masterCompanyFlights = new();
+        private int currentCompanyId;
+        private List<Flight> masterCompanyFlights = new();
 
         public ObservableCollection<Company> CompaniesList { get; } = new();
         public ObservableCollection<Airport> AirportsList { get; } = new();
@@ -24,29 +24,27 @@ namespace TicketSellingModule.ViewModel
         public ObservableCollection<Runway> RunwaysList { get; } = new();
         public ObservableCollection<Gate> GatesList { get; } = new();
 
-        public int CurrentCompanyId => _currentCompanyId;
+        public int CurrentCompanyId => currentCompanyId;
 
-        [ObservableProperty] private string _searchText;
-        [ObservableProperty] private string _selectedRouteType;
-        [ObservableProperty] private Airport _selectedAirport;
-        [ObservableProperty] private string _capacityText;
-        [ObservableProperty] private TimeSpan _departureTime = TimeSpan.Zero;
-        [ObservableProperty] private TimeSpan _arrivalTime = TimeSpan.Zero;
-        [ObservableProperty] private DateTimeOffset? _singleDate;
-        [ObservableProperty] private string _customDaysText;
-        [ObservableProperty] private DateTimeOffset? _startDate;
-        [ObservableProperty] private DateTimeOffset? _endDate;
+        [ObservableProperty] private string searchText;
+        [ObservableProperty] private string selectedRouteType;
+        [ObservableProperty] private Airport selectedAirport;
+        [ObservableProperty] private string capacityText;
+        [ObservableProperty] private TimeSpan departureTime = TimeSpan.Zero;
+        [ObservableProperty] private TimeSpan arrivalTime = TimeSpan.Zero;
+        [ObservableProperty] private DateTimeOffset? singleDate;
+        [ObservableProperty] private string customDaysText;
+        [ObservableProperty] private DateTimeOffset? startDate;
+        [ObservableProperty] private DateTimeOffset? endDate;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(RecurrentPanelVisibility))]
         [NotifyPropertyChangedFor(nameof(SingleDateVisibility))]
-        private bool _isRecurrent;
+        private bool isRecurrent;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(CustomDaysVisibility))]
-        private string _recurrenceType;
-
-        
+        private string recurrenceType;
 
         public Visibility RecurrentPanelVisibility => IsRecurrent ? Visibility.Visible : Visibility.Collapsed;
         public Visibility SingleDateVisibility => IsRecurrent ? Visibility.Collapsed : Visibility.Visible;
@@ -54,44 +52,50 @@ namespace TicketSellingModule.ViewModel
 
         public CompanyViewModel(CompanyService companyService,
             AirportService airportService,
-            FlightRouteService flightRouteService, RunwayService runwayService, GateService gateService, EmployeeFlightService employeeFlightService    )
+            FlightRouteService flightRouteService, RunwayService runwayService, GateService gateService, EmployeeFlightService employeeFlightService)
         {
-            _companyService = companyService;
-            _airportService = airportService;
-            _flightRouteService = flightRouteService;
-            _runwayService = runwayService;
-            _gateService = gateService;
-            _employeeFlightService = employeeFlightService;
+            this.companyService = companyService;
+            this.airportService = airportService;
+            this.flightRouteService = flightRouteService;
+            this.runwayService = runwayService;
+            this.gateService = gateService;
+            this.employeeFlightService = employeeFlightService;
         }
 
-
-        private Runway _selectedRunway;
+        private Runway selectedRunway;
         public Runway SelectedRunway
         {
-            get => _selectedRunway;
-            set { _selectedRunway = value; OnPropertyChanged(); }
+            get => selectedRunway;
+            set
+            {
+                selectedRunway = value;
+                OnPropertyChanged();
+            }
         }
 
-        private Gate _selectedGate;
+        private Gate selectedGate;
         public Gate SelectedGate
         {
-            get => _selectedGate;
-            set { _selectedGate = value; OnPropertyChanged(); }
+            get => selectedGate;
+            set
+            {
+                selectedGate = value;
+                OnPropertyChanged();
+            }
         }
-
 
         partial void OnSearchTextChanged(string value) => SearchFlights(value);
 
         public void InitializeCompany(int companyId)
         {
-            _currentCompanyId = companyId;
+            currentCompanyId = companyId;
             GetAllAirports();
             GetCompanyFlights(companyId);
         }
 
         public void LoadRunways()
         {
-            var runways = _runwayService.GetAll();
+            var runways = runwayService.GetAll();
             RunwaysList.Clear();
             foreach (var runway in runways)
             {
@@ -101,7 +105,7 @@ namespace TicketSellingModule.ViewModel
 
         public void LoadGates()
         {
-            var gates = _gateService.GetAll();
+            var gates = gateService.GetAll();
             GatesList.Clear();
             foreach (var gate in gates)
             {
@@ -111,37 +115,44 @@ namespace TicketSellingModule.ViewModel
 
         public List<Company> GetAllCompanies()
         {
-            var companies = _companyService.GetAll();
+            var companies = companyService.GetAll();
             CompaniesList.Clear();
-            foreach (var company in companies) CompaniesList.Add(company);
+            foreach (var company in companies)
+            {
+                CompaniesList.Add(company);
+            }
+
             return companies;
         }
 
         public Company GetCompanyById(int companyId) =>
-            _companyService.GetCompanyById(companyId);
+            companyService.GetCompanyById(companyId);
 
         public List<Airport> GetAllAirports()
         {
-            var airports = _airportService.GetAll();
+            var airports = airportService.GetAll();
             AirportsList.Clear();
-            foreach (var airport in airports) AirportsList.Add(airport);
+            foreach (var airport in airports)
+            {
+                AirportsList.Add(airport);
+            }
+
             return airports;
         }
 
-        
-
-        
-
         public void GetCompanyFlights(int companyId)
         {
-            var allRoutes = _flightRouteService.GetAllRoutes() ?? new List<Route>();
+            var allRoutes = flightRouteService.GetAllRoutes() ?? new List<Route>();
             var companyRouteIds = allRoutes.Where(r => r.Company.Id == companyId).Select(r => r.Id).ToList();
 
-            var allFlights = _flightRouteService.GetAllFlights() ?? new List<Flight>();
-            _masterCompanyFlights = allFlights.Where(f => companyRouteIds.Contains(f.Route.Id)).ToList();
+            var allFlights = flightRouteService.GetAllFlights() ?? new List<Flight>();
+            masterCompanyFlights = allFlights.Where(f => companyRouteIds.Contains(f.Route.Id)).ToList();
 
             CompanyFlightsList.Clear();
-            foreach (var flight in _masterCompanyFlights) CompanyFlightsList.Add(flight);
+            foreach (var flight in masterCompanyFlights)
+            {
+                CompanyFlightsList.Add(flight);
+            }
         }
 
         public void SearchFlights(string searchText)
@@ -149,25 +160,31 @@ namespace TicketSellingModule.ViewModel
             CompanyFlightsList.Clear();
 
             var source = string.IsNullOrWhiteSpace(searchText)
-                ? _masterCompanyFlights
-                : _masterCompanyFlights.Where(f =>
+                ? masterCompanyFlights
+                : masterCompanyFlights.Where(f =>
                     !string.IsNullOrEmpty(f.FlightNumber) &&
                     f.FlightNumber.ToLower().Contains(searchText.ToLower())).ToList();
 
-            foreach (var flight in source) CompanyFlightsList.Add(flight);
+            foreach (var flight in source)
+            {
+                CompanyFlightsList.Add(flight);
+            }
         }
 
         [RelayCommand]
         private void DeleteFlight(int flightId)
         {
-            if (_currentCompanyId == 0) return;
+            if (currentCompanyId == 0)
+            {
+                return;
+            }
+
             try
             {
-                
-                _employeeFlightService.CleanUpFlightAssignments(flightId);
-                _flightRouteService.DeleteFlight(flightId);
+                employeeFlightService.CleanUpFlightAssignments(flightId);
+                flightRouteService.DeleteFlight(flightId);
 
-                GetCompanyFlights(_currentCompanyId);
+                GetCompanyFlights(currentCompanyId);
             }
             catch (Exception ex)
             {
@@ -176,19 +193,25 @@ namespace TicketSellingModule.ViewModel
 
         public void AddFlightFromInputs()
         {
-            
-            if (_currentCompanyId == 0) throw new InvalidOperationException("Company not selected.");
+            if (currentCompanyId == 0)
+            {
+                throw new InvalidOperationException("Company not selected.");
+            }
+
             if (SelectedAirport == null || SelectedRunway == null || SelectedGate == null)
+            {
                 throw new InvalidOperationException("Please fill all required fields.");
+            }
 
             if (!int.TryParse(CapacityText, out int capacity))
+            {
                 throw new InvalidOperationException("Invalid capacity.");
+            }
 
             string typeCode = SelectedRouteType == "Arrival" ? "ARR" : "DEP";
 
-            
-            _flightRouteService.CreateFlightWithSchedule(
-                _currentCompanyId,
+            flightRouteService.CreateFlightWithSchedule(
+                currentCompanyId,
                 typeCode,
                 SelectedAirport.Id,
                 capacity,
@@ -202,10 +225,9 @@ namespace TicketSellingModule.ViewModel
                 CustomDaysText,
                 SelectedRunway.Id,
                 SelectedGate.Id,
-                _companyService.GenerateFlightCode
-            );
+                companyService.GenerateFlightCode);
 
-            GetCompanyFlights(_currentCompanyId);
+            GetCompanyFlights(currentCompanyId);
             ClearInputs();
         }
 
@@ -223,12 +245,10 @@ namespace TicketSellingModule.ViewModel
             StartDate = DateTimeOffset.Now;
             EndDate = DateTimeOffset.Now.AddDays(7);
 
-            DepartureTime = new TimeSpan(12, 0, 0); 
-            ArrivalTime = new TimeSpan(13, 0, 0);   
+            DepartureTime = new TimeSpan(12, 0, 0);
+            ArrivalTime = new TimeSpan(13, 0, 0);
 
             CustomDaysText = string.Empty;
         }
-
-        
     }
 }
