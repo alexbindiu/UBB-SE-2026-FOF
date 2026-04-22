@@ -158,12 +158,12 @@ namespace TicketSellingModule.Service
         {
             
             var companyRouteIds = _routeRepo.GetAllRoutes()
-                .Where(r => r.CompanyId == companyId)
+                .Where(r => r.Company.Id == companyId)
                 .Select(r => r.Id)
                 .ToList();
 
             return _flightRepo.GetAll()
-                .Where(f => companyRouteIds.Contains(f.RouteId))
+                .Where(f => companyRouteIds.Contains(f.Route.Id))
                 .ToList();
         }
     }
