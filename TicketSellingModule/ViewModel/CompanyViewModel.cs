@@ -87,6 +87,7 @@ namespace TicketSellingModule.ViewModel
             set { _selectedGate = value; OnPropertyChanged(); }
         }
 
+
         partial void OnSearchTextChanged(string value) => SearchFlights(value);
 
         public void InitializeCompany(int companyId)
@@ -95,13 +96,6 @@ namespace TicketSellingModule.ViewModel
             GetAllAirports();
             GetCompanyFlights(companyId);
         }
-
-        //public DateTimeOffset? EndDate
-        //{
-        //    get => _endDate;
-        //    set => SetProperty(ref _endDate, value);
-        //}
-
 
         public void LoadRunways()
         {
@@ -244,6 +238,7 @@ namespace TicketSellingModule.ViewModel
             DateTime fullDep = baseDate.Add(DepartureTime);
             DateTime fullArr = baseDate.Add(ArrivalTime);
 
+            
             if (fullArr <= fullDep)
             {
                 fullArr = fullArr.AddDays(1);
