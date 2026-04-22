@@ -20,6 +20,7 @@ namespace TicketSellingModule.ViewModel
         private readonly RunwayService _runwayService;
         private readonly GateService _gateService;
         private readonly FlightRouteService _flightRouteService;
+        private readonly EmployeeFlightService _employeeFlightService;
 
         private int _currentCompanyId;
         private List<Flight> _masterCompanyFlights = new();
@@ -53,19 +54,22 @@ namespace TicketSellingModule.ViewModel
         [NotifyPropertyChangedFor(nameof(CustomDaysVisibility))]
         private string _recurrenceType;
 
+        
+
         public Visibility RecurrentPanelVisibility => IsRecurrent ? Visibility.Visible : Visibility.Collapsed;
         public Visibility SingleDateVisibility => IsRecurrent ? Visibility.Collapsed : Visibility.Visible;
         public Visibility CustomDaysVisibility => RecurrenceType == "Custom" ? Visibility.Visible : Visibility.Collapsed;
 
         public CompanyViewModel(CompanyService companyService,
             AirportService airportService,
-            FlightRouteService flightRouteService, RunwayService runwayService, GateService gateService)
+            FlightRouteService flightRouteService, RunwayService runwayService, GateService gateService, EmployeeFlightService employeeFlightService    )
         {
             _companyService = companyService;
             _airportService = airportService;
             _flightRouteService = flightRouteService;
             _runwayService = runwayService;
             _gateService = gateService;
+            _employeeFlightService = employeeFlightService;
         }
 
 
@@ -156,10 +160,10 @@ namespace TicketSellingModule.ViewModel
         public void GetCompanyFlights(int companyId)
         {
             var allRoutes = _flightRouteService.GetAllRoutes() ?? new List<Route>();
-            var companyRouteIds = allRoutes.Where(r => r.CompanyId == companyId).Select(r => r.Id).ToList();
+            var companyRouteIds = allRoutes.Where(r => r.Company.Id == companyId).Select(r => r.Id).ToList();
 
             var allFlights = _flightRouteService.GetAllFlights() ?? new List<Flight>();
-            _masterCompanyFlights = allFlights.Where(f => companyRouteIds.Contains(f.RouteId)).ToList();
+            _masterCompanyFlights = allFlights.Where(f => companyRouteIds.Contains(f.Route.Id)).ToList();
 
             CompanyFlightsList.Clear();
             foreach (var flight in _masterCompanyFlights) CompanyFlightsList.Add(flight);
@@ -182,8 +186,19 @@ namespace TicketSellingModule.ViewModel
         private void DeleteFlight(int flightId)
         {
             if (_currentCompanyId == 0) return;
-            _flightRouteService.DeleteFlight(flightId);
-            GetCompanyFlights(_currentCompanyId);
+            try
+            {
+                // 1. Clear crew first
+                _employeeFlightService.CleanUpFlightAssignments(flightId);
+
+                // 2. Delete the flight
+                _flightRouteService.DeleteFlight(flightId);
+
+                GetCompanyFlights(_currentCompanyId);
+            }
+            catch (Exception ex)
+            {
+            }
         }
 
         public void AddFlightFromInputs()
@@ -295,5 +310,7 @@ namespace TicketSellingModule.ViewModel
 
             CustomDaysText = string.Empty;
         }
+
+        
     }
 }

@@ -26,29 +26,35 @@
                        HorizontalAlignment="Center"/>
         </StackPanel>
 
-        <GridView Grid.Row="1"
+        <GridView x:Name="CompaniesGrid"
+                  Grid.Row="1"
                   HorizontalAlignment="Center"
                   ItemsSource="{x:Bind ViewModel.Companies}"
                   SelectionMode="None"
-                  IsItemClickEnabled="True"
-                  ItemClick="OnCompanyClicked">
-                  
+                  IsItemClickEnabled="False">
+
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="domain:Company">
-                    <Grid Width="200" Height="120" Margin="10"
-                          Background="#1E293B"
-                          BorderBrush="#334155"
-                          BorderThickness="1"
-                          CornerRadius="8">
-                        <StackPanel Spacing="5" VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <FontIcon Glyph="&#xEB4D;" FontSize="32" Foreground="#2bb8c0"/>
-                            <TextBlock Text="{x:Bind Name}" 
-                                       Foreground="White" 
-                                       FontWeight="SemiBold" 
-                                       FontSize="16"
-                                       TextAlignment="Center"/>
-                        </StackPanel>
-                    </Grid>
+                    <Button Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            Command="{Binding DataContext.SelectCompanyCommand, ElementName=CompaniesGrid}"
+                            CommandParameter="{Binding}">
+                        <Grid Width="200" Height="120" Margin="10"
+                              Background="#1E293B"
+                              BorderBrush="#334155"
+                              BorderThickness="1"
+                              CornerRadius="8">
+                            <StackPanel Spacing="5" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <FontIcon Glyph="&#xEB4D;" FontSize="32" Foreground="#2bb8c0"/>
+                                <TextBlock Text="{x:Bind Name}"
+                                           Foreground="White"
+                                           FontWeight="SemiBold"
+                                           FontSize="16"
+                                           TextAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </Button>
                 </DataTemplate>
             </GridView.ItemTemplate>
         </GridView>

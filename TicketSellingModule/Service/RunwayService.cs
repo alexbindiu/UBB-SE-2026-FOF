@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using TicketSellingModule.Domain;
 using TicketSellingModule.Repo;
@@ -8,9 +9,11 @@ namespace TicketSellingModule.Service
     public class RunwayService
     {
         private readonly RunwayRepo _runwayRepo;
-        public RunwayService(RunwayRepo runwayRepo)
+        private readonly FlightRepo _flightRepo;
+        public RunwayService(RunwayRepo runwayRepo, FlightRepo flightRepo)
         {
             _runwayRepo = runwayRepo;
+            _flightRepo = flightRepo;
         }
 
         public List<Runway> GetAll()
@@ -71,6 +74,12 @@ namespace TicketSellingModule.Service
                 throw new InvalidOperationException($"Runway with ID {id} does not exist.");
 
             _runwayRepo.DeleteRunway(id);
+
+        }
+
+        public bool HasFlights(int runwayId)
+        {
+            return _flightRepo.GetFlightsByRunway(runwayId).Any();
         }
     }
 }

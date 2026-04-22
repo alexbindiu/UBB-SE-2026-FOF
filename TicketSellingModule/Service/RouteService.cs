@@ -22,57 +22,47 @@ namespace TicketSellingModule.Service
             _airportRepo = airportRepo;
         }
 
-        public List<Route> GetAll()
+        private bool CheckOverlappingTimes(TimeOnly start1, TimeOnly end1, TimeOnly start2, TimeOnly end2)
         {
-            return _routeRepo.GetAllRoutes();
-        }
+            int s1 = start1.Hour * 60 + start1.Minute;
+            int e1 = end1.Hour * 60 + end1.Minute;
+            if (e1 <= s1) e1 += 1440;
 
-        public Route? GetById(int id)
-        {
-            if (id <= 0) return null;
-            return _routeRepo.GetRouteById(id);
-        }
+            int s2 = start2.Hour * 60 + start2.Minute;
+            int e2 = end2.Hour * 60 + end2.Minute;
+            if (e2 <= s2) e2 += 1440;
 
-        public void Delete(int id)
-        {
-            if (id <= 0)
-                throw new ArgumentException("Invalid route ID.");
-            _routeRepo.DeleteRoute(id);
-        }
-
-        public void Update(Route updatedRoute)
-        {
-            if (updatedRoute == null)
-                throw new ArgumentNullException(nameof(updatedRoute));
-            _routeRepo.UpdateRoute(updatedRoute);
+            return s1 < e2 && s2 < e1;
         }
 
         public int AddWithInitialFlight(int companyId, int airportId, string routeType,
-                                        int recurrenceInterval, DateTime startDate, DateTime endDate,
-                                        TimeOnly depTime, TimeOnly arrTime, int capacity,
-                                        string flightNumber, int runwayId, int gateId)
+                                        int interval, DateTime start, DateTime end,
+                                        TimeOnly dep, TimeOnly arr, int capacity,
+                                        string flightNum, int runwayId, int gateId)
         {
-            if (startDate > endDate)
-                throw new ArgumentException("Start date cannot be after end date.");
-            if (capacity <= 0)
-                throw new ArgumentException("Capacity must be greater than 0.");
-            //if (depTime >= arrTime)
-            //    throw new ArgumentException("Departure time must be before arrival time.");
-
-            CheckConflicts(startDate, depTime, arrTime, gateId, runwayId, flightNumber);
+            var sameDayFlights = _flightRepo.GetAll().Where(f => f.Date.Date == start.Date);
+            foreach (var existing in sameDayFlights)
+            {
+                if (existing.Gate?.Id == gateId || existing.Runway?.Id == runwayId)
+                {
+                    var existingRoute = _routeRepo.GetRouteById(existing.Route.Id);
+                    if (existingRoute != null && CheckOverlappingTimes(dep, arr, existingRoute.DepartureTime, existingRoute.ArrivalTime))
+                    {
+                        throw new InvalidOperationException("Resource Conflict: Gate or Runway occupied.");
+                    }
+                }
+            }
 
             Route newRoute = new Route
             {
-                CompanyId = companyId,
                 Company = _companyRepo.GetCompanyById(companyId),
-                AirportId = airportId,
                 Airport = _airportRepo.GetAirportById(airportId),
                 RouteType = routeType,
-                RecurrenceInterval = recurrenceInterval,
-                StartDate = DateOnly.FromDateTime(startDate),
-                EndDate = DateOnly.FromDateTime(endDate),
-                DepartureTime = depTime,
-                ArrivalTime = arrTime,
+                RecurrenceInterval = interval,
+                StartDate = DateOnly.FromDateTime(start),
+                EndDate = DateOnly.FromDateTime(end),
+                DepartureTime = dep,
+                ArrivalTime = arr,
                 Capacity = capacity
             };
 
@@ -80,47 +70,18 @@ namespace TicketSellingModule.Service
 
             Flight initialFlight = new Flight
             {
-                RouteId = routeId,
-                Date = startDate,
-                FlightNumber = flightNumber,
-                RunwayId = runwayId,
-                GateId = gateId
+                Route = new Route { Id = routeId },
+                Date = start,
+                FlightNumber = flightNum,
+                Runway = new Runway { Id = runwayId },
+                Gate = new Gate { Id = gateId }
             };
-
             _flightRepo.Add(initialFlight);
 
             return routeId;
         }
 
-        private void CheckConflicts(DateTime date, TimeOnly depTime, TimeOnly arrTime,
-                                    int gateId, int runwayId, string flightNumber)
-        {
-            var allFlights = _flightRepo.GetAll();
-            var sameDayFlights = allFlights.Where(f => f.Date.Date == date.Date).ToList();
-
-            foreach (var existing in sameDayFlights)
-            {
-                if (existing.GateId != gateId && existing.RunwayId != runwayId)
-                    continue;
-
-                var existingRoute = _routeRepo.GetRouteById(existing.RouteId);
-                if (existingRoute == null) continue;
-
-                bool overlap = depTime < existingRoute.ArrivalTime &&
-                               arrTime > existingRoute.DepartureTime;
-
-                if (!overlap) continue;
-
-                if (existing.GateId == gateId)
-                    throw new InvalidOperationException(
-                        $"Gate conflict: gate {gateId} is occupied by flight {existing.FlightNumber} " +
-                        $"from {existingRoute.DepartureTime} to {existingRoute.ArrivalTime}.");
-
-                if (existing.RunwayId == runwayId)
-                    throw new InvalidOperationException(
-                        $"Runway conflict: runway {runwayId} is in use by flight {existing.FlightNumber} " +
-                        $"from {existingRoute.DepartureTime} to {existingRoute.ArrivalTime}.");
-            }
-        }
+        public Route? GetById(int id) => _routeRepo.GetRouteById(id);
+        public List<Route> GetAll() => _routeRepo.GetAllRoutes();
     }
 }

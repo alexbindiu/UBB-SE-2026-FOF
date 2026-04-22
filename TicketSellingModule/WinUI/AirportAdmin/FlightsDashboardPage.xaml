@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="using:TicketSellingModule.WinUI.AirportAdmin.Components"
+    xmlns:vm="using:TicketSellingModule.ViewModel"
     mc:Ignorable="d"
     Foreground="#F8FAFC">
 
@@ -25,24 +26,68 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <AutoSuggestBox x:Name="FlightSearchBox"
-                            PlaceholderText="Search flights..."
-                            QuerySubmitted="FlightSearchBox_QuerySubmitted"
-                            TextChanged="FlightSearchBox_TextChanged"/>
+            <AutoSuggestBox PlaceholderText="Search flights..."
+                            Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
             <Button Grid.Column="2"
                     Content="Refresh"
-                    Click="RefreshButton_Click"/>
+                    Command="{x:Bind ViewModel.LoadFlightsCommand}"/>
 
             <Button Grid.Column="4"
-                Content="Manage Crew"
-                Style="{StaticResource AccentButtonStyle}"
-                Click="AssignCrewButton_Click"/>
-            
+                    Content="Manage Crew"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Command="{x:Bind ViewModel.OpenCrewManagementCommand}"/>
         </Grid>
 
         <local:FlightListControl Grid.Row="2"
-                                  x:Name="FlightListControl"
-                                  Items="{x:Bind FilteredFlights, Mode=OneWay}"/>
+                                 Items="{x:Bind ViewModel.FilteredFlights, Mode=OneWay}"
+                                 SelectedItem="{x:Bind ViewModel.SelectedFlight, Mode=TwoWay}"/>
+
+        <Grid Grid.RowSpan="3"
+              Background="#80000000"
+              Visibility="{x:Bind ViewModel.CrewDialogVisibility, Mode=OneWay}">
+            <Border Background="#1E293B"
+                    BorderBrush="#334155"
+                    BorderThickness="1"
+                    Width="420"
+                    VerticalAlignment="Center"
+                    Padding="20"
+                    CornerRadius="8">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Manage Crew" FontSize="20" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="{x:Bind ViewModel.DialogError, Mode=OneWay}"
+                               Foreground="#FF6B6B"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap"/>
+
+                    <ListView ItemsSource="{x:Bind ViewModel.AvailableCrew, Mode=OneWay}"
+                              MaxHeight="320"
+                              Background="Transparent"
+                              BorderThickness="0">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:CrewSelectionWrapper">
+                                <StackPanel Spacing="6" Margin="0,4,0,4">
+                                    <TextBlock Visibility="{x:Bind RoleHeaderVisibility}"
+                                               Text="{x:Bind RoleHeader}"
+                                               Foreground="White"
+                                               FontWeight="Bold"
+                                               Margin="0,8,0,0"/>
+                                    <CheckBox Content="{x:Bind Employee.Name}"
+                                              IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
+                                              Foreground="White"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                        <Button Content="Save"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Command="{x:Bind ViewModel.SaveCrewCommand}"/>
+                        <Button Content="Cancel" Command="{x:Bind ViewModel.CloseDialogCommand}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </Page>

@@ -7,26 +7,22 @@ using TicketSellingModule.Repo;
 
 namespace TicketSellingModule.Service
 {
-    public class FlightEmployeeService
+    public class EmployeeFlightService
     {
-        private readonly FlightEmployeeRepo _linkRepo;
+        private readonly EmployeeFlightRepo _linkRepo;
         private readonly EmployeeRepo _employeeRepo;
         private readonly FlightRepo _flightRepo;
-        private readonly EmployeeService _employeeService;
-        private readonly FlightRouteService _flightRouteService;
-
-        public FlightEmployeeService(
-            FlightEmployeeRepo linkRepo,
+        private readonly RouteRepo _routeRepo;
+        public EmployeeFlightService(
+            EmployeeFlightRepo linkRepo,
             EmployeeRepo employeeRepo,
             FlightRepo flightRepo,
-            EmployeeService employeeService,
-            FlightRouteService flightRouteService)
+            RouteRepo routeRepo)
         {
             _linkRepo = linkRepo;
             _employeeRepo = employeeRepo;
             _flightRepo = flightRepo;
-            _employeeService = employeeService;
-            _flightRouteService = flightRouteService;
+            _routeRepo = routeRepo;
         }
 
         public void AssignCrewMember(int flightId, int employeeId)
@@ -72,10 +68,10 @@ namespace TicketSellingModule.Service
         public List<Employee> GetAvailableEmployeesForFlight(Flight targetFlight)
         {
             var available = new List<Employee>();
-            var targetRoute = _flightRouteService.GetRouteById(targetFlight.RouteId);
+            var targetRoute = _routeRepo.GetRouteById(targetFlight.Route.Id);
             if (targetRoute == null) return available;
 
-            foreach (var emp in _employeeService.GetAll())
+            foreach (var emp in _employeeRepo.GetAllEmployees())
             {
                 var sameDayFlights = GetEmployeeSchedule(emp.Id)
                     .Where(f => f.Date.Date == targetFlight.Date.Date && f.Id != targetFlight.Id)
@@ -84,7 +80,7 @@ namespace TicketSellingModule.Service
                 bool isDoubleBooked = false;
                 foreach (var scheduledFlight in sameDayFlights)
                 {
-                    var scheduledRoute = _flightRouteService.GetRouteById(scheduledFlight.RouteId);
+                    var scheduledRoute = _routeRepo.GetRouteById(scheduledFlight.Route.Id);
                     if (scheduledRoute != null)
                     {
                         bool overlap = targetRoute.DepartureTime < scheduledRoute.ArrivalTime &&
@@ -115,6 +111,22 @@ namespace TicketSellingModule.Service
                 RemoveCrewMember(flightId, empId);
             foreach (var empId in newEmployeeIds.Except(currentCrewIds).ToList())
                 AssignCrewMember(flightId, empId);
+        }
+
+        public void CleanUpFlightAssignments(int flightId)
+        {
+            if (flightId > 0)
+            {
+                _linkRepo.RemoveAllByFlightId(flightId);
+            }
+        }
+
+        public void CleanUpEmployeeAssignments(int employeeId)
+        {
+            if (employeeId > 0)
+            {
+                _linkRepo.RemoveAllByEmployeeId(employeeId);
+            }
         }
     }
 }

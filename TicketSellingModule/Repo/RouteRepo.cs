@@ -32,9 +32,9 @@ namespace TicketSellingModule.Repo
                         {
                             Route newRoute = new Route();
                             newRoute.Id = reader.GetInt32(0);
-                            newRoute.CompanyId = reader.GetInt32(1);
+                            newRoute.Company = new Company { Id = reader.GetInt32(1) };
                             newRoute.RouteType = reader.GetString(2);
-                            newRoute.AirportId = reader.GetInt32(3);
+                            newRoute.Airport = new Airport { Id = reader.GetInt32(3) };
                             newRoute.RecurrenceInterval = reader.GetInt32(4);
                             newRoute.StartDate = DateOnly.FromDateTime(reader.GetDateTime(5));
                             newRoute.EndDate = DateOnly.FromDateTime(reader.GetDateTime(6));
@@ -53,6 +53,8 @@ namespace TicketSellingModule.Repo
                 return AllRoutes;
             }
         }
+
+
         public int AddRoute(Route newRoute)
         {
             using (SqlConnection conn = _connectionFactory.GetConnection())
@@ -158,11 +160,11 @@ namespace TicketSellingModule.Repo
 
                             foundRoute.Id = reader.GetInt32(0);
 
-                            foundRoute.CompanyId = reader.GetInt32(1);
+                            foundRoute.Company = new Company { Id = reader.GetInt32(1) };
 
                             foundRoute.RouteType = reader.GetString(2);
 
-                            foundRoute.AirportId = reader.GetInt32(3);
+                            foundRoute.Airport = new Airport { Id = reader.GetInt32(3) };
 
                             foundRoute.RecurrenceInterval = reader.GetInt32(4);
 

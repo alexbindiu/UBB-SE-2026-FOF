@@ -1,5 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.UI.Xaml;
+using System;
+using System.ComponentModel;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
@@ -10,45 +10,77 @@ namespace TicketSellingModule.WinUI.AirportAdmin
 {
     public sealed partial class AirportAdminPage : Page
     {
-        public AirportAdminViewModel ViewModel { get; }
-        private readonly EmployeesDashboardViewModel _employeesViewModel;
-        private readonly AirportDashboardViewModel _airportViewModel;
+        public AirportAdminViewModel ViewModel { get; private set; } = null!;
+        private FlightsDashboardViewModel _flightsViewModel = null!;
+        private EmployeesDashboardViewModel _employeesViewModel = null!;
+        private AirportDashboardViewModel _airportViewModel = null!;
 
         public AirportAdminPage()
         {
             this.InitializeComponent();
-            
-            _airportViewModel = App.Services.GetRequiredService<AirportDashboardViewModel>();
-
-            //Loaded += AirportAdminPage_Loaded;
-            ViewModel = App.Services.GetRequiredService<AirportAdminViewModel>();
-            _employeesViewModel = App.Services.GetRequiredService<EmployeesDashboardViewModel>();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            ViewModel.Initialize();
-            ContentFrame.Navigate(typeof(FlightsDashboardPage), ViewModel);
-            HighlightSelectedButton(FlightsButton);
+
+            if (e.Parameter is ValueTuple<AirportAdminViewModel, FlightsDashboardViewModel, EmployeesDashboardViewModel, AirportDashboardViewModel> context)
+            {
+                ViewModel = context.Item1;
+                _flightsViewModel = context.Item2;
+                _employeesViewModel = context.Item3;
+                _airportViewModel = context.Item4;
+
+                DataContext = ViewModel;
+                Bindings.Update();
+
+                ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+                ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+                ViewModel.Initialize();
+                NavigateToSelectedSection();
+            }
         }
 
-        private void FlightsButton_Click(object sender, RoutedEventArgs e)
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            ContentFrame.Navigate(typeof(FlightsDashboardPage), ViewModel);
-            HighlightSelectedButton(FlightsButton);
+            if (ViewModel != null)
+            {
+                ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            }
+
+            base.OnNavigatedFrom(e);
         }
 
-        private void EmployeesButton_Click(object sender, RoutedEventArgs e)
+        private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            ContentFrame.Navigate(typeof(EmployeesDashboardPage), _employeesViewModel);
-            HighlightSelectedButton(EmployeesButton);
+            if (e.PropertyName == nameof(AirportAdminViewModel.SelectedSection))
+            {
+                NavigateToSelectedSection();
+            }
         }
 
-        private void AirportButton_Click(object sender, RoutedEventArgs e)
+        private void NavigateToSelectedSection()
         {
-            ContentFrame.Navigate(typeof(AirportDashboardPage), _airportViewModel);
-            HighlightSelectedButton(AirportButton);
+            switch (ViewModel.SelectedSection)
+            {
+                case AirportAdminSection.Flights:
+                    if (ContentFrame.CurrentSourcePageType != typeof(FlightsDashboardPage))
+                        ContentFrame.Navigate(typeof(FlightsDashboardPage), _flightsViewModel);
+                    HighlightSelectedButton(FlightsButton);
+                    break;
+
+                case AirportAdminSection.Employees:
+                    if (ContentFrame.CurrentSourcePageType != typeof(EmployeesDashboardPage))
+                        ContentFrame.Navigate(typeof(EmployeesDashboardPage), _employeesViewModel);
+                    HighlightSelectedButton(EmployeesButton);
+                    break;
+
+                case AirportAdminSection.Airport:
+                    if (ContentFrame.CurrentSourcePageType != typeof(AirportDashboardPage))
+                        ContentFrame.Navigate(typeof(AirportDashboardPage), _airportViewModel);
+                    HighlightSelectedButton(AirportButton);
+                    break;
+            }
         }
 
         private void HighlightSelectedButton(Button selectedButton)
