@@ -35,7 +35,6 @@ namespace TicketSellingModule.ViewModel
         {
             if (company != null)
             {
-
                 navigationService.NavigateToCompanyDashboard(company.Id);
             }
         }
