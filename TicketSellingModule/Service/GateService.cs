@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TicketSellingModule.Domain;
 using TicketSellingModule.Repo;
 
@@ -8,9 +9,11 @@ namespace TicketSellingModule.Service
     public class GateService
     {
         private readonly GateRepo _gateRepo;
-        public GateService (GateRepo gateRepo)
+        private readonly FlightRepo _flightRepo;
+        public GateService (GateRepo gateRepo, FlightRepo flightRepo)
         {
             _gateRepo = gateRepo;
+            _flightRepo = flightRepo;
         }
 
         public List<Gate> GetAll()
@@ -57,6 +60,11 @@ namespace TicketSellingModule.Service
         {
             if (id>0)
                 _gateRepo.DeleteGate(id);
+        }
+
+        public bool HasFlights(int gateId)
+        {
+            return _flightRepo.GetFlightsByGate(gateId).Any();
         }
     }
 }

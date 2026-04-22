@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using TicketSellingModule.Domain;
 using TicketSellingModule.Repo;
 
@@ -8,9 +9,11 @@ namespace TicketSellingModule.Service
     public class AirportService
     {
         private readonly AirportRepo _airportRepo;
-        public AirportService (AirportRepo airportRepo)
+        private readonly FlightRepo _flightRepo;
+        public AirportService (AirportRepo airportRepo, FlightRepo flightRepo)
         {
             _airportRepo = airportRepo;
+            _flightRepo = flightRepo;
         }
 
         public List<Airport> GetAll()
@@ -69,6 +72,11 @@ namespace TicketSellingModule.Service
             {
                 _airportRepo.DeleteAirport(id);
             }
+        }
+
+        public bool HasFlights(int airportId)
+        {
+            return _flightRepo.GetFlightsByAirport(airportId).Any();
         }
     }
 }

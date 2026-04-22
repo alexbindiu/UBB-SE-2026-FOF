@@ -54,6 +54,8 @@ namespace TicketSellingModule.ViewModel
         [NotifyPropertyChangedFor(nameof(CustomDaysVisibility))]
         private string _recurrenceType;
 
+        
+
         public Visibility RecurrentPanelVisibility => IsRecurrent ? Visibility.Visible : Visibility.Collapsed;
         public Visibility SingleDateVisibility => IsRecurrent ? Visibility.Collapsed : Visibility.Visible;
         public Visibility CustomDaysVisibility => RecurrenceType == "Custom" ? Visibility.Visible : Visibility.Collapsed;
@@ -85,9 +87,6 @@ namespace TicketSellingModule.ViewModel
             set { _selectedGate = value; OnPropertyChanged(); }
         }
 
-       
-
-        // Called automatically by CommunityToolkit when SearchText changes
         partial void OnSearchTextChanged(string value) => SearchFlights(value);
 
         public void InitializeCompany(int companyId)
@@ -239,25 +238,12 @@ namespace TicketSellingModule.ViewModel
             };
 
 
-
-            //TimeOnly depTime = TimeOnly.FromTimeSpan(DepartureTime);
-            //imeOnly arrTime = TimeOnly.FromTimeSpan(ArrivalTime);
-
-            //if (arrTime <= depTime)
-            //{
-            //    throw new InvalidOperationException("Arrival time must be after departure time.");
-            //}
-
             bool isRecurrent = IsRecurrent;
 
             DateTime baseDate = isRecurrent ? StartDate.Value.DateTime.Date : SingleDate.Value.DateTime.Date;
-
-            // 2. Create full DateTimes by adding the TimeSpans to the Date
             DateTime fullDep = baseDate.Add(DepartureTime);
             DateTime fullArr = baseDate.Add(ArrivalTime);
 
-            // 3. Logic: If Arrival is "numerically" less than Departure, 
-            // it MUST be the next day (e.g., Dep 11PM, Arr 1AM)
             if (fullArr <= fullDep)
             {
                 fullArr = fullArr.AddDays(1);
@@ -302,7 +288,6 @@ namespace TicketSellingModule.ViewModel
                 end = start;
             }
 
-            // Business logic moved to CompanyService.GenerateFlightCode(int companyId)
             string flightNum = _companyService.GenerateFlightCode(_currentCompanyId);
 
             AddFlight(flightNum, _currentCompanyId, type, SelectedAirport.Id,
@@ -330,5 +315,7 @@ namespace TicketSellingModule.ViewModel
 
             CustomDaysText = string.Empty;
         }
+
+        
     }
 }

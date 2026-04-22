@@ -19,7 +19,7 @@ namespace TicketSellingModule.Repo
             using (SqlConnection conn = _connectionFactory.GetConnection())
             {
                 conn.Open();
-                string query = "SELECT id, name FROM runways";
+                string query = "SELECT id, name, handle_time FROM runways";
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     using (SqlDataReader reader = cmd.ExecuteReader())
@@ -28,7 +28,9 @@ namespace TicketSellingModule.Repo
                         {
                             int id = reader.GetInt32(0);
                             string name = reader.GetString(1);
-                            Runway newRunway = new Runway { Id = id, Name = name };
+                            int handleTime = reader.IsDBNull(2) ? 0 : reader.GetInt32(2);
+
+                            Runway newRunway = new Runway { Id = id, Name = name, HandleTime = handleTime };
                             allRunways.Add(newRunway);
                         }
                     }
@@ -64,10 +66,11 @@ namespace TicketSellingModule.Repo
             using (SqlConnection conn = _connectionFactory.GetConnection())
             {
                 conn.Open();
-                string query = "INSERT INTO runways(name) OUTPUT INSERTED.id VALUES (@name)";
+                string query = "INSERT INTO runways(name, handle_time) OUTPUT INSERTED.id VALUES (@name, @handleTime)";
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@name", newRunway.Name);
+                    cmd.Parameters.AddWithValue("@handleTime", newRunway.HandleTime);
                     return (int)cmd.ExecuteScalar();
                 }
             }
@@ -78,11 +81,12 @@ namespace TicketSellingModule.Repo
             using (SqlConnection conn = _connectionFactory.GetConnection())
             {
                 conn.Open();
-                string query = "UPDATE runways SET name = @name WHERE id = @id";
+                string query = "UPDATE runways SET name = @name, handle_time = @handleTime WHERE id = @id";
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@id", updatedRunway.Id);
                     cmd.Parameters.AddWithValue("@name", updatedRunway.Name);
+                    cmd.Parameters.AddWithValue("@handleTime", updatedRunway.HandleTime);   
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -93,11 +97,31 @@ namespace TicketSellingModule.Repo
             using (SqlConnection conn = _connectionFactory.GetConnection())
             {
                 conn.Open();
-                string query = "DELETE FROM runways WHERE id = @id";
-                using (SqlCommand cmd = new SqlCommand(query, conn))
+                using (SqlTransaction transaction = conn.BeginTransaction())
                 {
-                    cmd.Parameters.AddWithValue("@id", id);
-                    cmd.ExecuteNonQuery();
+                    try
+                    {
+                        string deleteFlights = "DELETE FROM Flights WHERE runway_id = @id";
+                        using (SqlCommand cmd1 = new SqlCommand(deleteFlights, conn, transaction))
+                        {
+                            cmd1.Parameters.AddWithValue("@id", id);
+                            cmd1.ExecuteNonQuery();
+                        }
+
+                        string deleteRunway = "DELETE FROM runways WHERE id = @id";
+                        using (SqlCommand cmd2 = new SqlCommand(deleteRunway, conn, transaction))
+                        {
+                            cmd2.Parameters.AddWithValue("@id", id);
+                            cmd2.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
                 }
             }
         }
