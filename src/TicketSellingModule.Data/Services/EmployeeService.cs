@@ -141,9 +141,7 @@ namespace TicketSellingModule.Data.Services
             return employeeRepo.AddEmployee(newEmp);
         }
 
-        public void Update(int id, string? name = null, string? role = null, int? salary = null,
-                           DateOnly? birthday = null, DateOnly? hiringDate = null) // Added hiringDate
-        public void Update(int id, string? name = null, EmployeeRole? role = null, int? salary = null)
+        public void Update(int id, string? name = null, EmployeeRole? role = null, int? salary = null, DateOnly? birthday = null, DateOnly? hiringDate = null)
         {
             var existingEmp = employeeRepo.GetEmployeeById(id);
             if (existingEmp == null)

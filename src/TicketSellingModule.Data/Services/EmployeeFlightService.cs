@@ -125,7 +125,10 @@ namespace TicketSellingModule.Service
         public bool IsEmployeeAvailable(int employeeId, DateTime targetDate, int targetRouteId, int? excludeFlightId = null)
         {
             var targetRoute = routeRepo.GetRouteById(targetRouteId);
-            if (targetRoute == null) return false;
+            if (targetRoute == null)
+            {
+                return false;
+            }
 
             var schedule = GetEmployeeSchedule(employeeId);
             var sameDayFlights = schedule.Where(f => f.Date.Date == targetDate.Date && f.Id != excludeFlightId);
@@ -133,12 +136,18 @@ namespace TicketSellingModule.Service
             foreach (var flight in sameDayFlights)
             {
                 var scheduledRoute = routeRepo.GetRouteById(flight.Route.Id);
-                if (scheduledRoute == null) continue;
+                if (scheduledRoute == null)
+                {
+                    continue;
+                }
 
                 bool overlap = targetRoute.DepartureTime < scheduledRoute.ArrivalTime &&
                                targetRoute.ArrivalTime > scheduledRoute.DepartureTime;
 
-                if (overlap) return false;
+                if (overlap)
+                {
+                    return false;
+                }
             }
 
             return true;
@@ -148,8 +157,13 @@ namespace TicketSellingModule.Service
         {
             foreach (var empId in employeeIds)
             {
-                try { AssignCrewMember(flightId, empId); }
-                catch { /* Intent: Ignore if already assigned to avoid crashing bulk ops */ }
+                try
+                {
+                    AssignCrewMember(flightId, empId);
+                }
+                catch
+                {
+                }
             }
         }
 
@@ -173,7 +187,10 @@ namespace TicketSellingModule.Service
         public List<EmployeeScheduleItem> GetFormattedEmployeeSchedule(int employeeId)
         {
             List<EmployeeScheduleItem> scheduleItems = new List<EmployeeScheduleItem>();
-            if (employeeId <= 0) return scheduleItems;
+            if (employeeId <= 0)
+            {
+                return scheduleItems;
+            }
 
             var flights = GetEmployeeSchedule(employeeId);
             flights.Sort(new FlightDateComparer());
@@ -216,8 +233,12 @@ namespace TicketSellingModule.Service
         {
             public int Compare(Employee? x, Employee? y)
             {
-                if (x == null || y == null) return 0;
-                int roleComp = string.Compare(x.Role, y.Role, StringComparison.OrdinalIgnoreCase);
+                if (x == null || y == null)
+                {
+                    return 0;
+                }
+
+                int roleComp = x.Role.CompareTo(y.Role);
                 return roleComp != 0 ? roleComp : string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase);
             }
         }

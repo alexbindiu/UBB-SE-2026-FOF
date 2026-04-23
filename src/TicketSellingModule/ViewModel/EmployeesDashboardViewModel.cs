@@ -1,7 +1,13 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System;
+using System.Collections.ObjectModel;
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
+
+using TicketSellingModule.Data.Domain;
+using TicketSellingModule.Data.Services;
 
 using Windows.Foundation.Metadata;
 
