@@ -5,9 +5,9 @@ namespace TicketSellingModule.Data.Services
 {
     public class RunwayService : IRunwayService
     {
-        private readonly IRunwayRepo runwayRepo;
-        private readonly IFlightRepo flightRepo;
-        public RunwayService(IRunwayRepo runwayRepo, IFlightRepo flightRepo)
+        private readonly RunwayRepository runwayRepo;
+        private readonly FlightRepository flightRepo;
+        public RunwayService(RunwayRepository runwayRepo, FlightRepository flightRepo)
         {
             this.runwayRepo = runwayRepo;
             this.flightRepo = flightRepo;
@@ -103,7 +103,7 @@ namespace TicketSellingModule.Data.Services
             {
                 throw new InvalidOperationException($"Runway with ID {id} does not exist.");
             }
-            runwayRepo.DeleteRunway(id);
+            runwayRepo.DeleteRunwayUsingId(id);
         }
 
         public void SaveRunway(int id, string name, string handleTimeText)
@@ -125,7 +125,7 @@ namespace TicketSellingModule.Data.Services
 
         public bool HasFlights(int runwayId)
         {
-            return flightRepo.GetFlightsByRunway(runwayId).Any();
+            return flightRepo.GetFlightsByRunwayId(runwayId).Any();
         }
     }
 }

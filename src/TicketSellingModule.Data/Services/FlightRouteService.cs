@@ -5,22 +5,22 @@ namespace TicketSellingModule.Data.Services
 {
     public class FlightRouteService : IFlightRouteService
     {
-        private readonly IFlightRepo flightRepo;
-        private readonly IRouteRepo routeRepo;
-        private readonly ICompanyRepo companyRepo;
-        private readonly IAirportRepo airportRepo;
-        private readonly IRunwayService runwayService;
-        private readonly IGateService gateService;
-        private readonly IAirportService airportService;
+        private readonly FlightRepository flightRepo;
+        private readonly RouteRepository routeRepo;
+        private readonly CompanyRepository companyRepo;
+        private readonly AirportRepository airportRepo;
+        private readonly RunwayService runwayService;
+        private readonly GateService gateService;
+        private readonly AirportService airportService;
 
         public FlightRouteService(
-            IFlightRepo flightRepo,
-            IRouteRepo routeRepo,
-            ICompanyRepo companyRepo,
-            IAirportRepo airportRepo,
-            IRunwayService runwayService,
-            IGateService gateService,
-            IAirportService airportService)
+            FlightRepository flightRepo,
+            RouteRepository routeRepo,
+            CompanyRepository companyRepo,
+            AirportRepository airportRepo,
+            RunwayService runwayService,
+            GateService gateService,
+            AirportService airportService)
         {
             this.flightRepo = flightRepo;
             this.routeRepo = routeRepo;
@@ -64,7 +64,7 @@ namespace TicketSellingModule.Data.Services
                 throw new ArgumentException("Capacity must be greater than 0.");
             }
 
-            var allFlights = flightRepo.GetAll();
+            var allFlights = flightRepo.GetAllFlights();
             var flightsOnSameDate = allFlights.Where(f => f.Date.Date == start_date.Date).ToList();
             DateTime flightFullDateTime = start_date.Date.Add(dep_time.ToTimeSpan());
 
@@ -122,7 +122,7 @@ namespace TicketSellingModule.Data.Services
                 Gate = new Gate { Id = gateID }
             };
 
-            flightRepo.Add(initialFlight);
+            flightRepo.Addlight(initialFlight);
 
             return routeId;
         }
@@ -199,7 +199,7 @@ namespace TicketSellingModule.Data.Services
 
         public List<Route> GetAllRoutes() => routeRepo.GetAllRoutes();
 
-        public List<Flight> GetAllFlights() => flightRepo.GetAll();
+        public List<Flight> GetAllFlights() => flightRepo.GetAllFlights();
 
         public void DeleteFlight(int flightId)
         {
@@ -213,7 +213,7 @@ namespace TicketSellingModule.Data.Services
                 throw new ArgumentException("Flight with the given ID does not exist.");
             }
 
-            flightRepo.Delete(flightId);
+            flightRepo.DeleteFlightUsingId(flightId);
         }
 
         public List<Flight> GetFlightsByCompany(int companyId)
@@ -223,7 +223,7 @@ namespace TicketSellingModule.Data.Services
                 .Select(r => r.Id)
                 .ToList();
 
-            return flightRepo.GetAll()
+            return flightRepo.GetAllFlights()
                 .Where(f => companyRouteIds.Contains(f.Route.Id))
                 .ToList();
         }

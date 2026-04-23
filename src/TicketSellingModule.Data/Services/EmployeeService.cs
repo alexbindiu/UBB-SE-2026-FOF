@@ -5,10 +5,10 @@ namespace TicketSellingModule.Data.Services
 {
     public class EmployeeService : IEmployeeService
     {
-        private readonly IEmployeeRepo employeeRepo;
-        private readonly IEmployeeFlightService employeeFlightService;
+        private readonly EmployeeRepository employeeRepo;
+        private readonly EmployeeFlightService employeeFlightService;
 
-        public EmployeeService(IEmployeeRepo employeeRepo, IEmployeeFlightService employeeFlightService)
+        public EmployeeService(EmployeeRepository employeeRepo, EmployeeFlightService employeeFlightService)
         {
             this.employeeRepo = employeeRepo;
             this.employeeFlightService = employeeFlightService;

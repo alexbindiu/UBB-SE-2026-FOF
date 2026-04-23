@@ -32,17 +32,17 @@ namespace TicketSellingModule
         private static void ConfigureServices(ServiceCollection services)
         {
             // Infrastructure
-            services.AddSingleton<DbConnectionFactory>();
+            services.AddSingleton<DatabaseConnectionFactory>();
 
             // Repos
-            services.AddTransient<CompanyRepo>();
-            services.AddTransient<AirportRepo>();
-            services.AddTransient<RunwayRepo>();
-            services.AddTransient<GateRepo>();
-            services.AddTransient<EmployeeRepo>();
-            services.AddTransient<FlightRepo>();
-            services.AddTransient<RouteRepo>();
-            services.AddTransient<EmployeeFlightRepo>();
+            services.AddTransient<CompanyRepository>();
+            services.AddTransient<AirportRepository>();
+            services.AddTransient<RunwayRepository>();
+            services.AddTransient<GateRepository>();
+            services.AddTransient<EmployeeRepository>();
+            services.AddTransient<FlightRepository>();
+            services.AddTransient<RouteRepository>();
+            services.AddTransient<EmployeeFlightRepository>();
 
             // Services
             services.AddTransient<CompanyService>();
@@ -60,7 +60,7 @@ namespace TicketSellingModule
             services.AddTransient<EmployeesDashboardViewModel>();
             services.AddTransient<AirportDashboardViewModel>();
             services.AddTransient<FlightsDashboardViewModel>();
-            services.AddTransient<RouteRepo>();
+            services.AddTransient<RouteRepository>();
             services.AddTransient<RouteService>();
             services.AddTransient<CompanyViewModel>();
             services.AddTransient<StaffPageViewModel>();

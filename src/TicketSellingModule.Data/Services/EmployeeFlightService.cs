@@ -5,22 +5,22 @@ namespace TicketSellingModule.Data.Services
 {
     public class EmployeeFlightService : IEmployeeFlightService
     {
-        private readonly IEmployeeFlightRepo linkRepo;
-        private readonly IEmployeeRepo employeeRepo;
-        private readonly IFlightRepo flightRepo;
-        private readonly IRouteRepo routeRepo;
-        private readonly IGateService gateService;
-        private readonly IRunwayService runwayService;
-        private readonly IRouteService routeService;
+        private readonly EmployeeFlightRepository linkRepo;
+        private readonly EmployeeRepository employeeRepo;
+        private readonly FlightRepository flightRepo;
+        private readonly RouteRepository routeRepo;
+        private readonly GateService gateService;
+        private readonly RunwayService runwayService;
+        private readonly RouteService routeService;
 
         public EmployeeFlightService(
-            IEmployeeFlightRepo linkRepo,
-            IEmployeeRepo employeeRepo,
-            IFlightRepo flightRepo,
-            IRouteRepo routeRepo,
-            IGateService gateService,
-            IRunwayService runwayService,
-            IRouteService routeService)
+            EmployeeFlightRepository linkRepo,
+            EmployeeRepository employeeRepo,
+            FlightRepository flightRepo,
+            RouteRepository routeRepo,
+            GateService gateService,
+            RunwayService runwayService,
+            RouteService routeService)
         {
             this.linkRepo = linkRepo ?? throw new ArgumentNullException(nameof(linkRepo));
             this.employeeRepo = employeeRepo ?? throw new ArgumentNullException(nameof(employeeRepo));
@@ -46,7 +46,7 @@ namespace TicketSellingModule.Data.Services
                 throw new InvalidOperationException("Employee or Flight does not exist.");
             }
 
-            var currentCrewIds = linkRepo.GetEmployeesByFlight(flightId);
+            var currentCrewIds = linkRepo.GetEmployeesByFlightId(flightId);
             if (currentCrewIds.Contains(employeeId))
             {
                 throw new InvalidOperationException("Employee already assigned to this flight.");
@@ -57,12 +57,12 @@ namespace TicketSellingModule.Data.Services
                 throw new InvalidOperationException($"Conflict: Employee {emp.Name} is already assigned to another flight during this time.");
             }
 
-            linkRepo.AssignFlightToEmployee(employeeId, flightId);
+            linkRepo.AssignFlightToEmployeesUsingIds(employeeId, flightId);
         }
 
         public void RemoveCrewMember(int flightId, int employeeId)
         {
-            linkRepo.RemoveFlightFromEmployee(employeeId, flightId);
+            linkRepo.RemoveFlightFromEmployeeUsingIds(employeeId, flightId);
         }
 
         public void CleanUpFlightAssignments(int flightId)
@@ -84,7 +84,7 @@ namespace TicketSellingModule.Data.Services
         public List<Employee> GetFlightCrew(int flightId)
         {
             var crew = new List<Employee>();
-            foreach (var id in linkRepo.GetEmployeesByFlight(flightId))
+            foreach (var id in linkRepo.GetEmployeesByFlightId(flightId))
             {
                 var emp = employeeRepo.GetEmployeeById(id);
                 if (emp != null)
@@ -102,7 +102,7 @@ namespace TicketSellingModule.Data.Services
                 return new List<Flight>();
             }
 
-            var flightIds = linkRepo.GetFlightsByEmployee(employeeId);
+            var flightIds = linkRepo.GetFlightsByEmployeeId(employeeId);
             var flights = new List<Flight>();
 
             foreach (var id in flightIds)
@@ -163,7 +163,7 @@ namespace TicketSellingModule.Data.Services
 
         public void UpdateCrewForFlight(int flightId, List<int> newEmployeeIds)
         {
-            var currentCrewIds = linkRepo.GetEmployeesByFlight(flightId);
+            var currentCrewIds = linkRepo.GetEmployeesByFlightId(flightId);
 
             foreach (var empId in currentCrewIds.Except(newEmployeeIds).ToList())
             {
