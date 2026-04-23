@@ -31,12 +31,8 @@ namespace TicketSellingModule.Data.Repositories
                             newRoute.RecurrenceInterval = reader.GetInt32(4);
                             newRoute.StartDate = DateOnly.FromDateTime(reader.GetDateTime(5));
                             newRoute.EndDate = DateOnly.FromDateTime(reader.GetDateTime(6));
-
-                            string rawDepTime = reader.GetValue(7).ToString();
-                            string rawArrTime = reader.GetValue(8).ToString();
-
-                            newRoute.DepartureTime = TimeOnly.FromDateTime(DateTime.Parse(rawDepTime));
-                            newRoute.ArrivalTime = TimeOnly.FromDateTime(DateTime.Parse(rawArrTime));
+                            newRoute.DepartureTime = TimeOnly.FromDateTime(reader.GetDateTime(7));
+                            newRoute.ArrivalTime = TimeOnly.FromDateTime(reader.GetDateTime(8));
                             allRoutes.Add(newRoute);
                         }
                     }

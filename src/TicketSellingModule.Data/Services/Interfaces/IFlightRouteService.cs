@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TicketSellingModule.Data.Services.Interfaces;
+﻿namespace TicketSellingModule.Data.Services.Interfaces;
 
 public interface IFlightRouteService
 {

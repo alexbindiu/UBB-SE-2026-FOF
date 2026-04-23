@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TicketSellingModule.Data.Services.Interfaces;
+﻿namespace TicketSellingModule.Data.Services.Interfaces;
 
 public interface IEmployeeService
 {
@@ -15,6 +11,6 @@ public interface IEmployeeService
     void SaveEmployee(Employee editingEmployee, DateTimeOffset? birthday, DateTimeOffset? hiringDate, string salaryText);
     void DeleteWithAssignments(int id);
     int Add(string name, EmployeeRole role, DateOnly birthday, int salary, DateOnly hiringDate);
-    void Update(int id, string? name = null, EmployeeRole? role = null, int? salary = null);
+    void Update(int id, string? name = null, EmployeeRole? role = null, int? salary = null, DateOnly? birthday = null, DateOnly? hiringDate = null);
     void Delete(int id);
 }

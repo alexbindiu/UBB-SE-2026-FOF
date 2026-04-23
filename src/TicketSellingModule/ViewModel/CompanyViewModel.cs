@@ -145,8 +145,8 @@ namespace TicketSellingModule.ViewModel
             var allRoutes = flightRouteService.GetAllRoutes() ?? new List<Route>();
             var companyRouteIds = allRoutes.Where(r => r.Company.Id == companyId).Select(r => r.Id).ToList();
 
-            var allFlights = flightRouteService.GetAllFlights() ?? new List<Flight>();
-            masterCompanyFlights = allFlights.Where(f => companyRouteIds.Contains(f.Route.Id)).ToList();
+            var allFlightsWithDetails = flightRouteService.GetAllFlightsWithDetails() ?? new List<Flight>();
+            masterCompanyFlights = allFlightsWithDetails.Where(f => companyRouteIds.Contains(f.Route.Id)).ToList();
 
             CompanyFlightsList.Clear();
             foreach (var flight in masterCompanyFlights)

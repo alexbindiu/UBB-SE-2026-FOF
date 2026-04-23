@@ -3,7 +3,6 @@ using Microsoft.UI.Xaml;
 
 using TicketSellingModule.ViewModel;
 using TicketSellingModule.WinUI.Services;
-
 namespace TicketSellingModule
 {
     public partial class App : Application

@@ -1,4 +1,4 @@
-﻿using TicketSellingModule.Data.Services.Interfaces;
+using TicketSellingModule.Data.Services.Interfaces;
 
 namespace TicketSellingModule.Data.Services
 {
@@ -71,24 +71,28 @@ namespace TicketSellingModule.Data.Services
             var finalBirthday = DateOnly.FromDateTime(birthday.Value.DateTime);
             var finalHiringDate = DateOnly.FromDateTime(hiringDate.Value.DateTime);
 
+            if (finalBirthday > DateOnly.FromDateTime(DateTime.Now))
+            {
+                throw new ArgumentException("Birthday cannot be in the future.");
+            }
+
             editingEmployee.Salary = parsedSalary;
 
             if (editingEmployee.Id == 0)
             {
-                Add(
-                    name: editingEmployee.Name,
-                    role: editingEmployee.Role,
-                    birthday: finalBirthday,
-                    salary: editingEmployee.Salary,
-                    hiringDate: finalHiringDate);
+                Add(editingEmployee.Name, editingEmployee.Role,
+                            DateOnly.FromDateTime(birthday.Value.DateTime),
+                            editingEmployee.Salary,
+                            DateOnly.FromDateTime(hiringDate.Value.DateTime));
             }
             else
             {
-                Update(
-                    id: editingEmployee.Id,
-                    name: editingEmployee.Name,
-                    role: editingEmployee.Role,
-                    salary: editingEmployee.Salary);
+                Update(editingEmployee.Id,
+                               editingEmployee.Name,
+                               editingEmployee.Role,
+                               editingEmployee.Salary,
+                               DateOnly.FromDateTime(birthday.Value.DateTime),
+                               DateOnly.FromDateTime(hiringDate.Value.DateTime));
             }
         }
 
@@ -115,6 +119,11 @@ namespace TicketSellingModule.Data.Services
                 throw new ArgumentException("Salary can not be negative.");
             }
 
+            if (birthday > DateOnly.FromDateTime(DateTime.Now))
+            {
+                throw new ArgumentException("Birthday cannot be in the future.");
+            }
+
             if (hiringDate > DateOnly.FromDateTime(DateTime.Now))
             {
                 throw new ArgumentException("Hiring date can not be in the future.");
@@ -132,7 +141,7 @@ namespace TicketSellingModule.Data.Services
             return employeeRepo.AddEmployee(newEmp);
         }
 
-        public void Update(int id, string? name = null, EmployeeRole? role = null, int? salary = null)
+        public void Update(int id, string? name = null, EmployeeRole? role = null, int? salary = null, DateOnly? birthday = null, DateOnly? hiringDate = null)
         {
             var existingEmp = employeeRepo.GetEmployeeById(id);
             if (existingEmp == null)
@@ -153,6 +162,16 @@ namespace TicketSellingModule.Data.Services
             if (salary.HasValue)
             {
                 existingEmp.Salary = salary.Value;
+            }
+
+            if (birthday.HasValue)
+            {
+                existingEmp.Birthday = birthday.Value;
+            }
+
+            if (hiringDate.HasValue)
+            {
+                existingEmp.HiringDate = hiringDate.Value;
             }
 
             employeeRepo.UpdateEmployee(existingEmp);

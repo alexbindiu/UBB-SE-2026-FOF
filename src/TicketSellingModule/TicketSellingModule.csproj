@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TicketSellingModule.Data\TicketSellingModule.Data.csproj" />
+    <ProjectReference Include="..\TicketSellingModule.Test\TicketSellingModule.Test.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="WinUI\CompanyPage.xaml">
