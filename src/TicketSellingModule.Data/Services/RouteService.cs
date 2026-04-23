@@ -4,13 +4,13 @@ namespace TicketSellingModule.Data.Services
 {
     public class RouteService : IRouteService
     {
-        private readonly RouteRepo routeRepo;
-        private readonly FlightRepo flightRepo;
-        private readonly CompanyRepo companyRepo;
-        private readonly AirportRepo airportRepo;
+        private readonly RouteRepository routeRepo;
+        private readonly FlightRepository flightRepo;
+        private readonly CompanyRepository companyRepo;
+        private readonly AirportRepository airportRepo;
 
-        public RouteService(RouteRepo routeRepo, FlightRepo flightRepo,
-                            CompanyRepo companyRepo, AirportRepo airportRepo)
+        public RouteService(RouteRepository routeRepo, FlightRepository flightRepo,
+                            CompanyRepository companyRepo, AirportRepository airportRepo)
         {
             this.routeRepo = routeRepo;
             this.flightRepo = flightRepo;
@@ -42,7 +42,7 @@ namespace TicketSellingModule.Data.Services
                                         TimeOnly dep, TimeOnly arr, int capacity,
                                         string flightNum, int runwayId, int gateId)
         {
-            var sameDayFlights = flightRepo.GetAll().Where(f => f.Date.Date == start.Date);
+            var sameDayFlights = flightRepo.GetAllFlights().Where(f => f.Date.Date == start.Date);
             foreach (var existing in sameDayFlights)
             {
                 if (existing.Gate?.Id == gateId || existing.Runway?.Id == runwayId)
@@ -78,7 +78,7 @@ namespace TicketSellingModule.Data.Services
                 Runway = new Runway { Id = runwayId },
                 Gate = new Gate { Id = gateId }
             };
-            flightRepo.Add(initialFlight);
+            flightRepo.Addlight(initialFlight);
 
             return routeId;
         }

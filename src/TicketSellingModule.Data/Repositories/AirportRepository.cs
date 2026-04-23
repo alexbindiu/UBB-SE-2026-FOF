@@ -2,25 +2,18 @@
 
 namespace TicketSellingModule.Data.Repositories
 {
-    public class AirportRepo : IAirportRepo
+    public class AirportRepository(DatabaseConnectionFactory databaseConnectionFactory) : IAirportRepository
     {
         private const string SelectAllQuery = "SELECT id, city, name, code FROM Airports";
         private const string SelectByIdQuery = "SELECT id, city, name, code FROM Airports WHERE id = @airportId";
         private const string InsertQuery = "INSERT INTO Airports (city, name, code) OUTPUT INSERTED.id VALUES (@city, @name, @code)";
         private const string UpdateQuery = "UPDATE Airports SET city = @city, name = @name, code = @code WHERE id = @airportId";
 
-        private readonly DbConnectionFactory connectionFactory;
-
-        public AirportRepo(DbConnectionFactory factory)
-        {
-            connectionFactory = factory;
-        }
-
         public List<Airport> GetAllAirports()
         {
             List<Airport> allAirports = new List<Airport>();
 
-            using SqlConnection databaseConnection = connectionFactory.GetConnection();
+            using SqlConnection databaseConnection = databaseConnectionFactory.GetConnection();
             databaseConnection.Open();
 
             using SqlCommand sqlCommand = new SqlCommand(SelectAllQuery, databaseConnection);
@@ -42,7 +35,7 @@ namespace TicketSellingModule.Data.Repositories
 
         public Airport? GetAirportById(int airportId)
         {
-            using SqlConnection databaseConnection = connectionFactory.GetConnection();
+            using SqlConnection databaseConnection = databaseConnectionFactory.GetConnection();
             databaseConnection.Open();
 
             using SqlCommand sqlCommand = new SqlCommand(SelectByIdQuery, databaseConnection);
@@ -66,7 +59,7 @@ namespace TicketSellingModule.Data.Repositories
 
         public int AddAirport(Airport newAirport)
         {
-            using SqlConnection databaseConnection = connectionFactory.GetConnection();
+            using SqlConnection databaseConnection = databaseConnectionFactory.GetConnection();
             databaseConnection.Open();
 
             using SqlCommand sqlCommand = new SqlCommand(InsertQuery, databaseConnection);
@@ -77,9 +70,9 @@ namespace TicketSellingModule.Data.Repositories
             return (int)sqlCommand.ExecuteScalar();
         }
 
-        public void DeleteAirport(int airportId)
+        public void DeleteAirportUsingId(int airportId)
         {
-            using SqlConnection databaseConnection = connectionFactory.GetConnection();
+            using SqlConnection databaseConnection = databaseConnectionFactory.GetConnection();
             databaseConnection.Open();
 
             using SqlTransaction databaseTransaction = databaseConnection.BeginTransaction();
@@ -111,7 +104,7 @@ namespace TicketSellingModule.Data.Repositories
 
         public void UpdateAirport(Airport airportToUpdate)
         {
-            using SqlConnection databaseConnection = connectionFactory.GetConnection();
+            using SqlConnection databaseConnection = databaseConnectionFactory.GetConnection();
             databaseConnection.Open();
 
             using SqlCommand sqlCommand = new SqlCommand(UpdateQuery, databaseConnection);

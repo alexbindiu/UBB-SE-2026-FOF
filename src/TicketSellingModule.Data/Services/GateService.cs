@@ -4,9 +4,9 @@ namespace TicketSellingModule.Data.Services
 {
     public class GateService : IGateService
     {
-        private readonly GateRepo gateRepo;
-        private readonly FlightRepo flightRepo;
-        public GateService(GateRepo gateRepo, FlightRepo flightRepo)
+        private readonly GateRepository gateRepo;
+        private readonly FlightRepository flightRepo;
+        public GateService(GateRepository gateRepo, FlightRepository flightRepo)
         {
             this.gateRepo = gateRepo;
             this.flightRepo = flightRepo;
@@ -65,7 +65,7 @@ namespace TicketSellingModule.Data.Services
         {
             if (id > 0)
             {
-                gateRepo.DeleteGate(id);
+                gateRepo.DeleteGateUsingId(id);
             }
         }
 
@@ -83,7 +83,7 @@ namespace TicketSellingModule.Data.Services
 
         public bool HasFlights(int gateId)
         {
-            return flightRepo.GetFlightsByGate(gateId).Any();
+            return flightRepo.GetFlightsByGateId(gateId).Any();
         }
     }
 }
