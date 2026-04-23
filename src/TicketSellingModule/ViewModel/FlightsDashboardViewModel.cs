@@ -54,23 +54,31 @@ namespace TicketSellingModule.ViewModel
                 return;
             }
 
-            var currentIds = flightEmployeeService.GetFlightCrew(flight.Id).Select(c => c.Id).ToList();
-            var availableEmployees = flightEmployeeService.GetAvailableCrewGroupedByRole(flight);
+            List<Employee> currentCrewMembers = flightEmployeeService.GetFlightCrew(flight.Id);
+            List<int> currentCrewIdentifiers = new List<int>();
+
+            foreach (Employee crewMember in currentCrewMembers)
+            {
+                currentCrewIdentifiers.Add(crewMember.Id);
+            }
+
+            List<Employee> availableEmployees = flightEmployeeService.GetAvailableCrewGroupedByRole(flight);
 
             AvailableCrew.Clear();
 
-            string previousRole = null;
-            foreach (var emp in availableEmployees)
+            EmployeeRole? previousRole = null;
+
+            foreach (Employee candidateEmployee in availableEmployees)
             {
-                string currentRole = emp.Role?.Trim() ?? "Other";
+                EmployeeRole currentRole = candidateEmployee.Role;
+
                 bool isFirstInGroup = currentRole != previousRole;
 
                 AvailableCrew.Add(new CrewSelectionWrapper
                 {
-                    Employee = emp,
-                    IsSelected = currentIds.Contains(emp.Id),
-                    ShowRoleHeader = isFirstInGroup,
-                    RoleHeader = currentRole,
+                    Employee = candidateEmployee,
+                    IsSelected = currentCrewIdentifiers.Contains(candidateEmployee.Id),
+                    RoleHeader = currentRole.ToString(),
                     RoleHeaderVisibility = isFirstInGroup ? Visibility.Visible : Visibility.Collapsed
                 });
 

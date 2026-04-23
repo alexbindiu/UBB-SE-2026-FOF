@@ -14,7 +14,7 @@
             using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
-                string query = "SELECT id, name, role, birthday, salary, hiring_date FROM Employees";
+                string query = "SELECT id, name, role_id, birthday, salary, hiring_date FROM Employees";
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     using (SqlDataReader reader = cmd.ExecuteReader())
@@ -24,7 +24,7 @@
                             Employee emp = new Employee();
                             emp.Id = reader.GetInt32(0);
                             emp.Name = reader.GetString(1);
-                            emp.Role = reader.GetString(2);
+                            emp.Role = (EmployeeRole)reader.GetInt32(2);
                             emp.Birthday = DateOnly.FromDateTime(reader.GetDateTime(3));
                             emp.Salary = reader.GetInt32(4);
                             emp.HiringDate = DateOnly.FromDateTime(reader.GetDateTime(5));
@@ -42,7 +42,7 @@
             using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
-                string query = "SELECT id, name, role, birthday, salary, hiring_date FROM Employees WHERE id = @id";
+                string query = "SELECT id, name, role_id, birthday, salary, hiring_date FROM Employees WHERE id = @id";
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@id", id);
@@ -53,7 +53,7 @@
                             Employee foundEmployee = new Employee();
                             foundEmployee.Id = reader.GetInt32(0);
                             foundEmployee.Name = reader.GetString(1);
-                            foundEmployee.Role = reader.GetString(2);
+                            foundEmployee.Role = (EmployeeRole)reader.GetInt32(2);
                             foundEmployee.Birthday = DateOnly.FromDateTime(reader.GetDateTime(3));
                             foundEmployee.Salary = reader.GetInt32(4);
                             foundEmployee.HiringDate = DateOnly.FromDateTime(reader.GetDateTime(5));
@@ -71,13 +71,13 @@
             using (SqlConnection conn = connectionFactory.GetConnection())
             {
                 conn.Open();
-                string query = @"INSERT INTO Employees (name, role, birthday, salary, hiring_date) 
+                string query = @"INSERT INTO Employees (name, role_id, birthday, salary, hiring_date) 
                                  OUTPUT INSERTED.id 
-                                 VALUES (@name, @role, @birthday, @salary, @hiring_date)";
+                                 VALUES (@name, @role_id, @birthday, @salary, @hiring_date)";
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@name", newEmployee.Name);
-                    cmd.Parameters.AddWithValue("@role", newEmployee.Role);
+                    cmd.Parameters.AddWithValue("@role_id", (int)newEmployee.Role);
                     cmd.Parameters.AddWithValue("@salary", newEmployee.Salary);
                     cmd.Parameters.AddWithValue("@birthday", newEmployee.Birthday.ToDateTime(TimeOnly.MinValue));
                     cmd.Parameters.AddWithValue("@hiring_date", newEmployee.HiringDate.ToDateTime(TimeOnly.MinValue));
@@ -95,7 +95,7 @@
                 conn.Open();
                 string query = @"UPDATE Employees SET 
                                  name = @name, 
-                                 role = @role, 
+                                 role_id = @role_id, 
                                  birthday = @birthday, 
                                  salary = @salary, 
                                  hiring_date = @hiring_date 
@@ -105,7 +105,7 @@
                 {
                     cmd.Parameters.AddWithValue("@id", updatedEmployee.Id);
                     cmd.Parameters.AddWithValue("@name", updatedEmployee.Name);
-                    cmd.Parameters.AddWithValue("@role", updatedEmployee.Role);
+                    cmd.Parameters.AddWithValue("@role_id", (int)updatedEmployee.Role);
                     cmd.Parameters.AddWithValue("@salary", updatedEmployee.Salary);
                     cmd.Parameters.AddWithValue("@birthday", updatedEmployee.Birthday.ToDateTime(TimeOnly.MinValue));
                     cmd.Parameters.AddWithValue("@hiring_date", updatedEmployee.HiringDate.ToDateTime(TimeOnly.MinValue));
@@ -124,15 +124,6 @@
                 {
                     try
                     {
-                        /*
-                        string deleteJunctionQuery = "DELETE FROM Flight_employees WHERE id_employee = @id";
-                        using (SqlCommand junctionCmd = new SqlCommand(deleteJunctionQuery, conn, transaction))
-                        {
-                            junctionCmd.Parameters.AddWithValue("@id", id);
-                            junctionCmd.ExecuteNonQuery();
-                        }
-                        */
-
                         string deleteEmpQuery = "DELETE FROM Employees WHERE id = @id";
                         using (SqlCommand empCmd = new SqlCommand(deleteEmpQuery, conn, transaction))
                         {
