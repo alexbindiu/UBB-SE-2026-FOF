@@ -83,7 +83,8 @@ namespace TicketSellingModule.Data.Services
                     id: editingEmployee.Id,
                     name: editingEmployee.Name,
                     role: editingEmployee.Role,
-                    salary: editingEmployee.Salary);
+                    salary: editingEmployee.Salary,
+                    birthday: finalBirthday);
             }
         }
 
@@ -136,7 +137,7 @@ namespace TicketSellingModule.Data.Services
             return employeeRepo.AddEmployee(newEmp);
         }
 
-        public void Update(int id, string? name = null, string? role = null, int? salary = null)
+        public void Update(int id, string? name = null, string? role = null, int? salary = null, DateOnly? birthday = null)
         {
             var existingEmp = employeeRepo.GetEmployeeById(id);
             if (existingEmp == null)
@@ -145,19 +146,16 @@ namespace TicketSellingModule.Data.Services
             }
 
             if (name != null)
-            {
                 existingEmp.Name = name;
-            }
 
             if (role != null)
-            {
                 existingEmp.Role = role;
-            }
 
             if (salary.HasValue)
-            {
                 existingEmp.Salary = salary.Value;
-            }
+
+            if (birthday.HasValue)
+                existingEmp.Birthday = birthday.Value;
 
             employeeRepo.UpdateEmployee(existingEmp);
         }
