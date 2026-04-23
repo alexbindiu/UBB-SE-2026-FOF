@@ -45,7 +45,8 @@ namespace TicketSellingModule.ViewModel
 
         [ObservableProperty]
         private string deleteErrorMessage = string.Empty;
-
+        public bool IsConfirmationVisible => EmployeeToDelete != null;
+        public bool IsErrorOnlyVisible => EmployeeToDelete == null && !string.IsNullOrEmpty(DeleteErrorMessage);
         public EmployeesDashboardViewModel(EmployeeService employeeService)
         {
             this.employeeService = employeeService;
@@ -92,14 +93,22 @@ namespace TicketSellingModule.ViewModel
         {
             if (parameter is not Employee employee || employee.Id == 0)
             {
+                EmployeeToDelete = null;
                 DeleteErrorMessage = "Please select an employee to delete.";
                 ConfirmDeleteDialogVisibility = Visibility.Visible;
+
+                // Refresh flags
+                OnPropertyChanged(nameof(IsConfirmationVisible));
+                OnPropertyChanged(nameof(IsErrorOnlyVisible));
                 return;
             }
 
             EmployeeToDelete = employee;
             DeleteErrorMessage = string.Empty;
             ConfirmDeleteDialogVisibility = Visibility.Visible;
+
+            OnPropertyChanged(nameof(IsConfirmationVisible));
+            OnPropertyChanged(nameof(IsErrorOnlyVisible));
         }
 
         [RelayCommand]
@@ -132,6 +141,9 @@ namespace TicketSellingModule.ViewModel
             ConfirmDeleteDialogVisibility = Visibility.Collapsed;
             DeleteErrorMessage = string.Empty;
             EmployeeToDelete = null;
+
+            OnPropertyChanged(nameof(IsConfirmationVisible));
+            OnPropertyChanged(nameof(IsErrorOnlyVisible));
         }
 
         [RelayCommand]

@@ -118,7 +118,7 @@
 
                 <Grid Grid.Row="0" Margin="20,20,20,10">
                     <TextBlock Text="COMPANY'S FLIGHTS" FontSize="20" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <Button Content="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="20" Background="{StaticResource CustomAccentBrush}" Foreground="White"
+                    <Button Content="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="16" Background="{StaticResource CustomAccentBrush}" Foreground="White"
                             HorizontalAlignment="Right" Width="40" Height="40" CornerRadius="4"
                             Click="AddFlightButton_Click" />
                 </Grid>
