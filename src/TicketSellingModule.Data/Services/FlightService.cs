@@ -4,16 +4,16 @@ namespace TicketSellingModule.Data.Services
 {
     public class FlightService : IFlightService
     {
-        private readonly FlightRepo flightRepo;
+        private readonly FlightRepository flightRepo;
 
-        public FlightService(FlightRepo flightRepo)
+        public FlightService(FlightRepository flightRepo)
         {
             this.flightRepo = flightRepo;
         }
 
         public List<Flight> GetAll()
         {
-            return flightRepo.GetAll();
+            return flightRepo.GetAllFlights();
         }
 
         public Flight? GetById(int id)
@@ -33,7 +33,7 @@ namespace TicketSellingModule.Data.Services
                 return new List<Flight>();
             }
 
-            return flightRepo.GetFlightsByRoute(routeId);
+            return flightRepo.GetFlightsByRouteId(routeId);
         }
 
         public int Add(string flightNumber, int routeId, DateTime date, int runwayId, int gateId)
@@ -57,7 +57,7 @@ namespace TicketSellingModule.Data.Services
                 Gate = new Gate { Id = gateId }
             };
 
-            return flightRepo.Add(newFlight);
+            return flightRepo.Addlight(newFlight);
         }
 
         public void Update(int id, DateTime? date = null, string? flightNumber = null,
@@ -89,7 +89,7 @@ namespace TicketSellingModule.Data.Services
                 existing.Gate = new Gate { Id = gateId.Value };
             }
 
-            flightRepo.Update(existing);
+            flightRepo.UpdateFlight(existing);
         }
 
         public void Delete(int id)
@@ -104,7 +104,7 @@ namespace TicketSellingModule.Data.Services
                 throw new InvalidOperationException($"Flight with ID {id} does not exist.");
             }
 
-            flightRepo.Delete(id);
+            flightRepo.DeleteFlightUsingId(id);
         }
     }
 }

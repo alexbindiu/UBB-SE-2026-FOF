@@ -4,9 +4,9 @@ namespace TicketSellingModule.Data.Services
 {
     public class AirportService : IAirportService
     {
-        private readonly AirportRepo airportRepo;
-        private readonly FlightRepo flightRepo;
-        public AirportService(AirportRepo airportRepo, FlightRepo flightRepo)
+        private readonly AirportRepository airportRepo;
+        private readonly FlightRepository flightRepo;
+        public AirportService(AirportRepository airportRepo, FlightRepository flightRepo)
         {
             this.airportRepo = airportRepo;
             this.flightRepo = flightRepo;
@@ -80,13 +80,13 @@ namespace TicketSellingModule.Data.Services
         {
             if (id > 0)
             {
-                airportRepo.DeleteAirport(id);
+                airportRepo.DeleteAirportUsingId(id);
             }
         }
 
         public bool HasFlights(int airportId)
         {
-            return flightRepo.GetFlightsByAirport(airportId).Any();
+            return flightRepo.GetFlightsByAirportId(airportId).Any();
         }
     }
 }

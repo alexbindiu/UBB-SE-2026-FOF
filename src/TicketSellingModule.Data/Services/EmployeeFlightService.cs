@@ -4,19 +4,19 @@ namespace TicketSellingModule.Data.Services
 {
     public class EmployeeFlightService : IEmployeeFlightService
     {
-        private readonly EmployeeFlightRepo linkRepo;
-        private readonly EmployeeRepo employeeRepo;
-        private readonly FlightRepo flightRepo;
-        private readonly RouteRepo routeRepo;
+        private readonly EmployeeFlightRepository linkRepo;
+        private readonly EmployeeRepository employeeRepo;
+        private readonly FlightRepository flightRepo;
+        private readonly RouteRepository routeRepo;
         private readonly GateService gateService;
         private readonly RunwayService runwayService;
         private readonly RouteService routeService;
 
         public EmployeeFlightService(
-            EmployeeFlightRepo linkRepo,
-            EmployeeRepo employeeRepo,
-            FlightRepo flightRepo,
-            RouteRepo routeRepo,
+            EmployeeFlightRepository linkRepo,
+            EmployeeRepository employeeRepo,
+            FlightRepository flightRepo,
+            RouteRepository routeRepo,
             GateService gateService,
             RunwayService runwayService,
             RouteService routeService)
@@ -45,7 +45,7 @@ namespace TicketSellingModule.Data.Services
                 throw new InvalidOperationException("Employee or Flight does not exist.");
             }
 
-            var currentCrewIds = linkRepo.GetEmployeesByFlight(flightId);
+            var currentCrewIds = linkRepo.GetEmployeesByFlightId(flightId);
             if (currentCrewIds.Contains(employeeId))
             {
                 throw new InvalidOperationException("Employee already assigned to this flight.");
@@ -56,12 +56,12 @@ namespace TicketSellingModule.Data.Services
                 throw new InvalidOperationException($"Conflict: Employee {emp.Name} is already assigned to another flight during this time.");
             }
 
-            linkRepo.AssignFlightToEmployee(employeeId, flightId);
+            linkRepo.AssignFlightToEmployeesUsingIds(employeeId, flightId);
         }
 
         public void RemoveCrewMember(int flightId, int employeeId)
         {
-            linkRepo.RemoveFlightFromEmployee(employeeId, flightId);
+            linkRepo.RemoveFlightFromEmployeeUsingIds(employeeId, flightId);
         }
 
         public void CleanUpFlightAssignments(int flightId)
@@ -83,7 +83,7 @@ namespace TicketSellingModule.Data.Services
         public List<Employee> GetFlightCrew(int flightId)
         {
             var crew = new List<Employee>();
-            foreach (var id in linkRepo.GetEmployeesByFlight(flightId))
+            foreach (var id in linkRepo.GetEmployeesByFlightId(flightId))
             {
                 var emp = employeeRepo.GetEmployeeById(id);
                 if (emp != null)
@@ -101,7 +101,7 @@ namespace TicketSellingModule.Data.Services
                 return new List<Flight>();
             }
 
-            var flightIds = linkRepo.GetFlightsByEmployee(employeeId);
+            var flightIds = linkRepo.GetFlightsByEmployeeId(employeeId);
             var flights = new List<Flight>();
 
             foreach (var id in flightIds)
@@ -162,7 +162,7 @@ namespace TicketSellingModule.Data.Services
 
         public void UpdateCrewForFlight(int flightId, List<int> newEmployeeIds)
         {
-            var currentCrewIds = linkRepo.GetEmployeesByFlight(flightId);
+            var currentCrewIds = linkRepo.GetEmployeesByFlightId(flightId);
 
             foreach (var empId in currentCrewIds.Except(newEmployeeIds).ToList())
             {

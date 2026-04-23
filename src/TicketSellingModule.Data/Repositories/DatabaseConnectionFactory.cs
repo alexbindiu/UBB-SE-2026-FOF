@@ -1,10 +1,10 @@
 ﻿namespace TicketSellingModule.Data.Repositories
 {
-    public class DbConnectionFactory
+    public class DatabaseConnectionFactory
     {
         private readonly string connectionString;
 
-        public DbConnectionFactory()
+        public DatabaseConnectionFactory()
         {
             // connectionString = "Server=DESKTOP-1JCJMN6\\SQLEXPRESS;Database=AirportDB;Trusted_Connection=True;TrustServerCertificate=True;";
             connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=AirportDB;Trusted_Connection=True;TrustServerCertificate=True;";

@@ -4,12 +4,12 @@ namespace TicketSellingModule.Data.Services
 {
     public class CompanyService : ICompanyService
     {
-        private readonly CompanyRepo companyRepo;
+        private readonly CompanyRepository companyRepo;
         private readonly FlightRouteService flightRouteService;
         private const int InitialFlightNumber = 1000;
         private const string DefaultFlightPrefix = "FL";
 
-        public CompanyService(CompanyRepo companyRepo, FlightRouteService flightRouteService)
+        public CompanyService(CompanyRepository companyRepo, FlightRouteService flightRouteService)
         {
             this.companyRepo = companyRepo;
             this.flightRouteService = flightRouteService;
@@ -119,7 +119,7 @@ namespace TicketSellingModule.Data.Services
         {
             if (id > 0)
             {
-                companyRepo.DeleteCompany(id);
+                companyRepo.DeleteCompanyUsingId(id);
             }
         }
     }
