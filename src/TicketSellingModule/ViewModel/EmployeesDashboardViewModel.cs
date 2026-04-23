@@ -7,7 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 
 using TicketSellingModule.Data.Domain;
-using TicketSellingModule.Data.Services;
+using TicketSellingModule.Service;
 
 using Windows.Foundation.Metadata;
 
