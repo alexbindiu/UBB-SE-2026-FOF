@@ -2,6 +2,11 @@
 {
     public class AirportRepo
     {
+        private const string SelectAllQuery = "SELECT id, city, name, code FROM Airports";
+        private const string SelectByIdQuery = "SELECT id, city, name, code FROM Airports WHERE id = @airportId";
+        private const string InsertQuery = "INSERT INTO Airports (city, name, code) OUTPUT INSERTED.id VALUES (@city, @name, @code)";
+        private const string UpdateQuery = "UPDATE Airports SET city = @city, name = @name, code = @code WHERE id = @airportId";
+
         private readonly DbConnectionFactory connectionFactory;
 
         public AirportRepo(DbConnectionFactory factory)
@@ -13,136 +18,107 @@
         {
             List<Airport> allAirports = new List<Airport>();
 
-            using (SqlConnection conn = connectionFactory.GetConnection())
+            using SqlConnection databaseConnection = connectionFactory.GetConnection();
+            databaseConnection.Open();
+
+            using SqlCommand sqlCommand = new SqlCommand(SelectAllQuery, databaseConnection);
+            using SqlDataReader dataReader = sqlCommand.ExecuteReader();
+
+            while (dataReader.Read())
             {
-                conn.Open();
-                string query = "SELECT id, city, name, code FROM Airports";
-                using (SqlCommand cmd = new SqlCommand(query, conn))
+                allAirports.Add(new Airport
                 {
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            int id = reader.GetInt32(0);
-                            string city = reader.GetString(1);
-                            string name = reader.GetString(2);
-                            string code = reader.GetString(3);
-                            Airport newAirport = new Airport();
-                            newAirport.City = city;
-                            newAirport.Id = id;
-                            newAirport.AirportName = name;
-                            newAirport.AirportCode = code;
-                            allAirports.Add(newAirport);
-                        }
-                    }
-                }
+                    Id = dataReader.GetInt32(0),
+                    City = dataReader.GetString(1),
+                    AirportName = dataReader.GetString(2),
+                    AirportCode = dataReader.GetString(3)
+                });
             }
+
             return allAirports;
         }
 
-        public Airport GetAirportById(int id)
+        public Airport? GetAirportById(int airportId)
         {
-            using (SqlConnection conn = connectionFactory.GetConnection())
+            using SqlConnection databaseConnection = connectionFactory.GetConnection();
+            databaseConnection.Open();
+
+            using SqlCommand sqlCommand = new SqlCommand(SelectByIdQuery, databaseConnection);
+            sqlCommand.Parameters.AddWithValue("@airportId", airportId);
+
+            using SqlDataReader dataReader = sqlCommand.ExecuteReader();
+
+            if (dataReader.Read())
             {
-                conn.Open();
-                string query = "Select id, city, name, code  from Airports WHERE id = @id";
-                using (SqlCommand cmd = new SqlCommand(query, conn))
+                return new Airport
                 {
-                    cmd.Parameters.AddWithValue("@id", id);
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            Airport foundAirport = new Airport();
-                            string city = reader.GetString(1);
-                            string name = reader.GetString(2);
-                            string code = reader.GetString(3);
-                            foundAirport.Id = id;
-                            foundAirport.City = city;
-                            foundAirport.AirportCode = code;
-                            foundAirport.AirportName = name;
-                            return foundAirport;
-                        }
-                    }
-                }
-                return null;
+                    Id = dataReader.GetInt32(0),
+                    City = dataReader.GetString(1),
+                    AirportName = dataReader.GetString(2),
+                    AirportCode = dataReader.GetString(3)
+                };
             }
+
+            return null;
         }
 
         public int AddAirport(Airport newAirport)
         {
-            using (SqlConnection conn = connectionFactory.GetConnection())
-            {
-                conn.Open();
-                string sqlInsert = "Insert into Airports (city, name, code) OUTPUT INSERTED.id VALUES (@city, @name, @code)";
-                using (SqlCommand cmd = new SqlCommand(sqlInsert, conn))
-                {
-                    cmd.Parameters.AddWithValue("@city", newAirport.City);
-                    cmd.Parameters.AddWithValue("@name", newAirport.AirportName);
-                    cmd.Parameters.AddWithValue("@code", newAirport.AirportCode);
+            using SqlConnection databaseConnection = connectionFactory.GetConnection();
+            databaseConnection.Open();
 
-                    int newId = (int)cmd.ExecuteScalar();
-                    return newId;
-                }
+            using SqlCommand sqlCommand = new SqlCommand(InsertQuery, databaseConnection);
+            sqlCommand.Parameters.AddWithValue("@city", newAirport.City);
+            sqlCommand.Parameters.AddWithValue("@name", newAirport.AirportName);
+            sqlCommand.Parameters.AddWithValue("@code", newAirport.AirportCode);
+
+            return (int)sqlCommand.ExecuteScalar();
+        }
+
+        public void DeleteAirport(int airportId)
+        {
+            using SqlConnection databaseConnection = connectionFactory.GetConnection();
+            databaseConnection.Open();
+
+            using SqlTransaction databaseTransaction = databaseConnection.BeginTransaction();
+            try
+            {
+                const string deleteFlightsQuery = "DELETE FROM Flights WHERE route_id IN (SELECT id FROM Routes WHERE airport_id = @airportId)";
+                using SqlCommand deleteFlightsCommand = new SqlCommand(deleteFlightsQuery, databaseConnection, databaseTransaction);
+                deleteFlightsCommand.Parameters.AddWithValue("@airportId", airportId);
+                deleteFlightsCommand.ExecuteNonQuery();
+
+                const string deleteRoutesQuery = "DELETE FROM Routes WHERE airport_id = @airportId";
+                using SqlCommand deleteRoutesCommand = new SqlCommand(deleteRoutesQuery, databaseConnection, databaseTransaction);
+                deleteRoutesCommand.Parameters.AddWithValue("@airportId", airportId);
+                deleteRoutesCommand.ExecuteNonQuery();
+
+                const string deleteAirportQuery = "DELETE FROM Airports WHERE id = @airportId";
+                using SqlCommand deleteAirportCommand = new SqlCommand(deleteAirportQuery, databaseConnection, databaseTransaction);
+                deleteAirportCommand.Parameters.AddWithValue("@airportId", airportId);
+                deleteAirportCommand.ExecuteNonQuery();
+
+                databaseTransaction.Commit();
+            }
+            catch
+            {
+                databaseTransaction.Rollback();
+                throw;
             }
         }
 
-        public void DeleteAirport(int id)
+        public void UpdateAirport(Airport airportToUpdate)
         {
-            using (SqlConnection conn = connectionFactory.GetConnection())
-            {
-                conn.Open();
-                using (SqlTransaction transaction = conn.BeginTransaction())
-                {
-                    try
-                    {
-                        string deleteFlights = @"DELETE FROM Flights 
-                                         WHERE route_id IN (SELECT id FROM Routes WHERE airport_id = @id)";
-                        using (SqlCommand cmd1 = new SqlCommand(deleteFlights, conn, transaction))
-                        {
-                            cmd1.Parameters.AddWithValue("@id", id);
-                            cmd1.ExecuteNonQuery();
-                        }
+            using SqlConnection databaseConnection = connectionFactory.GetConnection();
+            databaseConnection.Open();
 
-                        string deleteRoutes = "DELETE FROM Routes WHERE airport_id = @id";
-                        using (SqlCommand cmd2 = new SqlCommand(deleteRoutes, conn, transaction))
-                        {
-                            cmd2.Parameters.AddWithValue("@id", id);
-                            cmd2.ExecuteNonQuery();
-                        }
+            using SqlCommand sqlCommand = new SqlCommand(UpdateQuery, databaseConnection);
+            sqlCommand.Parameters.AddWithValue("@city", airportToUpdate.City);
+            sqlCommand.Parameters.AddWithValue("@name", airportToUpdate.AirportName);
+            sqlCommand.Parameters.AddWithValue("@code", airportToUpdate.AirportCode);
+            sqlCommand.Parameters.AddWithValue("@airportId", airportToUpdate.Id);
 
-                        string deleteAirport = "DELETE FROM Airports WHERE id = @id";
-                        using (SqlCommand cmd3 = new SqlCommand(deleteAirport, conn, transaction))
-                        {
-                            cmd3.Parameters.AddWithValue("@id", id);
-                            cmd3.ExecuteNonQuery();
-                        }
-
-                        transaction.Commit();
-                    }
-                    catch
-                    {
-                        transaction.Rollback();
-                        throw;
-                    }
-                }
-            }
-        }
-        public void UpdateAirport(Airport airport)
-        {
-            using (SqlConnection conn = connectionFactory.GetConnection())
-            {
-                conn.Open();
-                string query = "Update Airports SET city = @city, name = @name, code = @code where id = @id";
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@city", airport.City);
-                    cmd.Parameters.AddWithValue("@name", airport.AirportName);
-                    cmd.Parameters.AddWithValue("@code", airport.AirportCode);
-                    cmd.Parameters.AddWithValue("@id", airport.Id);
-                    cmd.ExecuteNonQuery();
-                }
-            }
+            sqlCommand.ExecuteNonQuery();
         }
     }
 }
