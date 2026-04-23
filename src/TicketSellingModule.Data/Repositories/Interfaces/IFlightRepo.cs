@@ -15,5 +15,4 @@ public interface IFlightRepo
     int Add(Flight flight);
     void Update(Flight flight);
     void Delete(int id);
-
 }

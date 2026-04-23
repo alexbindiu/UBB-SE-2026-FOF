@@ -11,5 +11,4 @@ public interface IRouteRepo
     void DeleteRoute(int id);
     void UpdateRoute(Route updatedRoute);
     Route GetRouteById(int id);
-
 }

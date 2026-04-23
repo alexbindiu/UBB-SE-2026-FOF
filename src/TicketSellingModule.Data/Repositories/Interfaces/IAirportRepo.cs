@@ -11,5 +11,4 @@ public interface IAirportRepo
     int AddAirport(Airport newAirport);
     void DeleteAirport(int id);
     void UpdateAirport(Airport airport);
-
 }
