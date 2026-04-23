@@ -33,8 +33,8 @@
                             string rawDepTime = reader.GetValue(7).ToString();
                             string rawArrTime = reader.GetValue(8).ToString();
 
-                            newRoute.DepartureTime = TimeOnly.FromDateTime(DateTime.Parse(rawDepTime));
-                            newRoute.ArrivalTime = TimeOnly.FromDateTime(DateTime.Parse(rawArrTime));
+                            newRoute.DepartureTime = TimeOnly.FromTimeSpan(reader.GetTimeSpan(7));
+                            newRoute.ArrivalTime = TimeOnly.FromTimeSpan(reader.GetTimeSpan(8));
                             allRoutes.Add(newRoute);
                         }
                     }
@@ -158,8 +158,8 @@
 
                             foundRoute.StartDate = DateOnly.FromDateTime(reader.GetDateTime(5));
                             foundRoute.EndDate = DateOnly.FromDateTime(reader.GetDateTime(6));
-                            foundRoute.DepartureTime = TimeOnly.FromDateTime(reader.GetDateTime(7));
-                            foundRoute.ArrivalTime = TimeOnly.FromDateTime(reader.GetDateTime(8));
+                            foundRoute.DepartureTime = TimeOnly.FromTimeSpan(reader.GetTimeSpan(7));
+                            foundRoute.ArrivalTime = TimeOnly.FromTimeSpan(reader.GetTimeSpan(8));
 
                             foundRoute.Capacity = reader.GetInt32(9);
 
