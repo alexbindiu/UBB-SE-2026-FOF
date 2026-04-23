@@ -4,8 +4,14 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="src/TicketSellingModule.Data/TicketSellingModule.Data.csproj" Id="8b63e15b-a655-4932-8fac-86ae1f2b9853" />
-  <Project Path="src/TicketSellingModule.Test/TicketSellingModule.Test.csproj" Id="ece58d75-0fcc-470a-bda1-02bff94ac559" />
+  <Project Path="src/TicketSellingModule.Data/TicketSellingModule.Data.csproj" Id="8b63e15b-a655-4932-8fac-86ae1f2b9853">
+    <Platform Solution="Debug|x64" Project="x64" />
+    <Platform Solution="Debug|x86" Project="x86" />
+  </Project>
+  <Project Path="src/TicketSellingModule.Test/TicketSellingModule.Test.csproj" Id="ece58d75-0fcc-470a-bda1-02bff94ac559">
+    <Platform Solution="Debug|x64" Project="x64" />
+    <Platform Solution="Debug|x86" Project="x86" />
+  </Project>
   <Project Path="src/TicketSellingModule/TicketSellingModule.csproj">
     <Platform Solution="*|ARM64" Project="ARM64" />
     <Platform Solution="*|x64" Project="x64" />
