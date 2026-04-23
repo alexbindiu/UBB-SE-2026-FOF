@@ -1,13 +1,14 @@
+using TicketSellingModule.Data.Repositories.Interfaces;
 using TicketSellingModule.Data.Services.Interfaces;
 
 namespace TicketSellingModule.Data.Services
 {
     public class EmployeeService : IEmployeeService
     {
-        private readonly EmployeeRepo employeeRepo;
-        private readonly EmployeeFlightService employeeFlightService;
+        private readonly IEmployeeRepo employeeRepo;
+        private readonly IEmployeeFlightService employeeFlightService;
 
-        public EmployeeService(EmployeeRepo employeeRepo, EmployeeFlightService employeeFlightService)
+        public EmployeeService(IEmployeeRepo employeeRepo, IEmployeeFlightService employeeFlightService)
         {
             this.employeeRepo = employeeRepo;
             this.employeeFlightService = employeeFlightService;

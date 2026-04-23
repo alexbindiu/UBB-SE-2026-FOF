@@ -1,25 +1,26 @@
+using TicketSellingModule.Data.Repositories.Interfaces;
 using TicketSellingModule.Data.Services.Interfaces;
 
 namespace TicketSellingModule.Data.Services
 {
     public class EmployeeFlightService : IEmployeeFlightService
     {
-        private readonly EmployeeFlightRepo linkRepo;
-        private readonly EmployeeRepo employeeRepo;
-        private readonly FlightRepo flightRepo;
-        private readonly RouteRepo routeRepo;
-        private readonly GateService gateService;
-        private readonly RunwayService runwayService;
-        private readonly RouteService routeService;
+        private readonly IEmployeeFlightRepo linkRepo;
+        private readonly IEmployeeRepo employeeRepo;
+        private readonly IFlightRepo flightRepo;
+        private readonly IRouteRepo routeRepo;
+        private readonly IGateService gateService;
+        private readonly IRunwayService runwayService;
+        private readonly IRouteService routeService;
 
         public EmployeeFlightService(
-            EmployeeFlightRepo linkRepo,
-            EmployeeRepo employeeRepo,
-            FlightRepo flightRepo,
-            RouteRepo routeRepo,
-            GateService gateService,
-            RunwayService runwayService,
-            RouteService routeService)
+            IEmployeeFlightRepo linkRepo,
+            IEmployeeRepo employeeRepo,
+            IFlightRepo flightRepo,
+            IRouteRepo routeRepo,
+            IGateService gateService,
+            IRunwayService runwayService,
+            IRouteService routeService)
         {
             this.linkRepo = linkRepo ?? throw new ArgumentNullException(nameof(linkRepo));
             this.employeeRepo = employeeRepo ?? throw new ArgumentNullException(nameof(employeeRepo));

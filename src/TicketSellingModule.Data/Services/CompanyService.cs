@@ -1,15 +1,16 @@
+using TicketSellingModule.Data.Repositories.Interfaces;
 using TicketSellingModule.Data.Services.Interfaces;
 
 namespace TicketSellingModule.Data.Services
 {
     public class CompanyService : ICompanyService
     {
-        private readonly CompanyRepo companyRepo;
-        private readonly FlightRouteService flightRouteService;
+        private readonly ICompanyRepo companyRepo;
+        private readonly IFlightRouteService flightRouteService;
         private const int InitialFlightNumber = 1000;
         private const string DefaultFlightPrefix = "FL";
 
-        public CompanyService(CompanyRepo companyRepo, FlightRouteService flightRouteService)
+        public CompanyService(ICompanyRepo companyRepo, IFlightRouteService flightRouteService)
         {
             this.companyRepo = companyRepo;
             this.flightRouteService = flightRouteService;

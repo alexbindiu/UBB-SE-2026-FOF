@@ -1,16 +1,17 @@
-﻿using TicketSellingModule.Data.Services.Interfaces;
+﻿using TicketSellingModule.Data.Repositories.Interfaces;
+using TicketSellingModule.Data.Services.Interfaces;
 
 namespace TicketSellingModule.Data.Services
 {
     public class RouteService : IRouteService
     {
-        private readonly RouteRepo routeRepo;
-        private readonly FlightRepo flightRepo;
-        private readonly CompanyRepo companyRepo;
-        private readonly AirportRepo airportRepo;
+        private readonly IRouteRepo routeRepo;
+        private readonly IFlightRepo flightRepo;
+        private readonly ICompanyRepo companyRepo;
+        private readonly IAirportRepo airportRepo;
 
-        public RouteService(RouteRepo routeRepo, FlightRepo flightRepo,
-                            CompanyRepo companyRepo, AirportRepo airportRepo)
+        public RouteService(IRouteRepo routeRepo, IFlightRepo flightRepo,
+                            ICompanyRepo companyRepo, IAirportRepo airportRepo)
         {
             this.routeRepo = routeRepo;
             this.flightRepo = flightRepo;

@@ -1,12 +1,13 @@
-﻿using TicketSellingModule.Data.Services.Interfaces;
+﻿using TicketSellingModule.Data.Repositories.Interfaces;
+using TicketSellingModule.Data.Services.Interfaces;
 
 namespace TicketSellingModule.Data.Services
 {
     public class FlightService : IFlightService
     {
-        private readonly FlightRepo flightRepo;
+        private readonly IFlightRepo flightRepo;
 
-        public FlightService(FlightRepo flightRepo)
+        public FlightService(IFlightRepo flightRepo)
         {
             this.flightRepo = flightRepo;
         }

@@ -1,12 +1,13 @@
+using TicketSellingModule.Data.Repositories.Interfaces;
 using TicketSellingModule.Data.Services.Interfaces;
 
 namespace TicketSellingModule.Data.Services
 {
     public class GateService : IGateService
     {
-        private readonly GateRepo gateRepo;
-        private readonly FlightRepo flightRepo;
-        public GateService(GateRepo gateRepo, FlightRepo flightRepo)
+        private readonly IGateRepo gateRepo;
+        private readonly IFlightRepo flightRepo;
+        public GateService(IGateRepo gateRepo, IFlightRepo flightRepo)
         {
             this.gateRepo = gateRepo;
             this.flightRepo = flightRepo;
