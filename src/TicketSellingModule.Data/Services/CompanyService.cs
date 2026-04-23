@@ -1,6 +1,8 @@
+using TicketSellingModule.Data.Services.Interfaces;
+
 namespace TicketSellingModule.Data.Services
 {
-    public class CompanyService
+    public class CompanyService : ICompanyService
     {
         private readonly CompanyRepo companyRepo;
         private readonly FlightRouteService flightRouteService;

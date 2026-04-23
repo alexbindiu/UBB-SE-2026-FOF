@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using TicketSellingModule.Data.Services.Interfaces;
 
-using TicketSellingModule.Data;
-using TicketSellingModule.Data.Domain;
-using TicketSellingModule.Data.Repositories;
-using TicketSellingModule.Data.Services; // Ensure this is included for helper services
-
-namespace TicketSellingModule.Service
+namespace TicketSellingModule.Data.Services
 {
-    public class EmployeeFlightService
+    public class EmployeeFlightService : IEmployeeFlightService
     {
         private readonly EmployeeFlightRepo linkRepo;
         private readonly EmployeeRepo employeeRepo;
@@ -171,13 +164,11 @@ namespace TicketSellingModule.Service
         {
             var currentCrewIds = linkRepo.GetEmployeesByFlight(flightId);
 
-            // Remove members who are NOT in the new list
             foreach (var empId in currentCrewIds.Except(newEmployeeIds).ToList())
             {
                 RemoveCrewMember(flightId, empId);
             }
 
-            // Add members who are NOT in the current list
             foreach (var empId in newEmployeeIds.Except(currentCrewIds).ToList())
             {
                 AssignCrewMember(flightId, empId);

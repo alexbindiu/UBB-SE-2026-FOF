@@ -1,6 +1,8 @@
+using TicketSellingModule.Data.Services.Interfaces;
+
 namespace TicketSellingModule.Data.Services
 {
-    public class GateService
+    public class GateService : IGateService
     {
         private readonly GateRepo gateRepo;
         private readonly FlightRepo flightRepo;

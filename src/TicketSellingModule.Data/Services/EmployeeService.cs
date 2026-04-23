@@ -1,8 +1,8 @@
-﻿using TicketSellingModule.Service;
+using TicketSellingModule.Data.Services.Interfaces;
 
 namespace TicketSellingModule.Data.Services
 {
-    public class EmployeeService
+    public class EmployeeService : IEmployeeService
     {
         private readonly EmployeeRepo employeeRepo;
         private readonly EmployeeFlightService employeeFlightService;
@@ -164,7 +164,6 @@ namespace TicketSellingModule.Data.Services
                 existingEmp.Salary = salary.Value;
             }
 
-            // Ensure these assignments are present:
             if (birthday.HasValue)
             {
                 existingEmp.Birthday = birthday.Value;

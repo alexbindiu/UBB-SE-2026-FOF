@@ -1,6 +1,8 @@
-﻿namespace TicketSellingModule.Data.Repositories
+﻿using TicketSellingModule.Data.Repositories.Interfaces;
+
+namespace TicketSellingModule.Data.Repositories
 {
-    public class AirportRepo
+    public class AirportRepo : IAirportRepo
     {
         private const string SelectAllQuery = "SELECT id, city, name, code FROM Airports";
         private const string SelectByIdQuery = "SELECT id, city, name, code FROM Airports WHERE id = @airportId";
