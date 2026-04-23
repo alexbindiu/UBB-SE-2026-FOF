@@ -142,18 +142,148 @@ namespace TicketSellingModule.Service
             return true;
         }
 
+            return available;
+        }
+
+        public void AssignCrewToFlight(int flightId, List<int> employeeIds)
+        {
+            foreach (var empId in employeeIds)
+            {
+                try
+                {
+                    AssignCrewMember(flightId, empId);
+                }
+                catch
+                {
+                    // intent: ignore if already assigned to avoid crashing the bulk operation
+                }
+            }
+        }
+
         public void UpdateCrewForFlight(int flightId, List<int> newEmployeeIds)
         {
-            var currentCrewIds = linkRepo.GetEmployeesByFlight(flightId);
+            List<Employee> currentCrew = GetFlightCrew(flightId);
+            List<int> currentCrewIds = new List<int>();
 
-            foreach (var empId in currentCrewIds.Except(newEmployeeIds).ToList())
+            foreach (Employee crewMember in currentCrew)
             {
-                RemoveCrewMember(flightId, empId);
+                currentCrewIds.Add(crewMember.Id);
             }
 
-            foreach (var empId in newEmployeeIds.Except(currentCrewIds).ToList())
+            foreach (int existingId in currentCrewIds)
             {
-                AssignCrewMember(flightId, empId);
+                if (!currentCrewIds.Contains(existingId))
+                {
+                    RemoveCrewMember(flightId, existingId);
+                }
+            }
+
+            foreach (int newId in currentCrewIds)
+            {
+                if (!currentCrewIds.Contains(newId))
+                {
+                    AssignCrewMember(flightId, newId);
+                }
+            }
+        }
+
+        public void CleanUpFlightAssignments(int flightId)
+        {
+            if (flightId > 0)
+            {
+                linkRepo.RemoveAllByFlightId(flightId);
+            }
+        }
+
+        public void CleanUpEmployeeAssignments(int employeeId)
+        {
+            if (employeeId > 0)
+            {
+                linkRepo.RemoveAllByEmployeeId(employeeId);
+            }
+        }
+
+        public List<EmployeeScheduleItem> GetFormattedEmployeeSchedule(int employeeId)
+        {
+            List<EmployeeScheduleItem> scheduleItems = new List<EmployeeScheduleItem>();
+
+            if (employeeId <= 0)
+            {
+                return scheduleItems;
+            }
+
+            var flights = GetEmployeeSchedule(employeeId);
+            flights.Sort(new FlightDateComparer());
+
+            foreach (var flight in flights)
+            {
+                Route? route = routeRepo.GetRouteById(flight.Route.Id);
+                Gate? gate = flight.Gate?.Id > 0 ? gateService.GetById(flight.Gate.Id) : null;
+                Runway? runway = runwayService.GetByIdSafe(flight.Runway?.Id ?? 0);
+
+                scheduleItems.Add(new EmployeeScheduleItem
+                {
+                    Id = flight.Id.ToString(),
+                    FlightNumber = flight.FlightNumber,
+                    FlightType = routeService.NormalizeFlightType(route?.RouteType),
+                    Date = flight.Date.ToString("dd MMM yyyy"),
+                    GateName = gate?.Name ?? "-",
+                    RunwayName = runway?.Name ?? "-",
+                    FlightTime = routeService.GetRelevantTime(route)
+                });
+            }
+
+            return scheduleItems;
+        }
+
+        private class FlightDateComparer : IComparer<Flight>
+        {
+            public int Compare(Flight? firstFlight, Flight? secondFlight)
+            {
+                if (firstFlight == null || secondFlight == null)
+                {
+                    return 0;
+                }
+
+                return firstFlight.Date.CompareTo(secondFlight.Date);
+            }
+        }
+
+        public List<Employee> GetAvailableCrewGroupedByRole(Flight flight)
+        {
+            List<Employee> availableEmployees = GetAvailableEmployeesForFlight(flight);
+            List<Employee> validEmployees = new List<Employee>();
+
+            foreach (Employee employee in availableEmployees)
+            {
+                if (employee.Role != EmployeeRole.Other)
+                {
+                    validEmployees.Add(employee);
+                }
+            }
+
+            validEmployees.Sort(new EmployeeRoleAndNameComparer());
+
+            return validEmployees;
+        }
+
+        private class EmployeeRoleAndNameComparer : IComparer<Employee>
+        {
+            public int Compare(Employee? firstEmployee, Employee? secondEmployee)
+            {
+                if (firstEmployee == null || secondEmployee == null)
+                {
+                    return 0;
+                }
+
+                int roleComparisonResult = firstEmployee.Role.CompareTo(secondEmployee.Role);
+
+                if (roleComparisonResult != 0)
+                {
+                    return roleComparisonResult;
+                }
+
+                return string.Compare(firstEmployee.Name, secondEmployee.Name, StringComparison.OrdinalIgnoreCase);
             }
         }
     }

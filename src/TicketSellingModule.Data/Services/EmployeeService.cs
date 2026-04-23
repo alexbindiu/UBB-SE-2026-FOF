@@ -28,17 +28,27 @@ namespace TicketSellingModule.Data.Services
             return employeeRepo.GetEmployeeById(id);
         }
 
-        public List<Employee> GetPilots() => GetByRole("Pilot");
+        public List<Employee> GetPilots() => GetByRole(EmployeeRole.Pilot);
 
-        public List<Employee> GetFlightAttendants() => GetByRole("Flight Attendant");
+        public List<Employee> GetFlightAttendants() => GetByRole(EmployeeRole.FlightAttendant);
 
-        public List<Employee> GetCoPilots() => GetByRole("Co-Pilot");
+        public List<Employee> GetCoPilots() => GetByRole(EmployeeRole.CoPilot);
 
-        public List<Employee> GetFlightDispatchers() => GetByRole("Flight Dispatcher");
+        public List<Employee> GetFlightDispatchers() => GetByRole(EmployeeRole.FlightDispatcher);
 
-        private List<Employee> GetByRole(string role)
+        private List<Employee> GetByRole(EmployeeRole role)
         {
-            return GetAll().Where(e => e.Role == role).ToList();
+            List<Employee> allEmployees = GetAll();
+            List<Employee> filtered = new List<Employee>();
+
+            foreach (Employee e in allEmployees)
+            {
+                if (e.Role == role)
+                {
+                    filtered.Add(e);
+                }
+            }
+            return filtered;
         }
 
         public void SaveEmployee(Employee editingEmployee, DateTimeOffset? birthday, DateTimeOffset? hiringDate, string salaryText)
@@ -97,15 +107,11 @@ namespace TicketSellingModule.Data.Services
             Delete(id);
         }
 
-        public int Add(string name, string role, DateOnly birthday, int salary, DateOnly hiringDate)
+        public int Add(string name, EmployeeRole role, DateOnly birthday, int salary, DateOnly hiringDate)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException("Name can not be empty.");
-            }
-            if (string.IsNullOrWhiteSpace(role))
-            {
-                throw new ArgumentException("Role can not be empty.");
             }
 
             if (salary < 0)
@@ -137,6 +143,7 @@ namespace TicketSellingModule.Data.Services
 
         public void Update(int id, string? name = null, string? role = null, int? salary = null,
                            DateOnly? birthday = null, DateOnly? hiringDate = null) // Added hiringDate
+        public void Update(int id, string? name = null, EmployeeRole? role = null, int? salary = null)
         {
             var existingEmp = employeeRepo.GetEmployeeById(id);
             if (existingEmp == null)
@@ -149,9 +156,9 @@ namespace TicketSellingModule.Data.Services
                 existingEmp.Name = name;
             }
 
-            if (role != null)
+            if (role.HasValue)
             {
-                existingEmp.Role = role;
+                existingEmp.Role = role.Value;
             }
 
             if (salary.HasValue)
