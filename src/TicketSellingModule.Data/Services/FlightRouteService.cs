@@ -63,6 +63,7 @@
 
             var allFlights = flightRepo.GetAll();
             var flightsOnSameDate = allFlights.Where(f => f.Date.Date == start_date.Date).ToList();
+            DateTime flightFullDateTime = start_date.Date.Add(dep_time.ToTimeSpan());
 
             foreach (var existingFlight in flightsOnSameDate)
             {
@@ -112,7 +113,7 @@
             Flight initialFlight = new Flight
             {
                 Route = new Route { Id = routeId },
-                Date = start_date,
+                Date = flightFullDateTime,
                 FlightNumber = flight_number,
                 Runway = new Runway { Id = runwayID },
                 Gate = new Gate { Id = gateID }
