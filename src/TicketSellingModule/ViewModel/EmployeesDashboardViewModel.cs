@@ -12,6 +12,7 @@ namespace TicketSellingModule.ViewModel
         public ObservableCollection<Employee> FlightAttendantEmployees { get; } = new();
         public ObservableCollection<Employee> CoPilotEmployees { get; } = new();
         public ObservableCollection<Employee> FlightDispatcherEmployees { get; } = new();
+        public ObservableCollection<Employee> OtherEmployees { get; } = new();
 
         [ObservableProperty]
         private Employee? selectedEmployee;
@@ -137,7 +138,9 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void AddEmployee(string targetRole)
         {
-            EditingEmployee = new Employee { Role = targetRole };
+            EmployeeRole parsedRole = ParseRoleFromUserInterface(targetRole);
+
+            EditingEmployee = new Employee { Role = parsedRole };
             EditingBirthday = null;
             EditingHiringDate = null;
             EditingSalaryText = string.Empty;
@@ -145,6 +148,23 @@ namespace TicketSellingModule.ViewModel
             DialogTitle = $"Add New {targetRole}";
             DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
+        }
+
+        private EmployeeRole ParseRoleFromUserInterface(string requestedRoleText)
+        {
+            if (string.IsNullOrWhiteSpace(requestedRoleText))
+            {
+                return EmployeeRole.Other;
+            }
+
+            string normalizedText = requestedRoleText.Replace(" ", string.Empty).Replace("-", string.Empty);
+
+            if (Enum.TryParse(normalizedText, true, out EmployeeRole result))
+            {
+                return result;
+            }
+
+            return EmployeeRole.Other;
         }
 
         [RelayCommand]

@@ -31,7 +31,6 @@ namespace TicketSellingModule.ViewModel
 
         public void Initialize(int employeeId)
         {
-            // int resolvedId = ResolveEmployeeId(employeeId);
             LoadEmployeeSchedule(employeeId);
         }
 
@@ -58,7 +57,7 @@ namespace TicketSellingModule.ViewModel
             }
 
             EmployeeIdText = employee.Id.ToString();
-            RoleText = employee.Role;
+            RoleText = employee.Role.ToString();
             var scheduleItems = flightEmployeeService.GetFormattedEmployeeSchedule(employeeId);
             foreach (var item in scheduleItems)
             {
