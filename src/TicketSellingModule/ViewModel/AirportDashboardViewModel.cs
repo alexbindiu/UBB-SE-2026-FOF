@@ -78,7 +78,7 @@ namespace TicketSellingModule.ViewModel
             EditingHandleTimeText = string.Empty;
 
             HandleTimeVisibility = Visibility.Visible;
-            CityCodeVisibility = Visibility.Visible;
+            CityCodeVisibility = Visibility.Collapsed;
 
             DialogTitle = "Add New Runway";
             DialogErrorMessage = string.Empty;
@@ -99,7 +99,7 @@ namespace TicketSellingModule.ViewModel
             EditingHandleTimeText = SelectedRunway.HandleTime.ToString();
 
             HandleTimeVisibility = Visibility.Visible;
-            CityCodeVisibility = Visibility.Visible;
+            CityCodeVisibility = Visibility.Collapsed;
 
             DialogTitle = "Edit Runway";
             DialogErrorMessage = string.Empty;
@@ -113,8 +113,8 @@ namespace TicketSellingModule.ViewModel
             EditingId = 0;
             EditingName = string.Empty;
 
-            HandleTimeVisibility = Visibility.Visible;
-            CityCodeVisibility = Visibility.Visible;
+            HandleTimeVisibility = Visibility.Collapsed;
+            CityCodeVisibility = Visibility.Collapsed;
 
             DialogTitle = "Add New Gate";
             DialogErrorMessage = string.Empty;
@@ -133,8 +133,8 @@ namespace TicketSellingModule.ViewModel
             EditingId = SelectedGate.Id;
             EditingName = SelectedGate.Name;
 
-            HandleTimeVisibility = Visibility.Visible;
-            CityCodeVisibility = Visibility.Visible;
+            HandleTimeVisibility = Visibility.Collapsed;
+            CityCodeVisibility = Visibility.Collapsed;
 
             DialogTitle = "Edit Gate";
             DialogErrorMessage = string.Empty;
@@ -150,7 +150,7 @@ namespace TicketSellingModule.ViewModel
             EditingCity = string.Empty;
             EditingCode = string.Empty;
 
-            HandleTimeVisibility = Visibility.Visible;
+            HandleTimeVisibility = Visibility.Collapsed;
             CityCodeVisibility = Visibility.Visible;
 
             DialogTitle = "Add New Airport";
@@ -172,7 +172,7 @@ namespace TicketSellingModule.ViewModel
             EditingCity = SelectedAirport.City;
             EditingCode = SelectedAirport.AirportCode;
 
-            HandleTimeVisibility = Visibility.Visible;
+            HandleTimeVisibility = Visibility.Collapsed;
             CityCodeVisibility = Visibility.Visible;
 
             DialogTitle = "Edit Airport";

@@ -169,11 +169,11 @@
                                 <TextBlock Grid.Column="1" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center" Foreground="#E0E0E0"
                                            Text="{Binding FlightNumber}"/>
                                 <TextBlock Grid.Column="2" FontSize="14" HorizontalAlignment="Center" Foreground="#E0E0E0"
-                                           Text="{Binding RouteId}"/>
+                                           Text="{Binding Route.Id}"/>
                                 <TextBlock Grid.Column="3" FontSize="14" HorizontalAlignment="Center" Foreground="#E0E0E0"
                                            Text="{Binding Date}"/>
                                 <TextBlock Grid.Column="4" FontSize="14" HorizontalAlignment="Center" Foreground="#E0E0E0"
-                                           Text="{Binding GateId}"/>
+                                           Text="{Binding Gate.Id}"/>
                                 <Button Grid.Column="5"
                                         Content="&#xE711;"
                                         FontFamily="Segoe MDL2 Assets"
