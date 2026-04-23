@@ -70,21 +70,19 @@ namespace TicketSellingModule.Data.Services
 
             if (editingEmployee.Id == 0)
             {
-                Add(
-                    name: editingEmployee.Name,
-                    role: editingEmployee.Role,
-                    birthday: finalBirthday,
-                    salary: editingEmployee.Salary,
-                    hiringDate: finalHiringDate);
+                Add(editingEmployee.Name, editingEmployee.Role,
+                            DateOnly.FromDateTime(birthday.Value.DateTime),
+                            editingEmployee.Salary,
+                            DateOnly.FromDateTime(hiringDate.Value.DateTime));
             }
             else
             {
-                Update(
-                    id: editingEmployee.Id,
-                    name: editingEmployee.Name,
-                    role: editingEmployee.Role,
-                    salary: editingEmployee.Salary,
-                    birthday: finalBirthday);
+                Update(editingEmployee.Id,
+                               editingEmployee.Name,
+                               editingEmployee.Role,
+                               editingEmployee.Salary,
+                               DateOnly.FromDateTime(birthday.Value.DateTime),
+                               DateOnly.FromDateTime(hiringDate.Value.DateTime));
             }
         }
 
@@ -137,7 +135,8 @@ namespace TicketSellingModule.Data.Services
             return employeeRepo.AddEmployee(newEmp);
         }
 
-        public void Update(int id, string? name = null, string? role = null, int? salary = null, DateOnly? birthday = null)
+        public void Update(int id, string? name = null, string? role = null, int? salary = null,
+                           DateOnly? birthday = null, DateOnly? hiringDate = null) // Added hiringDate
         {
             var existingEmp = employeeRepo.GetEmployeeById(id);
             if (existingEmp == null)
@@ -146,16 +145,30 @@ namespace TicketSellingModule.Data.Services
             }
 
             if (name != null)
+            {
                 existingEmp.Name = name;
+            }
 
             if (role != null)
+            {
                 existingEmp.Role = role;
+            }
 
             if (salary.HasValue)
+            {
                 existingEmp.Salary = salary.Value;
+            }
 
+            // Ensure these assignments are present:
             if (birthday.HasValue)
+            {
                 existingEmp.Birthday = birthday.Value;
+            }
+
+            if (hiringDate.HasValue)
+            {
+                existingEmp.HiringDate = hiringDate.Value;
+            }
 
             employeeRepo.UpdateEmployee(existingEmp);
         }

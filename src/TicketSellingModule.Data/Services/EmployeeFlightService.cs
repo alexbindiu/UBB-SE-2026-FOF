@@ -47,6 +47,11 @@ namespace TicketSellingModule.Service
                 throw new InvalidOperationException("Employee already assigned.");
             }
 
+            if (!IsEmployeeAvailable(employeeId, flight.Date, flight.Route.Id, flight.Id))
+            {
+                throw new InvalidOperationException($"Conflict: Employee is already assigned to another flight during this time.");
+            }
+
             linkRepo.AssignFlightToEmployee(employeeId, flightId);
         }
 

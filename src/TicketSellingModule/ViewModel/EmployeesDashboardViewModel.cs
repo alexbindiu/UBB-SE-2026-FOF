@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
 
+using Windows.Foundation.Metadata;
+
 namespace TicketSellingModule.ViewModel
 {
     public partial class EmployeesDashboardViewModel : ObservableObject
@@ -24,16 +26,12 @@ namespace TicketSellingModule.ViewModel
 
         [ObservableProperty]
         private Employee editingEmployee = new Employee();
-
         [ObservableProperty]
         private string dialogErrorMessage = string.Empty;
-
         [ObservableProperty]
         private DateTimeOffset? editingBirthday;
-
         [ObservableProperty]
         private DateTimeOffset? editingHiringDate;
-
         [ObservableProperty]
         private string editingSalaryText = string.Empty;
 
@@ -172,7 +170,9 @@ namespace TicketSellingModule.ViewModel
                 Id = employee.Id,
                 Name = employee.Name,
                 Role = employee.Role,
-                Salary = employee.Salary
+                Salary = employee.Salary,
+                Birthday = employee.Birthday,
+                HiringDate = employee.HiringDate
             };
             EditingSalaryText = employee.Salary.ToString();
             EditingBirthday = new DateTimeOffset(employee.Birthday.ToDateTime(TimeOnly.MinValue));
@@ -194,6 +194,16 @@ namespace TicketSellingModule.ViewModel
         {
             try
             {
+                if (EditingBirthday.HasValue)
+                {
+                    EditingEmployee.Birthday = DateOnly.FromDateTime(EditingBirthday.Value.DateTime);
+                }
+
+                if (EditingHiringDate.HasValue)
+                {
+                    EditingEmployee.HiringDate = DateOnly.FromDateTime(EditingHiringDate.Value.DateTime);
+                }
+
                 employeeService.SaveEmployee(EditingEmployee, EditingBirthday, EditingHiringDate, EditingSalaryText);
 
                 LoadData();
