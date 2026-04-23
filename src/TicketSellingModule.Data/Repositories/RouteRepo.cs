@@ -1,6 +1,8 @@
-﻿namespace TicketSellingModule.Data.Repositories
+﻿using TicketSellingModule.Data.Repositories.Interfaces;
+
+namespace TicketSellingModule.Data.Repositories
 {
-    public class RouteRepo
+    public class RouteRepo : IRouteRepo
     {
         private readonly DbConnectionFactory connectionFactory;
         public RouteRepo(DbConnectionFactory factory)

@@ -1,6 +1,8 @@
+using TicketSellingModule.Data.Services.Interfaces;
+
 namespace TicketSellingModule.Data.Services
 {
-    public class RunwayService
+    public class RunwayService : IRunwayService
     {
         private readonly RunwayRepo runwayRepo;
         private readonly FlightRepo flightRepo;
