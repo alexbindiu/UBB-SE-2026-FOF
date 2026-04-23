@@ -4,6 +4,9 @@ namespace TicketSellingModule.Data.Services
     {
         private readonly CompanyRepo companyRepo;
         private readonly FlightRouteService flightRouteService;
+        private const int InitialFlightNumber = 1000;
+        private const string DefaultFlightPrefix = "FL";
+
         public CompanyService(CompanyRepo companyRepo, FlightRouteService flightRouteService)
         {
             this.companyRepo = companyRepo;
@@ -42,7 +45,7 @@ namespace TicketSellingModule.Data.Services
         public string GenerateFlightCode(int companyId)
         {
             var company = companyRepo.GetCompanyById(companyId);
-            string prefix = "FL";
+            string prefix = DefaultFlightPrefix;
 
             if (company != null && !string.IsNullOrEmpty(company.Name))
             {
@@ -58,26 +61,30 @@ namespace TicketSellingModule.Data.Services
             }
 
             var existingFlights = flightRouteService.GetFlightsByCompany(companyId);
+            int nextNumber = InitialFlightNumber;
 
-            int nextNumber = 1000;
-
-            if (existingFlights != null && existingFlights.Any())
+            if (existingFlights != null)
             {
-                var maxNumber = existingFlights
-                    .Select(f =>
+                int maxNumber = 0;
+
+                foreach (var f in existingFlights)
+                {
+                    if (!string.IsNullOrEmpty(f.FlightNumber) && f.FlightNumber.Contains("-"))
                     {
-                        if (string.IsNullOrEmpty(f.FlightNumber) || !f.FlightNumber.Contains("-"))
+                        string[] parts = f.FlightNumber.Split('-');
+                        string lastPart = parts[parts.Length - 1];
+
+                        if (int.TryParse(lastPart, out int currentVal))
                         {
-                            return 0;
+                            if (currentVal > maxNumber)
+                            {
+                                maxNumber = currentVal;
+                            }
                         }
+                    }
+                }
 
-                        string parts = f.FlightNumber.Split('-').Last();
-                        return int.TryParse(parts, out int val) ? val : 0;
-                    })
-                    .DefaultIfEmpty(0)
-                    .Max();
-
-                if (maxNumber >= 1000)
+                if (maxNumber >= InitialFlightNumber)
                 {
                     nextNumber = maxNumber + 1;
                 }
