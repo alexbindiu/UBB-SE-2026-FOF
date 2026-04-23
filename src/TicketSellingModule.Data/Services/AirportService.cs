@@ -24,13 +24,13 @@
             return airportRepo.GetAirportById(id);
         }
 
-        public int Add(string code, string namde, string city)
+        public int Add(string code, string name, string city)
         {
             if (string.IsNullOrWhiteSpace(code))
             {
                 throw new ArgumentException("Airport code cannot be empty.");
             }
-            if (string.IsNullOrWhiteSpace(namde))
+            if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException("Airport name cannot be empty.");
             }
@@ -43,7 +43,7 @@
             Airport newAirport = new Airport
             {
                 AirportCode = code,
-                AirportName = namde,
+                AirportName = name,
                 City = city
             };
 

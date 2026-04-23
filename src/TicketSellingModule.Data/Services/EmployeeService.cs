@@ -1,4 +1,6 @@
-﻿namespace TicketSellingModule.Data.Services
+﻿using TicketSellingModule.Service;
+
+namespace TicketSellingModule.Data.Services
 {
     public class EmployeeService
     {
@@ -59,6 +61,11 @@
             var finalBirthday = DateOnly.FromDateTime(birthday.Value.DateTime);
             var finalHiringDate = DateOnly.FromDateTime(hiringDate.Value.DateTime);
 
+            if (finalBirthday > DateOnly.FromDateTime(DateTime.Now))
+            {
+                throw new ArgumentException("Birthday cannot be in the future.");
+            }
+
             editingEmployee.Salary = parsedSalary;
 
             if (editingEmployee.Id == 0)
@@ -105,6 +112,11 @@
             if (salary < 0)
             {
                 throw new ArgumentException("Salary can not be negative.");
+            }
+
+            if (birthday > DateOnly.FromDateTime(DateTime.Now))
+            {
+                throw new ArgumentException("Birthday cannot be in the future.");
             }
 
             if (hiringDate > DateOnly.FromDateTime(DateTime.Now))
