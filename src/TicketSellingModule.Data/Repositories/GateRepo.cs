@@ -1,6 +1,8 @@
-﻿namespace TicketSellingModule.Data.Repositories
+﻿using TicketSellingModule.Data.Repositories.Interfaces;
+
+namespace TicketSellingModule.Data.Repositories
 {
-    public class GateRepo
+    public class GateRepo : IGateRepo
     {
         private readonly DbConnectionFactory connectionFactory;
         public GateRepo(DbConnectionFactory factory)

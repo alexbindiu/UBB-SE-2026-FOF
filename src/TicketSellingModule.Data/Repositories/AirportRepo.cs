@@ -1,6 +1,8 @@
-﻿namespace TicketSellingModule.Data.Repositories
+﻿using TicketSellingModule.Data.Repositories.Interfaces;
+
+namespace TicketSellingModule.Data.Repositories
 {
-    public class AirportRepo
+    public class AirportRepo : IAirportRepo
     {
         private readonly DbConnectionFactory connectionFactory;
 

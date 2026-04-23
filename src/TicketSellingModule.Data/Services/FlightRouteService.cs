@@ -1,6 +1,8 @@
-﻿namespace TicketSellingModule.Data.Services
+﻿using TicketSellingModule.Data.Services.Interfaces;
+
+namespace TicketSellingModule.Data.Services
 {
-    public class FlightRouteService
+    public class FlightRouteService : IFlightRouteService
     {
         private readonly FlightRepo flightRepo;
         private readonly RouteRepo routeRepo;
