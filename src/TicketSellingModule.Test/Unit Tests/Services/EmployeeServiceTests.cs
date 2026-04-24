@@ -38,6 +38,19 @@ public class EmployeeServiceTests
     }
 
     [Fact]
+    public void GetById_Should_Return_Employee_For_Valid_Id()
+    {
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
+        var employee = new Employee { Id = 1 };
+        mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Returns(employee);
+        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
+        var result = service.GetEmployeeById(1);
+        Assert.NotNull(result);
+        Assert.Equal(1, result.Id);
+    }
+
+    [Fact]
     public void GetPilots_Should_Filter_Correctly()
     {
         var mockEmployeeRepo = new Mock<IEmployeeRepository>();
@@ -299,5 +312,57 @@ public class EmployeeServiceTests
             "1000");
 
         mockEmployeeRepo.Verify(r => r.UpdateEmployee(It.IsAny<Employee>()), Times.Once);
+    }
+
+    [Fact]
+    public void SaveEmployee_Should_Throw_For_Missing_Dates_And_Future_Birthday()
+    {
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
+        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
+        var employee = new Employee { Id = 1, Name = "Test" };
+
+        Assert.Throws<ArgumentException>(() =>
+            service.SaveEmployee(employee, null, DateTimeOffset.Now, "1000"));
+        Assert.Throws<ArgumentException>(() =>
+            service.SaveEmployee(employee, DateTimeOffset.Now, null, "1000"));
+
+        var futureDate = DateTimeOffset.Now.AddDays(1);
+        Assert.Throws<ArgumentException>(() =>
+            service.SaveEmployee(employee, futureDate, DateTimeOffset.Now, "1000"));
+    }
+
+    [Fact]
+    public void DeleteWithAssignments_Should_Throw_For_Invalid_Id()
+    {
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
+        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
+
+        Assert.Throws<ArgumentException>(() => service.DeleteWithAssignments(0));
+        Assert.Throws<ArgumentException>(() => service.DeleteWithAssignments(-1));
+    }
+
+    [Fact]
+    public void AddEmployee_Should_Throw_For_Empty_Name_And_Future_Dates()
+    {
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
+        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
+
+        var today = DateOnly.FromDateTime(DateTime.Now);
+        var future = today.AddDays(1);
+        var past = today.AddDays(-1);
+
+        Assert.Throws<ArgumentException>(() =>
+            service.AddEmployee(string.Empty, EmployeeRole.Pilot, past, 1000, past));
+        Assert.Throws<ArgumentException>(() =>
+            service.AddEmployee("   ", EmployeeRole.Pilot, past, 1000, past));
+
+        Assert.Throws<ArgumentException>(() =>
+            service.AddEmployee("Name", EmployeeRole.Pilot, future, 1000, past));
+
+        Assert.Throws<ArgumentException>(() =>
+            service.AddEmployee("Name", EmployeeRole.Pilot, past, 1000, future));
     }
 }
