@@ -4,7 +4,7 @@ public interface ICompanyRepository
 {
     List<Company> GetAllCompanies();
     Company? GetCompanyById(int companyId);
-    int AddNewCompany(Company newCompany);
+    int AddCompany(Company newCompany);
     void DeleteCompanyUsingId(int comapnyId);
     void UpdateCompany(Company updatedCompany);
 }

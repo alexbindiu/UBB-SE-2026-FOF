@@ -7,12 +7,12 @@ namespace TicketSellingModule.ViewModel
 {
     public partial class CompanyViewModel : ObservableObject
     {
-        private readonly CompanyService companyService;
-        private readonly AirportService airportService;
-        private readonly RunwayService runwayService;
-        private readonly GateService gateService;
-        private readonly FlightRouteService flightRouteService;
-        private readonly EmployeeFlightService employeeFlightService;
+        private readonly ICompanyService companyService;
+        private readonly IAirportService airportService;
+        private readonly IRunwayService runwayService;
+        private readonly IGateService gateService;
+        private readonly IFlightRouteService flightRouteService;
+        private readonly IEmployeeFlightService employeeFlightService;
 
         private int currentCompanyId;
         private List<Flight> masterCompanyFlights = new();
@@ -50,9 +50,13 @@ namespace TicketSellingModule.ViewModel
         public Visibility SingleDateVisibility => IsRecurrent ? Visibility.Collapsed : Visibility.Visible;
         public Visibility CustomDaysVisibility => RecurrenceType == "Custom" ? Visibility.Visible : Visibility.Collapsed;
 
-        public CompanyViewModel(CompanyService companyService,
-            AirportService airportService,
-            FlightRouteService flightRouteService, RunwayService runwayService, GateService gateService, EmployeeFlightService employeeFlightService)
+        public CompanyViewModel(
+            ICompanyService companyService,
+            IAirportService airportService,
+            IFlightRouteService flightRouteService,
+            IRunwayService runwayService,
+            IGateService gateService,
+            IEmployeeFlightService employeeFlightService)
         {
             this.companyService = companyService;
             this.airportService = airportService;
@@ -95,7 +99,7 @@ namespace TicketSellingModule.ViewModel
 
         public void LoadRunways()
         {
-            var runways = runwayService.GetAll();
+            var runways = runwayService.GetAllRunways();
             RunwaysList.Clear();
             foreach (var runway in runways)
             {
@@ -105,7 +109,7 @@ namespace TicketSellingModule.ViewModel
 
         public void LoadGates()
         {
-            var gates = gateService.GetAll();
+            var gates = gateService.GetAllGates();
             GatesList.Clear();
             foreach (var gate in gates)
             {
@@ -115,7 +119,7 @@ namespace TicketSellingModule.ViewModel
 
         public List<Company> GetAllCompanies()
         {
-            var companies = companyService.GetAll();
+            var companies = companyService.GetAllCompanies();
             CompaniesList.Clear();
             foreach (var company in companies)
             {
@@ -130,7 +134,7 @@ namespace TicketSellingModule.ViewModel
 
         public List<Airport> GetAllAirports()
         {
-            var airports = airportService.GetAll();
+            var airports = airportService.GetAllAirports();
             AirportsList.Clear();
             foreach (var airport in airports)
             {
@@ -181,8 +185,8 @@ namespace TicketSellingModule.ViewModel
 
             try
             {
-                employeeFlightService.CleanUpFlightAssignments(flightId);
-                flightRouteService.DeleteFlight(flightId);
+                employeeFlightService.RemoveAllCrewAssignmentsForFlight(flightId);
+                flightRouteService.DeleteFlightUsingId(flightId);
 
                 GetCompanyFlights(currentCompanyId);
             }
@@ -225,7 +229,7 @@ namespace TicketSellingModule.ViewModel
                 CustomDaysText,
                 SelectedRunway.Id,
                 SelectedGate.Id,
-                companyService.GenerateFlightCode);
+                companyService.GenerateFlightCodeUsingCompanyId);
 
             GetCompanyFlights(currentCompanyId);
             ClearInputs();

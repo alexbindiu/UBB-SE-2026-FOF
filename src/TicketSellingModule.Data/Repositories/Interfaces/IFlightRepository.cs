@@ -3,12 +3,12 @@
 public interface IFlightRepository
 {
     List<Flight> GetAllFlights();
-    Flight? GetById(int flightId);
+    Flight? GetFlightById(int flightId);
     List<Flight> GetFlightsByRouteId(int routeId);
     List<Flight> GetFlightsByRunwayId(int runwayId);
     List<Flight> GetFlightsByGateId(int gateId);
     List<Flight> GetFlightsByAirportId(int airportId);
-    int Addlight(Flight newFlight);
+    int AddFlight(Flight newFlight);
     void UpdateFlight(Flight updatedFlight);
     void DeleteFlightUsingId(int flightid);
 }

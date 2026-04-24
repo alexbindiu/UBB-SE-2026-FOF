@@ -1,54 +1,58 @@
-using TicketSellingModule.Data.Services.Interfaces;
-
 namespace TicketSellingModule.Data.Services
 {
-    public class EmployeeService : IEmployeeService
+    public class EmployeeService(
+        IEmployeeRepository employeeRepository,
+        IEmployeeFlightService employeeFlightService) : IEmployeeService
     {
-        private readonly EmployeeRepository employeeRepo;
-        private readonly EmployeeFlightService employeeFlightService;
-
-        public EmployeeService(EmployeeRepository employeeRepo, EmployeeFlightService employeeFlightService)
+        public List<Employee> GetAllEmployees()
         {
-            this.employeeRepo = employeeRepo;
-            this.employeeFlightService = employeeFlightService;
+            return employeeRepository.GetAllEmployees();
         }
 
-        public List<Employee> GetAll()
+        public Employee? GetEmployeeById(int employeeId)
         {
-            return employeeRepo.GetAllEmployees();
-        }
-
-        public Employee? GetById(int id)
-        {
-            if (id <= 0)
+            if (employeeId <= 0)
             {
                 return null;
             }
 
-            return employeeRepo.GetEmployeeById(id);
+            return employeeRepository.GetEmployeeById(employeeId);
         }
 
-        public List<Employee> GetPilots() => GetByRole(EmployeeRole.Pilot);
-
-        public List<Employee> GetFlightAttendants() => GetByRole(EmployeeRole.FlightAttendant);
-
-        public List<Employee> GetCoPilots() => GetByRole(EmployeeRole.CoPilot);
-
-        public List<Employee> GetFlightDispatchers() => GetByRole(EmployeeRole.FlightDispatcher);
-
-        private List<Employee> GetByRole(EmployeeRole role)
+        public List<Employee> GetPilots()
         {
-            List<Employee> allEmployees = GetAll();
-            List<Employee> filtered = new List<Employee>();
+            return this.GetEmployeeByRole(EmployeeRole.Pilot);
+        }
 
-            foreach (Employee e in allEmployees)
+        public List<Employee> GetFlightAttendants()
+        {
+            return this.GetEmployeeByRole(EmployeeRole.FlightAttendant);
+        }
+
+        public List<Employee> GetCoPilots()
+        {
+            return this.GetEmployeeByRole(EmployeeRole.CoPilot);
+        }
+
+        public List<Employee> GetFlightDispatchers()
+        {
+            return this.GetEmployeeByRole(EmployeeRole.FlightDispatcher);
+        }
+
+        private List<Employee> GetEmployeeByRole(EmployeeRole role)
+        {
+            List<Employee> allEmployees = this.GetAllEmployees();
+            List<Employee> filteredEmployees = new List<Employee>();
+
+            foreach (Employee employee in allEmployees)
             {
-                if (e.Role == role)
+                if (employee.Role == role)
                 {
-                    filtered.Add(e);
+                    filteredEmployees.Add(employee);
                 }
             }
-            return filtered;
+
+            return filteredEmployees;
         }
 
         public void SaveEmployee(Employee editingEmployee, DateTimeOffset? birthday, DateTimeOffset? hiringDate, string salaryText)
@@ -68,8 +72,8 @@ namespace TicketSellingModule.Data.Services
                 throw new ArgumentException("Salary must be a valid number.");
             }
 
-            var finalBirthday = DateOnly.FromDateTime(birthday.Value.DateTime);
-            var finalHiringDate = DateOnly.FromDateTime(hiringDate.Value.DateTime);
+            DateOnly finalBirthday = DateOnly.FromDateTime(birthday.Value.DateTime);
+            DateOnly finalHiringDate = DateOnly.FromDateTime(hiringDate.Value.DateTime);
 
             if (finalBirthday > DateOnly.FromDateTime(DateTime.Now))
             {
@@ -80,34 +84,37 @@ namespace TicketSellingModule.Data.Services
 
             if (editingEmployee.Id == 0)
             {
-                Add(editingEmployee.Name, editingEmployee.Role,
-                            DateOnly.FromDateTime(birthday.Value.DateTime),
-                            editingEmployee.Salary,
-                            DateOnly.FromDateTime(hiringDate.Value.DateTime));
+                this.AddEmployee(
+                    editingEmployee.Name,
+                    editingEmployee.Role,
+                    finalBirthday,
+                    editingEmployee.Salary,
+                    finalHiringDate);
             }
             else
             {
-                Update(editingEmployee.Id,
-                               editingEmployee.Name,
-                               editingEmployee.Role,
-                               editingEmployee.Salary,
-                               DateOnly.FromDateTime(birthday.Value.DateTime),
-                               DateOnly.FromDateTime(hiringDate.Value.DateTime));
+                this.UpdateEmployee(
+                    editingEmployee.Id,
+                    editingEmployee.Name,
+                    editingEmployee.Role,
+                    editingEmployee.Salary,
+                    finalBirthday,
+                    finalHiringDate);
             }
         }
 
-        public void DeleteWithAssignments(int id)
+        public void DeleteWithAssignments(int employeeId)
         {
-            if (id <= 0)
+            if (employeeId <= 0)
             {
                 throw new ArgumentException("Invalid employee selected.");
             }
 
-            employeeFlightService.CleanUpEmployeeAssignments(id);
-            Delete(id);
+            employeeFlightService.RemoveAllFlightsAssignmentsForEmployee(employeeId);
+            this.DeleteEmployeeUsingId(employeeId);
         }
 
-        public int Add(string name, EmployeeRole role, DateOnly birthday, int salary, DateOnly hiringDate)
+        public int AddEmployee(string name, EmployeeRole role, DateOnly birthday, int salary, DateOnly hiringDate)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -129,7 +136,7 @@ namespace TicketSellingModule.Data.Services
                 throw new ArgumentException("Hiring date can not be in the future.");
             }
 
-            Employee newEmp = new Employee
+            Employee newEmployee = new Employee
             {
                 Name = name,
                 Role = role,
@@ -138,53 +145,60 @@ namespace TicketSellingModule.Data.Services
                 HiringDate = hiringDate
             };
 
-            return employeeRepo.AddEmployee(newEmp);
+            return employeeRepository.AddEmployee(newEmployee);
         }
 
-        public void Update(int id, string? name = null, EmployeeRole? role = null, int? salary = null, DateOnly? birthday = null, DateOnly? hiringDate = null)
+        public void UpdateEmployee(
+            int employeeId,
+            string? name = null,
+            EmployeeRole? role = null,
+            int? salary = null,
+            DateOnly? birthday = null,
+            DateOnly? hiringDate = null)
         {
-            var existingEmp = employeeRepo.GetEmployeeById(id);
-            if (existingEmp == null)
+            Employee? existingEmployee = employeeRepository.GetEmployeeById(employeeId);
+
+            if (existingEmployee == null)
             {
                 return;
             }
 
             if (name != null)
             {
-                existingEmp.Name = name;
+                existingEmployee.Name = name;
             }
 
             if (role.HasValue)
             {
-                existingEmp.Role = role.Value;
+                existingEmployee.Role = role.Value;
             }
 
             if (salary.HasValue)
             {
-                existingEmp.Salary = salary.Value;
+                existingEmployee.Salary = salary.Value;
             }
 
             if (birthday.HasValue)
             {
-                existingEmp.Birthday = birthday.Value;
+                existingEmployee.Birthday = birthday.Value;
             }
 
             if (hiringDate.HasValue)
             {
-                existingEmp.HiringDate = hiringDate.Value;
+                existingEmployee.HiringDate = hiringDate.Value;
             }
 
-            employeeRepo.UpdateEmployee(existingEmp);
+            employeeRepository.UpdateEmployee(existingEmployee);
         }
 
-        public void Delete(int id)
+        public void DeleteEmployeeUsingId(int employeeId)
         {
-            if (id <= 0)
+            if (employeeId <= 0)
             {
                 return;
             }
 
-            employeeRepo.DeleteEmployee(id);
+            employeeRepository.DeleteEmployee(employeeId);
         }
     }
 }

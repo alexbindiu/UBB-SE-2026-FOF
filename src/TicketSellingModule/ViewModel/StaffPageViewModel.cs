@@ -9,8 +9,8 @@ namespace TicketSellingModule.ViewModel
 {
     public partial class StaffPageViewModel : ObservableObject
     {
-        private readonly EmployeeService employeeService;
-        private readonly EmployeeFlightService flightEmployeeService;
+        private readonly IEmployeeService employeeService;
+        private readonly IEmployeeFlightService flightEmployeeService;
 
         private int currentEmployeeId;
 
@@ -22,8 +22,8 @@ namespace TicketSellingModule.ViewModel
         [ObservableProperty] private Visibility emptyStateVisibility = Visibility.Collapsed;
 
         public StaffPageViewModel(
-            EmployeeService employeeService,
-            EmployeeFlightService flightEmployeeService)
+            IEmployeeService employeeService,
+            IEmployeeFlightService flightEmployeeService)
         {
             this.employeeService = employeeService;
             this.flightEmployeeService = flightEmployeeService;
@@ -49,7 +49,7 @@ namespace TicketSellingModule.ViewModel
 
             currentEmployeeId = employeeId;
 
-            var employee = employeeService.GetById(employeeId);
+            var employee = employeeService.GetEmployeeById(employeeId);
             if (employee == null)
             {
                 ResetEmployeeInfo();

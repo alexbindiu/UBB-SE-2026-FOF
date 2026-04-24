@@ -1,5 +1,3 @@
-using TicketSellingModule.Data.Repositories.Interfaces;
-
 namespace TicketSellingModule.Data.Repositories
 {
     public class FlightRepository(DatabaseConnectionFactory databaseConnectionFactory) : IFlightRepository
@@ -52,7 +50,7 @@ namespace TicketSellingModule.Data.Repositories
             return flights;
         }
 
-        public Flight? GetById(int flightId)
+        public Flight? GetFlightById(int flightId)
         {
             using SqlConnection databaseConnection = databaseConnectionFactory.GetConnection();
             databaseConnection.Open();
@@ -182,7 +180,7 @@ namespace TicketSellingModule.Data.Repositories
             return flights;
         }
 
-        public int Addlight(Flight flight)
+        public int AddFlight(Flight flight)
         {
             using SqlConnection databaseConnection = databaseConnectionFactory.GetConnection();
             databaseConnection.Open();
