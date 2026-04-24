@@ -23,15 +23,15 @@ namespace TicketSellingModule.WinUI
             {
                 ViewModel = context.Item1;
                 DataContext = ViewModel;
-                ViewModel.LoadGates();
-                ViewModel.LoadRunways();
-                ViewModel.InitializeCompany(context.Item2);
+                ViewModel.RefreshGatesList();
+                ViewModel.RefreshRunwaysList();
+                ViewModel.InitializeCompanyDashboard(context.Item2);
             }
         }
 
         private async void AddFlightButton_Click(object sender, RoutedEventArgs e)
         {
-            ViewModel.ClearInputs();
+            ViewModel.ResetInputFields();
             await AddFlightDialog.ShowAsync();
         }
 

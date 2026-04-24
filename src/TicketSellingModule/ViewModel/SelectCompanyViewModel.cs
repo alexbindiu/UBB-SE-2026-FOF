@@ -24,10 +24,11 @@ namespace TicketSellingModule.ViewModel
         private void LoadCompanies()
         {
             Companies.Clear();
-            var list = companyService.GetAllCompanies();
-            foreach (var company in list)
+            List<Company> availableCompanies = companyService.GetAllCompanies();
+
+            foreach (Company company in availableCompanies)
             {
-                Companies.Add(company);
+                this.Companies.Add(company);
             }
         }
 
