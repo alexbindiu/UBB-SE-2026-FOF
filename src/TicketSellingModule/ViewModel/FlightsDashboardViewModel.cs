@@ -3,14 +3,15 @@ using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
 
+using TicketSellingModule.Data.Services.Interfaces;
 using TicketSellingModule.WinUI.AirportAdmin.Components;
 
 namespace TicketSellingModule.ViewModel
 {
     public partial class FlightsDashboardViewModel : ObservableObject
     {
-        private readonly FlightRouteService flightRouteService;
-        private readonly EmployeeFlightService flightEmployeeService;
+        private readonly IFlightRouteService flightRouteService;
+        private readonly IEmployeeFlightService flightEmployeeService;
 
         private List<Flight> allFlights = new();
 
@@ -24,8 +25,8 @@ namespace TicketSellingModule.ViewModel
         public ObservableCollection<FlightRow> FilteredFlights { get; } = new();
 
         public FlightsDashboardViewModel(
-            FlightRouteService flightRouteService,
-            EmployeeFlightService flightEmployeeService)
+            IFlightRouteService flightRouteService,
+            IEmployeeFlightService flightEmployeeService)
         {
             this.flightRouteService = flightRouteService;
             this.flightEmployeeService = flightEmployeeService;

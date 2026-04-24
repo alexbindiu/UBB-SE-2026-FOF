@@ -5,12 +5,12 @@ namespace TicketSellingModule.Data.Services
 {
     public class CompanyService : ICompanyService
     {
-        private readonly CompanyRepository companyRepo;
-        private readonly FlightRouteService flightRouteService;
+        private readonly ICompanyRepository companyRepo;
+        private readonly IFlightRouteService flightRouteService;
         private const int InitialFlightNumber = 1000;
         private const string DefaultFlightPrefix = "FL";
 
-        public CompanyService(CompanyRepository companyRepo, FlightRouteService flightRouteService)
+        public CompanyService(ICompanyRepository companyRepo, IFlightRouteService flightRouteService)
         {
             this.companyRepo = companyRepo;
             this.flightRouteService = flightRouteService;

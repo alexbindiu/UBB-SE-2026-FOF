@@ -5,9 +5,9 @@ namespace TicketSellingModule.Data.Services
 {
     public class RunwayService : IRunwayService
     {
-        private readonly RunwayRepository runwayRepo;
-        private readonly FlightRepository flightRepo;
-        public RunwayService(RunwayRepository runwayRepo, FlightRepository flightRepo)
+        private readonly IRunwayRepository runwayRepo;
+        private readonly IFlightRepository flightRepo;
+        public RunwayService(IRunwayRepository runwayRepo, IFlightRepository flightRepo)
         {
             this.runwayRepo = runwayRepo;
             this.flightRepo = flightRepo;

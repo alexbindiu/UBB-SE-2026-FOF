@@ -5,9 +5,9 @@ namespace TicketSellingModule.Data.Services
 {
     public class FlightService : IFlightService
     {
-        private readonly FlightRepository flightRepo;
+        private readonly IFlightRepository flightRepo;
 
-        public FlightService(FlightRepository flightRepo)
+        public FlightService(IFlightRepository flightRepo)
         {
             this.flightRepo = flightRepo;
         }
@@ -58,7 +58,7 @@ namespace TicketSellingModule.Data.Services
                 Gate = new Gate { Id = gateId }
             };
 
-            return flightRepo.Addlight(newFlight);
+            return flightRepo.AddFlight(newFlight);
         }
 
         public void Update(int id, DateTime? date = null, string? flightNumber = null,

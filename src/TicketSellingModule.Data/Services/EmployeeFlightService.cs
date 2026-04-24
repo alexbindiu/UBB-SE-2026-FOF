@@ -5,22 +5,22 @@ namespace TicketSellingModule.Data.Services
 {
     public class EmployeeFlightService : IEmployeeFlightService
     {
-        private readonly EmployeeFlightRepository linkRepo;
-        private readonly EmployeeRepository employeeRepo;
-        private readonly FlightRepository flightRepo;
-        private readonly RouteRepository routeRepo;
-        private readonly GateService gateService;
-        private readonly RunwayService runwayService;
-        private readonly RouteService routeService;
+        private readonly IEmployeeFlightRepository linkRepo;
+        private readonly IEmployeeRepository employeeRepo;
+        private readonly IFlightRepository flightRepo;
+        private readonly IRouteRepository routeRepo;
+        private readonly IGateService gateService;
+        private readonly IRunwayService runwayService;
+        private readonly IRouteService routeService;
 
         public EmployeeFlightService(
-            EmployeeFlightRepository linkRepo,
-            EmployeeRepository employeeRepo,
-            FlightRepository flightRepo,
-            RouteRepository routeRepo,
-            GateService gateService,
-            RunwayService runwayService,
-            RouteService routeService)
+            IEmployeeFlightRepository linkRepo,
+            IEmployeeRepository employeeRepo,
+            IFlightRepository flightRepo,
+            IRouteRepository routeRepo,
+            IGateService gateService,
+            IRunwayService runwayService,
+            IRouteService routeService)
         {
             this.linkRepo = linkRepo ?? throw new ArgumentNullException(nameof(linkRepo));
             this.employeeRepo = employeeRepo ?? throw new ArgumentNullException(nameof(employeeRepo));

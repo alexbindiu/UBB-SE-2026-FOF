@@ -3,11 +3,13 @@ using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
 
+using TicketSellingModule.Data.Services.Interfaces;
+
 namespace TicketSellingModule.ViewModel
 {
     public partial class EmployeesDashboardViewModel : ObservableObject
     {
-        private readonly EmployeeService employeeService;
+        private readonly IEmployeeService employeeService;
         public ObservableCollection<Employee> PilotEmployees { get; } = new();
         public ObservableCollection<Employee> FlightAttendantEmployees { get; } = new();
         public ObservableCollection<Employee> CoPilotEmployees { get; } = new();
@@ -44,7 +46,7 @@ namespace TicketSellingModule.ViewModel
         private string deleteErrorMessage = string.Empty;
         public bool IsConfirmationVisible => EmployeeToDelete != null;
         public bool IsErrorOnlyVisible => EmployeeToDelete == null && !string.IsNullOrEmpty(DeleteErrorMessage);
-        public EmployeesDashboardViewModel(EmployeeService employeeService)
+        public EmployeesDashboardViewModel(IEmployeeService employeeService)
         {
             this.employeeService = employeeService;
         }

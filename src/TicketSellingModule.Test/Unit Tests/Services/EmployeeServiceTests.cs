@@ -14,7 +14,7 @@ public class EmployeeServiceTests
     [Fact]
     public void GetAll_Should_Return_All_Employees()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
         var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
 
         var employees = new List<Employee> { new Employee(), new Employee() };
@@ -31,7 +31,7 @@ public class EmployeeServiceTests
     public void GetById_Should_Return_Null_For_Invalid_Id()
     {
         var service = new EmployeeService(
-            new Mock<IEmployeeRepo>().Object,
+            new Mock<IEmployeeRepository>().Object,
             new Mock<IEmployeeFlightService>().Object);
 
         Assert.Null(service.GetById(0));
@@ -40,7 +40,7 @@ public class EmployeeServiceTests
     [Fact]
     public void GetPilots_Should_Filter_Correctly()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
         var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
 
         var employees = new List<Employee>
@@ -62,7 +62,7 @@ public class EmployeeServiceTests
     [Fact]
     public void GetCoPilots_Should_Filter_Correctly()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
         var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
 
         var employees = new List<Employee>
@@ -84,7 +84,7 @@ public class EmployeeServiceTests
     [Fact]
     public void GetFlightAttendants_Should_Filter_Correctly()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
         var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
 
         var employees = new List<Employee>
@@ -106,7 +106,7 @@ public class EmployeeServiceTests
     [Fact]
     public void GetFlightDispatchers_Should_Filter_Correctly()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
         var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
 
         var employees = new List<Employee>
@@ -128,7 +128,7 @@ public class EmployeeServiceTests
     [Fact]
     public void Add_Should_Throw_For_Invalid_Inputs()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
         var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
 
         var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
@@ -143,7 +143,7 @@ public class EmployeeServiceTests
     [Fact]
     public void Add_Should_Work()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
         var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
 
         mockEmployeeRepo.Setup(r => r.AddEmployee(It.IsAny<Employee>())).Returns(10);
@@ -163,7 +163,7 @@ public class EmployeeServiceTests
     [Fact]
     public void Update_Should_Do_Nothing_If_Not_Found()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
         var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
 
         var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
@@ -178,7 +178,7 @@ public class EmployeeServiceTests
     [Fact]
     public void Update_Should_Update_All_Fields()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
         var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
 
         var employee = new Employee { Id = 1, Name = "Old" };
@@ -202,7 +202,7 @@ public class EmployeeServiceTests
     [Fact]
     public void Delete_Should_Not_Call_Repo_For_Invalid_Id()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
         var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
         var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
 
@@ -214,7 +214,7 @@ public class EmployeeServiceTests
     [Fact]
     public void DeleteWithAssignments_Should_Call_Cleanup_And_Delete()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
         var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
 
         var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
@@ -228,7 +228,7 @@ public class EmployeeServiceTests
     [Fact]
     public void SaveEmployee_Should_Throw_For_Null_Employee()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
         var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
 
         var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
@@ -240,7 +240,7 @@ public class EmployeeServiceTests
     [Fact]
     public void SaveEmployee_Should_Throw_For_Invalid_Salary()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
         var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
 
         var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
@@ -254,7 +254,7 @@ public class EmployeeServiceTests
     [Fact]
     public void SaveEmployee_Should_Call_Add_For_New_Employee()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
         var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
 
         var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
@@ -279,7 +279,7 @@ public class EmployeeServiceTests
     [Fact]
     public void SaveEmployee_Should_Call_Update_For_Existing_Employee()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
         var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
 
         var emp = new Employee

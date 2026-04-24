@@ -3,13 +3,15 @@ using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
 
+using TicketSellingModule.Data.Services.Interfaces;
+
 namespace TicketSellingModule.ViewModel
 {
     public partial class AirportDashboardViewModel : ObservableObject
     {
-        private readonly AirportService airportService;
-        private readonly RunwayService runwayService;
-        private readonly GateService gateService;
+        private readonly IAirportService airportService;
+        private readonly IRunwayService runwayService;
+        private readonly IGateService gateService;
 
         public ObservableCollection<Runway> RunwaysList { get; } = new();
         public ObservableCollection<Gate> GatesList { get; } = new();
@@ -37,7 +39,7 @@ namespace TicketSellingModule.ViewModel
 
         private string currentEntity = string.Empty;
 
-        public AirportDashboardViewModel(AirportService airportService, RunwayService runwayService, GateService gateService)
+        public AirportDashboardViewModel(IAirportService airportService, IRunwayService runwayService, IGateService gateService)
         {
             this.airportService = airportService;
             this.runwayService = runwayService;

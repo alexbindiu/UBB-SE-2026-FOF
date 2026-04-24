@@ -182,7 +182,7 @@ namespace TicketSellingModule.Data.Repositories
             return flights;
         }
 
-        public int Addlight(Flight flight)
+        public int AddFlight(Flight flight)
         {
             using SqlConnection databaseConnection = databaseConnectionFactory.GetConnection();
             databaseConnection.Open();

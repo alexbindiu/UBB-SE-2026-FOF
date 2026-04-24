@@ -5,9 +5,9 @@ namespace TicketSellingModule.Data.Services
 {
     public class GateService : IGateService
     {
-        private readonly GateRepository gateRepo;
-        private readonly FlightRepository flightRepo;
-        public GateService(GateRepository gateRepo, FlightRepository flightRepo)
+        private readonly IGateRepository gateRepo;
+        private readonly IFlightRepository flightRepo;
+        public GateService(IGateRepository gateRepo, IFlightRepository flightRepo)
         {
             this.gateRepo = gateRepo;
             this.flightRepo = flightRepo;

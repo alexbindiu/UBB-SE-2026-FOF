@@ -14,7 +14,7 @@ public class CompanyServiceTests
     [Fact]
     public void Add_Should_Throw_Exception_For_Null_Or_Whitespace_Name()
     {
-        var mockRepo = new Mock<ICompanyRepo>();
+        var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
@@ -27,7 +27,7 @@ public class CompanyServiceTests
     [Fact]
     public void Add_Should_Work()
     {
-        var mockRepo = new Mock<ICompanyRepo>();
+        var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         mockRepo.Setup(r => r.AddNewCompany(It.IsAny<Company>())).Returns(1);
@@ -42,7 +42,7 @@ public class CompanyServiceTests
     [Fact]
     public void GetAll_Should_Return_All_Companies()
     {
-        var mockRepo = new Mock<ICompanyRepo>();
+        var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         var companies = new List<Company> { new Company(), new Company() };
@@ -59,7 +59,7 @@ public class CompanyServiceTests
     [Fact]
     public void GetCompanyById_Should_Return_Null_For_Invalid_Id()
     {
-        var mockRepo = new Mock<ICompanyRepo>();
+        var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
@@ -72,7 +72,7 @@ public class CompanyServiceTests
     [Fact]
     public void GetCompanyById_Should_Return_Company()
     {
-        var mockRepo = new Mock<ICompanyRepo>();
+        var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         var company = new Company { Name = "Test" };
@@ -89,7 +89,7 @@ public class CompanyServiceTests
     [Fact]
     public void GenerateFlightCode_Should_Use_Default_Prefix_When_Company_Not_Found()
     {
-        var mockRepo = new Mock<ICompanyRepo>();
+        var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         mockRepo.Setup(r => r.GetCompanyById(1)).Returns((Company)null);
@@ -105,7 +105,7 @@ public class CompanyServiceTests
     [Fact]
     public void GenerateFlightCode_Should_Use_Initials_For_Two_Words()
     {
-        var mockRepo = new Mock<ICompanyRepo>();
+        var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         mockRepo.Setup(r => r.GetCompanyById(1))
@@ -124,7 +124,7 @@ public class CompanyServiceTests
     [Fact]
     public void GenerateFlightCode_Should_Use_First_Two_Letters_For_One_Word()
     {
-        var mockRepo = new Mock<ICompanyRepo>();
+        var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         mockRepo.Setup(r => r.GetCompanyById(1))
@@ -143,7 +143,7 @@ public class CompanyServiceTests
     [Fact]
     public void GenerateFlightCode_Should_Start_From_Initial_Number()
     {
-        var mockRepo = new Mock<ICompanyRepo>();
+        var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         mockRepo.Setup(r => r.GetCompanyById(1))
@@ -162,7 +162,7 @@ public class CompanyServiceTests
     [Fact]
     public void GenerateFlightCode_Should_Increment_Max_Flight_Number()
     {
-        var mockRepo = new Mock<ICompanyRepo>();
+        var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         mockRepo.Setup(r => r.GetCompanyById(1))
@@ -187,7 +187,7 @@ public class CompanyServiceTests
     [Fact]
     public void GenerateFlightCode_Should_Ignore_Invalid_FlightNumbers()
     {
-        var mockRepo = new Mock<ICompanyRepo>();
+        var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         mockRepo.Setup(r => r.GetCompanyById(1))
@@ -212,7 +212,7 @@ public class CompanyServiceTests
     [Fact]
     public void Update_Should_Do_Nothing_If_Company_Not_Found()
     {
-        var mockRepo = new Mock<ICompanyRepo>();
+        var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         mockRepo.Setup(r => r.GetCompanyById(1)).Returns((Company)null);
@@ -227,7 +227,7 @@ public class CompanyServiceTests
     [Fact]
     public void Update_Should_Throw_For_Whitespace_Name()
     {
-        var mockRepo = new Mock<ICompanyRepo>();
+        var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         var company = new Company { Name = "Old" };
@@ -242,7 +242,7 @@ public class CompanyServiceTests
     [Fact]
     public void Update_Should_Update_Name()
     {
-        var mockRepo = new Mock<ICompanyRepo>();
+        var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         var company = new Company { Name = "Old" };
@@ -260,26 +260,26 @@ public class CompanyServiceTests
     [Fact]
     public void Delete_Should_Not_Call_Repo_For_Invalid_Id()
     {
-        var mockRepo = new Mock<ICompanyRepo>();
+        var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
 
         service.Delete(0);
 
-        mockRepo.Verify(r => r.DeleteCompany(It.IsAny<int>()), Times.Never);
+        mockRepo.Verify(r => r.DeleteCompanyUsingId(It.IsAny<int>()), Times.Never);
     }
 
     [Fact]
     public void Delete_Should_Call_Repo_For_Valid_Id()
     {
-        var mockRepo = new Mock<ICompanyRepo>();
+        var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
 
         service.Delete(3);
 
-        mockRepo.Verify(r => r.DeleteCompany(3), Times.Once);
+        mockRepo.Verify(r => r.DeleteCompanyUsingId(3), Times.Once);
     }
 }

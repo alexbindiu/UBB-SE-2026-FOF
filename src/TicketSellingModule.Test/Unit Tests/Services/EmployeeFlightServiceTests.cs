@@ -14,10 +14,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void Constructor_Should_Throw_When_Dependencies_Are_Null()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -29,10 +29,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void AssignCrewMember_Should_Throw_For_Invalid_Id()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -48,10 +48,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void AssignCrewMember_Should_Throw_When_Employee_Or_Flight_Missing()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -69,10 +69,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void AssignCrewMember_Should_Throw_When_Already_Assigned()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -84,7 +84,7 @@ public class EmployeeFlightServiceTests
         mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Returns(new Employee());
         mockFlightRepo.Setup(r => r.GetById(1)).Returns(new Flight { Id = 1, Route = new Route { Id = 1 }, Date = DateTime.Today });
 
-        mockEmployeeFlightRepo.Setup(r => r.GetEmployeesByFlight(1)).Returns(new List<int> { 1 });
+        mockEmployeeFlightRepo.Setup(r => r.GetEmployeesByFlightId(1)).Returns(new List<int> { 1 });
 
         Assert.Throws<InvalidOperationException>(() => service.AssignCrewMember(1, 1));
     }
@@ -92,10 +92,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void AssignCrewMember_Should_Throw_When_Not_Available()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -108,7 +108,7 @@ public class EmployeeFlightServiceTests
 
         mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Returns(new Employee { Name = "Test" });
         mockFlightRepo.Setup(r => r.GetById(1)).Returns(flight);
-        mockEmployeeFlightRepo.Setup(r => r.GetEmployeesByFlight(1)).Returns(new List<int>());
+        mockEmployeeFlightRepo.Setup(r => r.GetEmployeesByFlightId(1)).Returns(new List<int>());
 
         mockRouteRepo.Setup(r => r.GetRouteById(It.IsAny<int>())).Returns((Route)null);
 
@@ -118,10 +118,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void AssignCrewMember_Should_Work()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -134,27 +134,27 @@ public class EmployeeFlightServiceTests
 
         mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Returns(new Employee());
         mockFlightRepo.Setup(r => r.GetById(1)).Returns(flight);
-        mockEmployeeFlightRepo.Setup(r => r.GetEmployeesByFlight(1)).Returns(new List<int>());
+        mockEmployeeFlightRepo.Setup(r => r.GetEmployeesByFlightId(1)).Returns(new List<int>());
         mockRouteRepo.Setup(r => r.GetRouteById(It.IsAny<int>())).Returns(new Route
         {
             DepartureTime = TimeOnly.FromDateTime(DateTime.Today),
             ArrivalTime = TimeOnly.FromDateTime(DateTime.Today.AddHours(1))
         });
 
-        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployee(1)).Returns(new List<int>());
+        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(1)).Returns(new List<int>());
 
         service.AssignCrewMember(1, 1);
 
-        mockEmployeeFlightRepo.Verify(r => r.AssignFlightToEmployee(1, 1), Times.Once);
+        mockEmployeeFlightRepo.Verify(r => r.AssignFlightToEmployeesUsingIds(1, 1), Times.Once);
     }
 
     [Fact]
     public void CleanUpFlightAssignments_Should_Call_When_Valid()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -171,10 +171,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void CleanUpEmployeeAssignments_Should_Not_Call_For_Invalid_Id()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -191,10 +191,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void GetFlightCrew_Should_Return_Only_Existing_Employees()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -203,7 +203,7 @@ public class EmployeeFlightServiceTests
             mockFlightRepo.Object, mockRouteRepo.Object,
             mockGateService.Object, mockRunwayService.Object, mockRouteService.Object);
 
-        mockEmployeeFlightRepo.Setup(r => r.GetEmployeesByFlight(1)).Returns(new List<int> { 1, 2 });
+        mockEmployeeFlightRepo.Setup(r => r.GetEmployeesByFlightId(1)).Returns(new List<int> { 1, 2 });
 
         mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Returns(new Employee { Id = 1 });
         mockEmployeeRepo.Setup(r => r.GetEmployeeById(2)).Returns((Employee)null);
@@ -216,10 +216,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void GetEmployeeSchedule_Should_Return_Empty_For_Invalid_Id()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -236,10 +236,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void IsEmployeeAvailable_Should_Return_False_When_Route_Not_Found()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -258,10 +258,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void IsEmployeeAvailable_Should_Return_False_When_Overlap()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -287,7 +287,7 @@ public class EmployeeFlightServiceTests
         mockRouteRepo.Setup(r => r.GetRouteById(1)).Returns(targetRoute);
         mockRouteRepo.Setup(r => r.GetRouteById(2)).Returns(existingRoute);
 
-        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployee(1)).Returns(new List<int> { 2 });
+        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(1)).Returns(new List<int> { 2 });
         mockFlightRepo.Setup(r => r.GetById(2)).Returns(new Flight
         {
             Id = 2,
@@ -303,10 +303,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void IsEmployeeAvailable_Should_Return_True_When_No_Overlap()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -323,7 +323,7 @@ public class EmployeeFlightServiceTests
         };
 
         mockRouteRepo.Setup(r => r.GetRouteById(It.IsAny<int>())).Returns(route);
-        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployee(1)).Returns(new List<int>());
+        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(1)).Returns(new List<int>());
 
         var result = service.IsEmployeeAvailable(1, DateTime.Today, 1);
 
@@ -333,10 +333,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void AssignCrewToFlight_Should_Continue_On_Exception()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -355,10 +355,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void UpdateCrewForFlight_Should_Add_And_Remove_Correctly()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -367,26 +367,26 @@ public class EmployeeFlightServiceTests
             mockFlightRepo.Object, mockRouteRepo.Object,
             mockGateService.Object, mockRunwayService.Object, mockRouteService.Object);
 
-        mockEmployeeFlightRepo.Setup(r => r.GetEmployeesByFlight(1))
+        mockEmployeeFlightRepo.Setup(r => r.GetEmployeesByFlightId(1))
             .Returns(new List<int> { 1, 2 });
 
         mockEmployeeRepo.Setup(r => r.GetEmployeeById(It.IsAny<int>())).Returns(new Employee());
         mockFlightRepo.Setup(r => r.GetById(It.IsAny<int>())).Returns(new Flight { Id = 1, Route = new Route { Id = 1 }, Date = DateTime.Today });
         mockRouteRepo.Setup(r => r.GetRouteById(It.IsAny<int>())).Returns(new Route());
-        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployee(It.IsAny<int>())).Returns(new List<int>());
+        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(It.IsAny<int>())).Returns(new List<int>());
 
         service.UpdateCrewForFlight(1, new List<int> { 2, 3 });
 
-        mockEmployeeFlightRepo.Verify(r => r.RemoveFlightFromEmployee(1, 1), Times.Once);
+        mockEmployeeFlightRepo.Verify(r => r.RemoveFlightFromEmployeeUsingIds(1, 1), Times.Once);
     }
 
     [Fact]
     public void RemoveCrewMember_Should_Call_Repo()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -397,16 +397,16 @@ public class EmployeeFlightServiceTests
 
         service.RemoveCrewMember(10, 5);
 
-        mockEmployeeFlightRepo.Verify(r => r.RemoveFlightFromEmployee(5, 10), Times.Once);
+        mockEmployeeFlightRepo.Verify(r => r.RemoveFlightFromEmployeeUsingIds(5, 10), Times.Once);
     }
 
     [Fact]
     public void GetFormattedEmployeeSchedule_Should_Return_Empty_For_Invalid_Id()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -423,10 +423,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void GetFormattedEmployeeSchedule_Should_Map_All_Fields_Correctly()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -445,7 +445,7 @@ public class EmployeeFlightServiceTests
             Runway = new Runway { Id = 1 }
         };
 
-        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployee(1)).Returns(new List<int> { 1 });
+        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(1)).Returns(new List<int> { 1 });
         mockFlightRepo.Setup(r => r.GetById(1)).Returns(flight);
 
         mockRouteRepo.Setup(r => r.GetRouteById(1)).Returns(flight.Route);
@@ -471,10 +471,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void GetFormattedEmployeeSchedule_Should_Use_Default_For_Null_Gate_And_Runway()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -493,7 +493,7 @@ public class EmployeeFlightServiceTests
             Runway = null
         };
 
-        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployee(1)).Returns(new List<int> { 1 });
+        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(1)).Returns(new List<int> { 1 });
         mockFlightRepo.Setup(r => r.GetById(1)).Returns(flight);
 
         mockRouteRepo.Setup(r => r.GetRouteById(1)).Returns(flight.Route);
@@ -512,10 +512,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void GetFormattedEmployeeSchedule_Should_Sort_By_Date()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -527,7 +527,7 @@ public class EmployeeFlightServiceTests
         var f1 = new Flight { Id = 1, Date = DateTime.Today.AddDays(1), Route = new Route { Id = 1 } };
         var f2 = new Flight { Id = 2, Date = DateTime.Today, Route = new Route { Id = 1 } };
 
-        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployee(1)).Returns(new List<int> { 1, 2 });
+        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(1)).Returns(new List<int> { 1, 2 });
         mockFlightRepo.Setup(r => r.GetById(1)).Returns(f1);
         mockFlightRepo.Setup(r => r.GetById(2)).Returns(f2);
 
@@ -544,10 +544,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void GetAvailableCrewGroupedByRole_Should_Filter_Unavailable()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -578,9 +578,9 @@ public class EmployeeFlightServiceTests
             ArrivalTime = TimeOnly.FromDateTime(DateTime.Today.AddHours(12))
         });
 
-        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployee(1)).Returns(new List<int>());
+        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(1)).Returns(new List<int>());
 
-        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployee(2)).Returns(new List<int> { 99 });
+        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(2)).Returns(new List<int> { 99 });
 
         mockFlightRepo.Setup(r => r.GetById(99)).Returns(new Flight
         {
@@ -605,10 +605,10 @@ public class EmployeeFlightServiceTests
     [Fact]
     public void GetAvailableCrewGroupedByRole_Should_Sort_By_Role_Then_Name()
     {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepo>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepo>();
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockRouteRepo = new Mock<IRouteRepo>();
+        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
+        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockRouteRepo = new Mock<IRouteRepository>();
         var mockGateService = new Mock<IGateService>();
         var mockRunwayService = new Mock<IRunwayService>();
         var mockRouteService = new Mock<IRouteService>();
@@ -634,7 +634,7 @@ public class EmployeeFlightServiceTests
         mockEmployeeRepo.Setup(r => r.GetAllEmployees()).Returns(employees);
 
         mockRouteRepo.Setup(r => r.GetRouteById(It.IsAny<int>())).Returns(new Route());
-        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployee(It.IsAny<int>())).Returns(new List<int>());
+        mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(It.IsAny<int>())).Returns(new List<int>());
 
         var result = service.GetAvailableCrewGroupedByRole(flight);
 

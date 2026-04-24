@@ -3,16 +3,18 @@ using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
 
+using TicketSellingModule.Data.Services.Interfaces;
+
 namespace TicketSellingModule.ViewModel
 {
     public partial class CompanyViewModel : ObservableObject
     {
-        private readonly CompanyService companyService;
-        private readonly AirportService airportService;
-        private readonly RunwayService runwayService;
-        private readonly GateService gateService;
-        private readonly FlightRouteService flightRouteService;
-        private readonly EmployeeFlightService employeeFlightService;
+        private readonly ICompanyService companyService;
+        private readonly IAirportService airportService;
+        private readonly IRunwayService runwayService;
+        private readonly IGateService gateService;
+        private readonly IFlightRouteService flightRouteService;
+        private readonly IEmployeeFlightService employeeFlightService;
 
         private int currentCompanyId;
         private List<Flight> masterCompanyFlights = new();
@@ -50,9 +52,9 @@ namespace TicketSellingModule.ViewModel
         public Visibility SingleDateVisibility => IsRecurrent ? Visibility.Collapsed : Visibility.Visible;
         public Visibility CustomDaysVisibility => RecurrenceType == "Custom" ? Visibility.Visible : Visibility.Collapsed;
 
-        public CompanyViewModel(CompanyService companyService,
-            AirportService airportService,
-            FlightRouteService flightRouteService, RunwayService runwayService, GateService gateService, EmployeeFlightService employeeFlightService)
+        public CompanyViewModel(ICompanyService companyService,
+            IAirportService airportService,
+            IFlightRouteService flightRouteService, IRunwayService runwayService, IGateService gateService, IEmployeeFlightService employeeFlightService)
         {
             this.companyService = companyService;
             this.airportService = airportService;

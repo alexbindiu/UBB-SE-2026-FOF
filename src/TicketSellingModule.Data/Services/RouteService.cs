@@ -5,13 +5,13 @@ namespace TicketSellingModule.Data.Services
 {
     public class RouteService : IRouteService
     {
-        private readonly RouteRepository routeRepo;
-        private readonly FlightRepository flightRepo;
-        private readonly CompanyRepository companyRepo;
-        private readonly AirportRepository airportRepo;
+        private readonly IRouteRepository routeRepo;
+        private readonly IFlightRepository flightRepo;
+        private readonly ICompanyRepository companyRepo;
+        private readonly IAirportRepository airportRepo;
 
-        public RouteService(RouteRepository routeRepo, FlightRepository flightRepo,
-                            CompanyRepository companyRepo, AirportRepository airportRepo)
+        public RouteService(IRouteRepository routeRepo, IFlightRepository flightRepo,
+                            ICompanyRepository companyRepo, IAirportRepository airportRepo)
         {
             this.routeRepo = routeRepo;
             this.flightRepo = flightRepo;
@@ -79,7 +79,7 @@ namespace TicketSellingModule.Data.Services
                 Runway = new Runway { Id = runwayId },
                 Gate = new Gate { Id = gateId }
             };
-            flightRepo.Addlight(initialFlight);
+            flightRepo.AddFlight(initialFlight);
 
             return routeId;
         }

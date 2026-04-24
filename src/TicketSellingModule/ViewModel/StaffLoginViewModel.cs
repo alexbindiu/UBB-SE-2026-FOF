@@ -3,20 +3,21 @@ using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
 
+using TicketSellingModule.Data.Services.Interfaces;
 using TicketSellingModule.WinUI.Services;
 
 namespace TicketSellingModule.ViewModel
 {
     public partial class StaffLoginViewModel : ObservableObject
     {
-        private readonly EmployeeService employeeService;
+        private readonly IEmployeeService employeeService;
         private readonly INavigationService navigationService;
 
         [ObservableProperty] private string employeeIdText;
         [ObservableProperty] private string errorMessage;
         [ObservableProperty] private Visibility errorVisibility = Visibility.Collapsed;
 
-        public StaffLoginViewModel(EmployeeService employeeService, INavigationService navigationService)
+        public StaffLoginViewModel(IEmployeeService employeeService, INavigationService navigationService)
         {
             this.employeeService = employeeService;
             this.navigationService = navigationService;

@@ -4,13 +4,14 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 
 using TicketSellingModule.Data;
+using TicketSellingModule.Data.Services.Interfaces;
 
 namespace TicketSellingModule.ViewModel
 {
     public partial class StaffPageViewModel : ObservableObject
     {
-        private readonly EmployeeService employeeService;
-        private readonly EmployeeFlightService flightEmployeeService;
+        private readonly IEmployeeService employeeService;
+        private readonly IEmployeeFlightService flightEmployeeService;
 
         private int currentEmployeeId;
 
@@ -22,8 +23,8 @@ namespace TicketSellingModule.ViewModel
         [ObservableProperty] private Visibility emptyStateVisibility = Visibility.Collapsed;
 
         public StaffPageViewModel(
-            EmployeeService employeeService,
-            EmployeeFlightService flightEmployeeService)
+            IEmployeeService employeeService,
+            IEmployeeFlightService flightEmployeeService)
         {
             this.employeeService = employeeService;
             this.flightEmployeeService = flightEmployeeService;

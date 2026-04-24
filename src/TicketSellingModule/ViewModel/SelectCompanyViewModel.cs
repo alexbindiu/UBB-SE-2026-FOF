@@ -1,18 +1,19 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
+using TicketSellingModule.Data.Services.Interfaces;
 using TicketSellingModule.WinUI.Services;
 
 namespace TicketSellingModule.ViewModel
 {
     public partial class SelectCompanyViewModel : ObservableObject
     {
-        private readonly CompanyService companyService;
+        private readonly ICompanyService companyService;
         private readonly INavigationService navigationService;
 
         public ObservableCollection<Company> Companies { get; } = new();
 
-        public SelectCompanyViewModel(CompanyService companyService, INavigationService navigationService)
+        public SelectCompanyViewModel(ICompanyService companyService, INavigationService navigationService)
         {
             this.companyService = companyService;
             this.navigationService = navigationService;

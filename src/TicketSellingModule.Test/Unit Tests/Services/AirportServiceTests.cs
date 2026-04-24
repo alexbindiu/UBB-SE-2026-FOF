@@ -13,8 +13,8 @@ public class AirportServiceTests
     [Fact]
     public void Add_Should_Throw_Exception_For_Null_Code()
     {
-        Mock<IFlightRepo> mockFlightRepo = new Mock<IFlightRepo>();
-        Mock<IAirportRepo> mockAirportRepo = new Mock<IAirportRepo>();
+        Mock<IFlightRepository> mockFlightRepo = new Mock<IFlightRepository>();
+        Mock<IAirportRepository> mockAirportRepo = new Mock<IAirportRepository>();
 
         AirportService airportService = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
@@ -26,8 +26,8 @@ public class AirportServiceTests
     [Fact]
     public void Add_Should_Throw_Exception_For_Null_Name()
     {
-        Mock<IFlightRepo> mockFlightRepo = new Mock<IFlightRepo>();
-        Mock<IAirportRepo> mockAirportRepo = new Mock<IAirportRepo>();
+        Mock<IFlightRepository> mockFlightRepo = new Mock<IFlightRepository>();
+        Mock<IAirportRepository> mockAirportRepo = new Mock<IAirportRepository>();
 
         AirportService airportService = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
@@ -39,8 +39,8 @@ public class AirportServiceTests
     [Fact]
     public void Add_Should_Throw_Exception_For_Null_City()
     {
-        Mock<IFlightRepo> mockFlightRepo = new Mock<IFlightRepo>();
-        Mock<IAirportRepo> mockAirportRepo = new Mock<IAirportRepo>();
+        Mock<IFlightRepository> mockFlightRepo = new Mock<IFlightRepository>();
+        Mock<IAirportRepository> mockAirportRepo = new Mock<IAirportRepository>();
 
         AirportService airportService = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
@@ -52,8 +52,8 @@ public class AirportServiceTests
     [Fact]
     public void Add_Should_Work()
     {
-        Mock<IFlightRepo> mockFlightRepo = new Mock<IFlightRepo>();
-        Mock<IAirportRepo> mockAirportRepo = new Mock<IAirportRepo>();
+        Mock<IFlightRepository> mockFlightRepo = new Mock<IFlightRepository>();
+        Mock<IAirportRepository> mockAirportRepo = new Mock<IAirportRepository>();
 
         AirportService airportService = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
@@ -65,8 +65,8 @@ public class AirportServiceTests
     [Fact]
     public void GetAll_Should_Return_All_Airports()
     {
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockAirportRepo = new Mock<IAirportRepo>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockAirportRepo = new Mock<IAirportRepository>();
 
         var airports = new List<Airport>
         {
@@ -87,8 +87,8 @@ public class AirportServiceTests
     [Fact]
     public void GetById_Should_Return_Null_For_Invalid_Id()
     {
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockAirportRepo = new Mock<IAirportRepo>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockAirportRepo = new Mock<IAirportRepository>();
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
@@ -100,8 +100,8 @@ public class AirportServiceTests
     [Fact]
     public void GetById_Should_Return_Airport()
     {
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockAirportRepo = new Mock<IAirportRepo>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockAirportRepo = new Mock<IAirportRepository>();
 
         var airport = new Airport { AirportCode = "A", AirportName = "Test", City = "City" };
 
@@ -117,8 +117,8 @@ public class AirportServiceTests
     [Fact]
     public void Update_Should_Do_Nothing_If_Airport_Not_Found()
     {
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockAirportRepo = new Mock<IAirportRepo>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockAirportRepo = new Mock<IAirportRepository>();
 
         mockAirportRepo.Setup(repo => repo.GetAirportById(1)).Returns((Airport)null);
 
@@ -132,8 +132,8 @@ public class AirportServiceTests
     [Fact]
     public void Update_Should_Update_Only_Name()
     {
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockAirportRepo = new Mock<IAirportRepo>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockAirportRepo = new Mock<IAirportRepository>();
 
         var airport = new Airport
         {
@@ -158,8 +158,8 @@ public class AirportServiceTests
     [Fact]
     public void Update_Should_Update_Only_City()
     {
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockAirportRepo = new Mock<IAirportRepo>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockAirportRepo = new Mock<IAirportRepository>();
 
         var airport = new Airport
         {
@@ -184,8 +184,8 @@ public class AirportServiceTests
     [Fact]
     public void Update_Should_Update_Only_Code()
     {
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockAirportRepo = new Mock<IAirportRepo>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockAirportRepo = new Mock<IAirportRepository>();
 
         var airport = new Airport
         {
@@ -210,8 +210,8 @@ public class AirportServiceTests
     [Fact]
     public void Update_Should_Call_Repo_Even_When_No_Changes()
     {
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockAirportRepo = new Mock<IAirportRepo>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockAirportRepo = new Mock<IAirportRepository>();
 
         var airport = new Airport
         {
@@ -236,8 +236,8 @@ public class AirportServiceTests
     [Fact]
     public void Update_Should_Update_All_Fields()
     {
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockAirportRepo = new Mock<IAirportRepo>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockAirportRepo = new Mock<IAirportRepository>();
 
         var airport = new Airport
         {
@@ -262,38 +262,38 @@ public class AirportServiceTests
     [Fact]
     public void Delete_Should_Not_Call_Repo_For_Invalid_Id()
     {
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockAirportRepo = new Mock<IAirportRepo>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockAirportRepo = new Mock<IAirportRepository>();
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
         service.Delete(0);
 
-        mockAirportRepo.Verify(repo => repo.DeleteAirport(It.IsAny<int>()), Times.Never);
+        mockAirportRepo.Verify(repo => repo.DeleteAirportUsingId(It.IsAny<int>()), Times.Never);
     }
 
     [Fact]
     public void Delete_Should_Call_Repo_For_Valid_Id()
     {
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockAirportRepo = new Mock<IAirportRepo>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockAirportRepo = new Mock<IAirportRepository>();
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
         service.Delete(5);
 
-        mockAirportRepo.Verify(repo => repo.DeleteAirport(5), Times.Once);
+        mockAirportRepo.Verify(repo => repo.DeleteAirportUsingId(5), Times.Once);
     }
 
     [Fact]
     public void HasFlights_Should_Return_True_When_Flights_Exist()
     {
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockAirportRepo = new Mock<IAirportRepo>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockAirportRepo = new Mock<IAirportRepository>();
 
         var flights = new List<Flight> { new Flight() };
 
-        mockFlightRepo.Setup(repo => repo.GetFlightsByAirport(1)).Returns(flights);
+        mockFlightRepo.Setup(repo => repo.GetFlightsByAirportId(1)).Returns(flights);
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
@@ -305,10 +305,10 @@ public class AirportServiceTests
     [Fact]
     public void HasFlights_Should_Return_False_When_No_Flights_Exist()
     {
-        var mockFlightRepo = new Mock<IFlightRepo>();
-        var mockAirportRepo = new Mock<IAirportRepo>();
+        var mockFlightRepo = new Mock<IFlightRepository>();
+        var mockAirportRepo = new Mock<IAirportRepository>();
 
-        mockFlightRepo.Setup(repo => repo.GetFlightsByAirport(1)).Returns(new List<Flight>());
+        mockFlightRepo.Setup(repo => repo.GetFlightsByAirportId(1)).Returns(new List<Flight>());
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
