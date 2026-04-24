@@ -23,25 +23,25 @@ public class RunwayServiceTests
         mockRunwayRepo.Setup(r => r.GetAllRunways()).Returns(runways);
 
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
-        var result = service.GetAll();
+        var result = service.GetAllRunways();
 
         Assert.Equal(2, result.Count);
         Assert.Equal(runways, result);
     }
 
     [Fact]
-    public void GetById_Should_Throw_For_Invalid_Id()
+    public void GetById_Should_Be_Null_For_Invalid_Id()
     {
         var mockRunwayRepo = new Mock<IRunwayRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
-        Assert.Throws<ArgumentException>(() => service.GetById(0));
-        Assert.Throws<ArgumentException>(() => service.GetById(-1));
+        Assert.Null(service.GetRunwayById(0));
+        Assert.Null(service.GetRunwayById(-1));
     }
 
     [Fact]
-    public void GetById_Should_Throw_When_Runway_Not_Found()
+    public void GetById_Should_Be_Null_When_Runway_Not_Found()
     {
         var mockRunwayRepo = new Mock<IRunwayRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
@@ -49,7 +49,7 @@ public class RunwayServiceTests
 
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
-        Assert.Throws<InvalidOperationException>(() => service.GetById(5));
+        Assert.Null(service.GetRunwayById(5));
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class RunwayServiceTests
         mockRunwayRepo.Setup(r => r.GetRunwayById(1)).Returns(runway);
 
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
-        var result = service.GetById(1);
+        var result = service.GetRunwayById(1);
 
         Assert.Equal(runway, result);
     }
@@ -73,8 +73,8 @@ public class RunwayServiceTests
         var mockFlightRepo = new Mock<IFlightRepository>();
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
-        Assert.Null(service.GetByIdSafe(0));
-        Assert.Null(service.GetByIdSafe(-1));
+        Assert.Null(service.GetRunwayById(0));
+        Assert.Null(service.GetRunwayById(-1));
     }
 
     [Fact]
@@ -87,11 +87,11 @@ public class RunwayServiceTests
 
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
-        Assert.Equal(runway, service.GetByIdSafe(1));
+        Assert.Equal(runway, service.GetRunwayById(1));
     }
 
     [Fact]
-    public void GetByIdSafe_Should_Return_Null_When_Repo_Throws()
+    public void GetByIdSafe_Should_Throw_When_Repo_Throws()
     {
         var mockRunwayRepo = new Mock<IRunwayRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
@@ -99,7 +99,7 @@ public class RunwayServiceTests
 
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
-        Assert.Null(service.GetByIdSafe(1));
+        Assert.Throws<Exception>(() => service.GetRunwayById(1));
     }
 
     [Fact]
@@ -109,9 +109,9 @@ public class RunwayServiceTests
         var mockFlightRepo = new Mock<IFlightRepository>();
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
-        Assert.Throws<ArgumentException>(() => service.Add(null, 10));
-        Assert.Throws<ArgumentException>(() => service.Add(string.Empty, 10));
-        Assert.Throws<ArgumentException>(() => service.Add(" ", 10));
+        Assert.Throws<ArgumentException>(() => service.AddRunway(null, 10));
+        Assert.Throws<ArgumentException>(() => service.AddRunway(string.Empty, 10));
+        Assert.Throws<ArgumentException>(() => service.AddRunway(" ", 10));
     }
 
     [Fact]
@@ -121,8 +121,8 @@ public class RunwayServiceTests
         var mockFlightRepo = new Mock<IFlightRepository>();
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
-        Assert.Throws<ArgumentException>(() => service.Add("R1", 0));
-        Assert.Throws<ArgumentException>(() => service.Add("R1", -5));
+        Assert.Throws<ArgumentException>(() => service.AddRunway("R1", 0));
+        Assert.Throws<ArgumentException>(() => service.AddRunway("R1", -5));
     }
 
     [Fact]
@@ -133,7 +133,7 @@ public class RunwayServiceTests
         mockRunwayRepo.Setup(r => r.AddRunway(It.IsAny<Runway>())).Returns(7);
 
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
-        var result = service.Add("R1", 10);
+        var result = service.AddRunway("R1", 10);
 
         Assert.Equal(7, result);
         mockRunwayRepo.Verify(r => r.AddRunway(It.IsAny<Runway>()), Times.Once);
@@ -148,7 +148,7 @@ public class RunwayServiceTests
 
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
-        Assert.Throws<InvalidOperationException>(() => service.Update(1, "NewName"));
+        Assert.Throws<InvalidOperationException>(() => service.UpdateRunway(1, "NewName"));
     }
 
     [Fact]
@@ -160,8 +160,8 @@ public class RunwayServiceTests
 
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
-        Assert.Throws<ArgumentException>(() => service.Update(1, " "));
-        Assert.Throws<ArgumentException>(() => service.Update(1, string.Empty));
+        Assert.Throws<ArgumentException>(() => service.UpdateRunway(1, " "));
+        Assert.Throws<ArgumentException>(() => service.UpdateRunway(1, string.Empty));
     }
 
     [Fact]
@@ -173,8 +173,8 @@ public class RunwayServiceTests
 
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
-        Assert.Throws<ArgumentException>(() => service.Update(1, newHandleTime: 0));
-        Assert.Throws<ArgumentException>(() => service.Update(1, newHandleTime: -1));
+        Assert.Throws<ArgumentException>(() => service.UpdateRunway(1, newHandleTime: 0));
+        Assert.Throws<ArgumentException>(() => service.UpdateRunway(1, newHandleTime: -1));
     }
 
     [Fact]
@@ -186,7 +186,7 @@ public class RunwayServiceTests
         mockRunwayRepo.Setup(r => r.GetRunwayById(1)).Returns(runway);
 
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
-        service.Update(1, newName: "NewName");
+        service.UpdateRunway(1, newName: "NewName");
 
         Assert.Equal("NewName", runway.Name);
         Assert.Equal(10, runway.HandleTime);
@@ -202,7 +202,7 @@ public class RunwayServiceTests
         mockRunwayRepo.Setup(r => r.GetRunwayById(1)).Returns(runway);
 
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
-        service.Update(1, newHandleTime: 25);
+        service.UpdateRunway(1, newHandleTime: 25);
 
         Assert.Equal("OldName", runway.Name);
         Assert.Equal(25, runway.HandleTime);
@@ -218,7 +218,7 @@ public class RunwayServiceTests
         mockRunwayRepo.Setup(r => r.GetRunwayById(1)).Returns(runway);
 
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
-        service.Update(1, "NewName", 30);
+        service.UpdateRunway(1, "NewName", 30);
 
         Assert.Equal("NewName", runway.Name);
         Assert.Equal(30, runway.HandleTime);
@@ -234,7 +234,7 @@ public class RunwayServiceTests
 
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
-        Assert.Throws<InvalidOperationException>(() => service.Delete(1));
+        Assert.Throws<InvalidOperationException>(() => service.DeleteRunwayUsingId(1));
     }
 
     [Fact]
@@ -245,7 +245,7 @@ public class RunwayServiceTests
         mockRunwayRepo.Setup(r => r.GetRunwayById(3)).Returns(new Runway { Name = "R3" });
 
         var service = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
-        service.Delete(3);
+        service.DeleteRunwayUsingId(3);
 
         mockRunwayRepo.Verify(r => r.DeleteRunwayUsingId(3), Times.Once);
     }

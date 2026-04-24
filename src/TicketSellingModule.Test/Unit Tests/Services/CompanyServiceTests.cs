@@ -19,9 +19,9 @@ public class CompanyServiceTests
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
 
-        Assert.Throws<ArgumentException>(() => service.Add(null));
-        Assert.Throws<ArgumentException>(() => service.Add(string.Empty));
-        Assert.Throws<ArgumentException>(() => service.Add("   "));
+        Assert.Throws<ArgumentException>(() => service.AddCompany(null));
+        Assert.Throws<ArgumentException>(() => service.AddCompany(string.Empty));
+        Assert.Throws<ArgumentException>(() => service.AddCompany("   "));
     }
 
     [Fact]
@@ -30,11 +30,11 @@ public class CompanyServiceTests
         var mockRepo = new Mock<ICompanyRepository>();
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
-        mockRepo.Setup(r => r.AddNewCompany(It.IsAny<Company>())).Returns(1);
+        mockRepo.Setup(r => r.AddCompany(It.IsAny<Company>())).Returns(1);
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
 
-        var result = service.Add("Wizz Air");
+        var result = service.AddCompany("Wizz Air");
 
         Assert.Equal(1, result);
     }
@@ -51,7 +51,7 @@ public class CompanyServiceTests
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
 
-        var result = service.GetAll();
+        var result = service.GetAllCompanies();
 
         Assert.Equal(2, result.Count);
     }
@@ -93,11 +93,11 @@ public class CompanyServiceTests
         var mockFlightRouteService = new Mock<IFlightRouteService>();
 
         mockRepo.Setup(r => r.GetCompanyById(1)).Returns((Company)null);
-        mockFlightRouteService.Setup(r => r.GetFlightsByCompany(1)).Returns(new List<Flight>());
+        mockFlightRouteService.Setup(r => r.GetFlightsByCompanyId(1)).Returns(new List<Flight>());
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
 
-        var result = service.GenerateFlightCode(1);
+        var result = service.GenerateFlightCodeUsingCompanyId(1);
 
         Assert.StartsWith("FL-", result);
     }
@@ -111,12 +111,12 @@ public class CompanyServiceTests
         mockRepo.Setup(r => r.GetCompanyById(1))
             .Returns(new Company { Name = "Wizz Air" });
 
-        mockFlightRouteService.Setup(r => r.GetFlightsByCompany(1))
+        mockFlightRouteService.Setup(r => r.GetFlightsByCompanyId(1))
             .Returns(new List<Flight>());
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
 
-        var result = service.GenerateFlightCode(1);
+        var result = service.GenerateFlightCodeUsingCompanyId(1);
 
         Assert.StartsWith("WA-", result);
     }
@@ -130,12 +130,12 @@ public class CompanyServiceTests
         mockRepo.Setup(r => r.GetCompanyById(1))
             .Returns(new Company { Name = "Tarom" });
 
-        mockFlightRouteService.Setup(r => r.GetFlightsByCompany(1))
+        mockFlightRouteService.Setup(r => r.GetFlightsByCompanyId(1))
             .Returns(new List<Flight>());
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
 
-        var result = service.GenerateFlightCode(1);
+        var result = service.GenerateFlightCodeUsingCompanyId(1);
 
         Assert.StartsWith("TA-", result);
     }
@@ -149,12 +149,12 @@ public class CompanyServiceTests
         mockRepo.Setup(r => r.GetCompanyById(1))
             .Returns(new Company { Name = "Test Company" });
 
-        mockFlightRouteService.Setup(r => r.GetFlightsByCompany(1))
+        mockFlightRouteService.Setup(r => r.GetFlightsByCompanyId(1))
             .Returns(new List<Flight>());
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
 
-        var result = service.GenerateFlightCode(1);
+        var result = service.GenerateFlightCodeUsingCompanyId(1);
 
         Assert.EndsWith("-1000", result);
     }
@@ -174,12 +174,12 @@ public class CompanyServiceTests
             new Flight { FlightNumber = "TC-1005" }
         };
 
-        mockFlightRouteService.Setup(r => r.GetFlightsByCompany(1))
+        mockFlightRouteService.Setup(r => r.GetFlightsByCompanyId(1))
             .Returns(flights);
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
 
-        var result = service.GenerateFlightCode(1);
+        var result = service.GenerateFlightCodeUsingCompanyId(1);
 
         Assert.EndsWith("-1006", result);
     }
@@ -199,12 +199,12 @@ public class CompanyServiceTests
         new Flight { FlightNumber = "TC-ABC" }
     };
 
-        mockFlightRouteService.Setup(r => r.GetFlightsByCompany(1))
+        mockFlightRouteService.Setup(r => r.GetFlightsByCompanyId(1))
             .Returns(flights);
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
 
-        var result = service.GenerateFlightCode(1);
+        var result = service.GenerateFlightCodeUsingCompanyId(1);
 
         Assert.EndsWith("-1000", result);
     }
@@ -219,7 +219,7 @@ public class CompanyServiceTests
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
 
-        service.Update(1, "NewName");
+        service.UpdateCompany(1, "NewName");
 
         mockRepo.Verify(r => r.UpdateCompany(It.IsAny<Company>()), Times.Never);
     }
@@ -236,7 +236,7 @@ public class CompanyServiceTests
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
 
-        Assert.Throws<ArgumentException>(() => service.Update(1, "   "));
+        Assert.Throws<ArgumentException>(() => service.UpdateCompany(1, "   "));
     }
 
     [Fact]
@@ -251,7 +251,7 @@ public class CompanyServiceTests
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
 
-        service.Update(1, "New");
+        service.UpdateCompany(1, "New");
 
         Assert.Equal("New", company.Name);
         mockRepo.Verify(r => r.UpdateCompany(company), Times.Once);
@@ -265,7 +265,7 @@ public class CompanyServiceTests
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
 
-        service.Delete(0);
+        service.DeleteCompanyUsingId(0);
 
         mockRepo.Verify(r => r.DeleteCompanyUsingId(It.IsAny<int>()), Times.Never);
     }
@@ -278,7 +278,7 @@ public class CompanyServiceTests
 
         var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
 
-        service.Delete(3);
+        service.DeleteCompanyUsingId(3);
 
         mockRepo.Verify(r => r.DeleteCompanyUsingId(3), Times.Once);
     }

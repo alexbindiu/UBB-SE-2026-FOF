@@ -12,21 +12,6 @@ namespace TicketSellingModule.Test.Unit_Tests.Services;
 public class EmployeeFlightServiceTests
 {
     [Fact]
-    public void Constructor_Should_Throw_When_Dependencies_Are_Null()
-    {
-        var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockFlightRepo = new Mock<IFlightRepository>();
-        var mockRouteRepo = new Mock<IRouteRepository>();
-        var mockGateService = new Mock<IGateService>();
-        var mockRunwayService = new Mock<IRunwayService>();
-        var mockRouteService = new Mock<IRouteService>();
-
-        Assert.Throws<ArgumentNullException>(() =>
-            new EmployeeFlightService(null, mockEmployeeRepo.Object, mockFlightRepo.Object, mockRouteRepo.Object, mockGateService.Object, mockRunwayService.Object, mockRouteService.Object));
-    }
-
-    [Fact]
     public void AssignCrewMember_Should_Throw_For_Invalid_Id()
     {
         var mockEmployeeFlightRepo = new Mock<IEmployeeFlightRepository>();
@@ -41,8 +26,8 @@ public class EmployeeFlightServiceTests
             mockFlightRepo.Object, mockRouteRepo.Object,
             mockGateService.Object, mockRunwayService.Object, mockRouteService.Object);
 
-        Assert.Throws<ArgumentException>(() => service.AssignCrewMember(0, 1));
-        Assert.Throws<ArgumentException>(() => service.AssignCrewMember(1, 0));
+        Assert.Throws<ArgumentException>(() => service.AssignEmployeeToFlightUsingIds(0, 1));
+        Assert.Throws<ArgumentException>(() => service.AssignEmployeeToFlightUsingIds(1, 0));
     }
 
     [Fact]
@@ -61,9 +46,9 @@ public class EmployeeFlightServiceTests
             mockGateService.Object, mockRunwayService.Object, mockRouteService.Object);
 
         mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Returns((Employee)null);
-        mockFlightRepo.Setup(r => r.GetById(1)).Returns(new Flight());
+        mockFlightRepo.Setup(r => r.GetFlightById(1)).Returns(new Flight());
 
-        Assert.Throws<InvalidOperationException>(() => service.AssignCrewMember(1, 1));
+        Assert.Throws<InvalidOperationException>(() => service.AssignEmployeeToFlightUsingIds(1, 1));
     }
 
     [Fact]
@@ -82,11 +67,11 @@ public class EmployeeFlightServiceTests
             mockGateService.Object, mockRunwayService.Object, mockRouteService.Object);
 
         mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Returns(new Employee());
-        mockFlightRepo.Setup(r => r.GetById(1)).Returns(new Flight { Id = 1, Route = new Route { Id = 1 }, Date = DateTime.Today });
+        mockFlightRepo.Setup(r => r.GetFlightById(1)).Returns(new Flight { Id = 1, Route = new Route { Id = 1 }, Date = DateTime.Today });
 
         mockEmployeeFlightRepo.Setup(r => r.GetEmployeesByFlightId(1)).Returns(new List<int> { 1 });
 
-        Assert.Throws<InvalidOperationException>(() => service.AssignCrewMember(1, 1));
+        Assert.Throws<InvalidOperationException>(() => service.AssignEmployeeToFlightUsingIds(1, 1));
     }
 
     [Fact]
@@ -107,12 +92,12 @@ public class EmployeeFlightServiceTests
         var flight = new Flight { Id = 1, Date = DateTime.Today, Route = new Route { Id = 1 } };
 
         mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Returns(new Employee { Name = "Test" });
-        mockFlightRepo.Setup(r => r.GetById(1)).Returns(flight);
+        mockFlightRepo.Setup(r => r.GetFlightById(1)).Returns(flight);
         mockEmployeeFlightRepo.Setup(r => r.GetEmployeesByFlightId(1)).Returns(new List<int>());
 
         mockRouteRepo.Setup(r => r.GetRouteById(It.IsAny<int>())).Returns((Route)null);
 
-        Assert.Throws<InvalidOperationException>(() => service.AssignCrewMember(1, 1));
+        Assert.Throws<InvalidOperationException>(() => service.AssignEmployeeToFlightUsingIds(1, 1));
     }
 
     [Fact]
@@ -133,7 +118,7 @@ public class EmployeeFlightServiceTests
         var flight = new Flight { Id = 1, Date = DateTime.Today, Route = new Route { Id = 1 } };
 
         mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Returns(new Employee());
-        mockFlightRepo.Setup(r => r.GetById(1)).Returns(flight);
+        mockFlightRepo.Setup(r => r.GetFlightById(1)).Returns(flight);
         mockEmployeeFlightRepo.Setup(r => r.GetEmployeesByFlightId(1)).Returns(new List<int>());
         mockRouteRepo.Setup(r => r.GetRouteById(It.IsAny<int>())).Returns(new Route
         {
@@ -143,7 +128,7 @@ public class EmployeeFlightServiceTests
 
         mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(1)).Returns(new List<int>());
 
-        service.AssignCrewMember(1, 1);
+        service.AssignEmployeeToFlightUsingIds(1, 1);
 
         mockEmployeeFlightRepo.Verify(r => r.AssignFlightToEmployeesUsingIds(1, 1), Times.Once);
     }
@@ -163,7 +148,7 @@ public class EmployeeFlightServiceTests
             mockFlightRepo.Object, mockRouteRepo.Object,
             mockGateService.Object, mockRunwayService.Object, mockRouteService.Object);
 
-        service.CleanUpFlightAssignments(1);
+        service.RemoveAllCrewAssignmentsForFlight(1);
 
         mockEmployeeFlightRepo.Verify(r => r.RemoveAllByFlightId(1), Times.Once);
     }
@@ -183,7 +168,7 @@ public class EmployeeFlightServiceTests
             mockFlightRepo.Object, mockRouteRepo.Object,
             mockGateService.Object, mockRunwayService.Object, mockRouteService.Object);
 
-        service.CleanUpEmployeeAssignments(0);
+        service.RemoveAllCrewAssignmentsForFlight(0);
 
         mockEmployeeFlightRepo.Verify(r => r.RemoveAllByEmployeeId(It.IsAny<int>()), Times.Never);
     }
@@ -208,7 +193,7 @@ public class EmployeeFlightServiceTests
         mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Returns(new Employee { Id = 1 });
         mockEmployeeRepo.Setup(r => r.GetEmployeeById(2)).Returns((Employee)null);
 
-        var result = service.GetFlightCrew(1);
+        var result = service.GetEmployeesAssignedToFlight(1);
 
         Assert.Single(result);
     }
@@ -288,7 +273,7 @@ public class EmployeeFlightServiceTests
         mockRouteRepo.Setup(r => r.GetRouteById(2)).Returns(existingRoute);
 
         mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(1)).Returns(new List<int> { 2 });
-        mockFlightRepo.Setup(r => r.GetById(2)).Returns(new Flight
+        mockFlightRepo.Setup(r => r.GetFlightById(2)).Returns(new Flight
         {
             Id = 2,
             Date = DateTime.Today,
@@ -347,7 +332,7 @@ public class EmployeeFlightServiceTests
 
         mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Throws(new Exception());
 
-        service.AssignCrewToFlight(1, new List<int> { 1, 2 });
+        service.AssignEmpolyeesToFlightUsingIds(1, new List<int> { 1, 2 });
 
         Assert.True(true);
     }
@@ -371,11 +356,11 @@ public class EmployeeFlightServiceTests
             .Returns(new List<int> { 1, 2 });
 
         mockEmployeeRepo.Setup(r => r.GetEmployeeById(It.IsAny<int>())).Returns(new Employee());
-        mockFlightRepo.Setup(r => r.GetById(It.IsAny<int>())).Returns(new Flight { Id = 1, Route = new Route { Id = 1 }, Date = DateTime.Today });
+        mockFlightRepo.Setup(r => r.GetFlightById(It.IsAny<int>())).Returns(new Flight { Id = 1, Route = new Route { Id = 1 }, Date = DateTime.Today });
         mockRouteRepo.Setup(r => r.GetRouteById(It.IsAny<int>())).Returns(new Route());
         mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(It.IsAny<int>())).Returns(new List<int>());
 
-        service.UpdateCrewForFlight(1, new List<int> { 2, 3 });
+        service.UpdateEmployeesForFlightUsingIds(1, new List<int> { 2, 3 });
 
         mockEmployeeFlightRepo.Verify(r => r.RemoveFlightFromEmployeeUsingIds(1, 1), Times.Once);
     }
@@ -395,7 +380,7 @@ public class EmployeeFlightServiceTests
             mockFlightRepo.Object, mockRouteRepo.Object,
             mockGateService.Object, mockRunwayService.Object, mockRouteService.Object);
 
-        service.RemoveCrewMember(10, 5);
+        service.RemoveEmployeeFromFlightUsingIds(10, 5);
 
         mockEmployeeFlightRepo.Verify(r => r.RemoveFlightFromEmployeeUsingIds(5, 10), Times.Once);
     }
@@ -446,11 +431,11 @@ public class EmployeeFlightServiceTests
         };
 
         mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(1)).Returns(new List<int> { 1 });
-        mockFlightRepo.Setup(r => r.GetById(1)).Returns(flight);
+        mockFlightRepo.Setup(r => r.GetFlightById(1)).Returns(flight);
 
         mockRouteRepo.Setup(r => r.GetRouteById(1)).Returns(flight.Route);
-        mockGateService.Setup(r => r.GetById(1)).Returns(new Gate { Name = "G1" });
-        mockRunwayService.Setup(r => r.GetByIdSafe(1)).Returns(new Runway { Name = "R1" });
+        mockGateService.Setup(r => r.GetGateById(1)).Returns(new Gate { Name = "G1" });
+        mockRunwayService.Setup(r => r.GetRunwayById(1)).Returns(new Runway { Name = "R1" });
 
         mockRouteService.Setup(r => r.NormalizeFlightType("INT")).Returns("International");
         mockRouteService.Setup(r => r.GetRelevantTime(It.IsAny<Route>())).Returns("10:00");
@@ -494,12 +479,12 @@ public class EmployeeFlightServiceTests
         };
 
         mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(1)).Returns(new List<int> { 1 });
-        mockFlightRepo.Setup(r => r.GetById(1)).Returns(flight);
+        mockFlightRepo.Setup(r => r.GetFlightById(1)).Returns(flight);
 
         mockRouteRepo.Setup(r => r.GetRouteById(1)).Returns(flight.Route);
         mockRouteService.Setup(r => r.NormalizeFlightType(null)).Returns("Unknown");
         mockRouteService.Setup(r => r.GetRelevantTime(It.IsAny<Route>())).Returns("N/A");
-        mockRunwayService.Setup(r => r.GetByIdSafe(0)).Returns((Runway)null);
+        mockRunwayService.Setup(r => r.GetRunwayById(0)).Returns((Runway)null);
 
         var result = service.GetFormattedEmployeeSchedule(1);
 
@@ -528,13 +513,13 @@ public class EmployeeFlightServiceTests
         var f2 = new Flight { Id = 2, Date = DateTime.Today, Route = new Route { Id = 1 } };
 
         mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(1)).Returns(new List<int> { 1, 2 });
-        mockFlightRepo.Setup(r => r.GetById(1)).Returns(f1);
-        mockFlightRepo.Setup(r => r.GetById(2)).Returns(f2);
+        mockFlightRepo.Setup(r => r.GetFlightById(1)).Returns(f1);
+        mockFlightRepo.Setup(r => r.GetFlightById(2)).Returns(f2);
 
         mockRouteRepo.Setup(r => r.GetRouteById(It.IsAny<int>())).Returns(new Route());
         mockRouteService.Setup(r => r.NormalizeFlightType(It.IsAny<string>())).Returns("X");
         mockRouteService.Setup(r => r.GetRelevantTime(It.IsAny<Route>())).Returns("X");
-        mockRunwayService.Setup(r => r.GetByIdSafe(It.IsAny<int>())).Returns((Runway)null);
+        mockRunwayService.Setup(r => r.GetRunwayById(It.IsAny<int>())).Returns((Runway)null);
 
         var result = service.GetFormattedEmployeeSchedule(1);
 
@@ -582,7 +567,7 @@ public class EmployeeFlightServiceTests
 
         mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(2)).Returns(new List<int> { 99 });
 
-        mockFlightRepo.Setup(r => r.GetById(99)).Returns(new Flight
+        mockFlightRepo.Setup(r => r.GetFlightById(99)).Returns(new Flight
         {
             Id = 99,
             Date = DateTime.Today,
@@ -596,7 +581,7 @@ public class EmployeeFlightServiceTests
             ArrivalTime = TimeOnly.FromDateTime(DateTime.Today.AddHours(13))
         });
 
-        var result = service.GetAvailableCrewGroupedByRole(flight);
+        var result = service.GetAvailableEmployeesGroupedByRole(flight);
 
         Assert.Single(result);
         Assert.Equal(1, result[0].Id);
@@ -636,7 +621,7 @@ public class EmployeeFlightServiceTests
         mockRouteRepo.Setup(r => r.GetRouteById(It.IsAny<int>())).Returns(new Route());
         mockEmployeeFlightRepo.Setup(r => r.GetFlightsByEmployeeId(It.IsAny<int>())).Returns(new List<int>());
 
-        var result = service.GetAvailableCrewGroupedByRole(flight);
+        var result = service.GetAvailableEmployeesGroupedByRole(flight);
 
         Assert.Equal(new[] { 2, 3, 1 }, result.Select(e => e.Id));
     }

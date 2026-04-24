@@ -18,9 +18,9 @@ public class AirportServiceTests
 
         AirportService airportService = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        Assert.Throws<ArgumentException>(() => airportService.Add(null, "Test", "Test"));
-        Assert.Throws<ArgumentException>(() => airportService.Add(string.Empty, "Test", "Test"));
-        Assert.Throws<ArgumentException>(() => airportService.Add(" ", "Test", "Test"));
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport(null, "Test", "Test"));
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport(string.Empty, "Test", "Test"));
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport(" ", "Test", "Test"));
     }
 
     [Fact]
@@ -31,9 +31,9 @@ public class AirportServiceTests
 
         AirportService airportService = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        Assert.Throws<ArgumentException>(() => airportService.Add("Test", null, "Test"));
-        Assert.Throws<ArgumentException>(() => airportService.Add("Test", string.Empty, "Test"));
-        Assert.Throws<ArgumentException>(() => airportService.Add("Test", " ", "Test"));
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport("Test", null, "Test"));
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport("Test", string.Empty, "Test"));
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport("Test", " ", "Test"));
     }
 
     [Fact]
@@ -44,9 +44,9 @@ public class AirportServiceTests
 
         AirportService airportService = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        Assert.Throws<ArgumentException>(() => airportService.Add("Test", "Test", null));
-        Assert.Throws<ArgumentException>(() => airportService.Add("Test", "Test", string.Empty));
-        Assert.Throws<ArgumentException>(() => airportService.Add("Test", "Test", " "));
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport("Test", "Test", null));
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport("Test", "Test", string.Empty));
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport("Test", "Test", " "));
     }
 
     [Fact]
@@ -59,7 +59,7 @@ public class AirportServiceTests
 
         mockAirportRepo.Setup(repo => repo.AddAirport(It.IsAny<Airport>())).Returns(1);
 
-        Assert.Equal(1, airportService.Add("Test", "Test", "Test"));
+        Assert.Equal(1, airportService.AddAirport("Test", "Test", "Test"));
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public class AirportServiceTests
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        var result = service.GetAll();
+        var result = service.GetAllAirports();
 
         Assert.Equal(2, result.Count);
         Assert.Equal(airports, result);
@@ -92,7 +92,7 @@ public class AirportServiceTests
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        var result = service.GetById(0);
+        var result = service.GetAirportById(0);
 
         Assert.Null(result);
     }
@@ -109,7 +109,7 @@ public class AirportServiceTests
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        var result = service.GetById(1);
+        var result = service.GetAirportById(1);
 
         Assert.Equal(airport, result);
     }
@@ -124,7 +124,7 @@ public class AirportServiceTests
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        service.Update(1, "NewCity");
+        service.UpdateAirport(1, "NewCity");
 
         mockAirportRepo.Verify(repo => repo.UpdateAirport(It.IsAny<Airport>()), Times.Never);
     }
@@ -146,7 +146,7 @@ public class AirportServiceTests
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        service.Update(1, newName: "NewName");
+        service.UpdateAirport(1, newName: "NewName");
 
         Assert.Equal("NewName", airport.AirportName);
         Assert.Equal("OldCity", airport.City);
@@ -172,7 +172,7 @@ public class AirportServiceTests
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        service.Update(1, newCity: "NewCity");
+        service.UpdateAirport(1, newCity: "NewCity");
 
         Assert.Equal("NewCity", airport.City);
         Assert.Equal("OldName", airport.AirportName);
@@ -198,7 +198,7 @@ public class AirportServiceTests
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        service.Update(1, newCode: "NEW");
+        service.UpdateAirport(1, newCode: "NEW");
 
         Assert.Equal("NEW", airport.AirportCode);
         Assert.Equal("OldName", airport.AirportName);
@@ -224,7 +224,7 @@ public class AirportServiceTests
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        service.Update(1);
+        service.UpdateAirport(1);
 
         Assert.Equal("OldName", airport.AirportName);
         Assert.Equal("OldCity", airport.City);
@@ -250,7 +250,7 @@ public class AirportServiceTests
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        service.Update(1, "NewCity", "NewName", "NEW");
+        service.UpdateAirport(1, "NewCity", "NewName", "NEW");
 
         Assert.Equal("NewCity", airport.City);
         Assert.Equal("NewName", airport.AirportName);
@@ -267,7 +267,7 @@ public class AirportServiceTests
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        service.Delete(0);
+        service.DeleteAirportUsingId(0);
 
         mockAirportRepo.Verify(repo => repo.DeleteAirportUsingId(It.IsAny<int>()), Times.Never);
     }
@@ -280,7 +280,7 @@ public class AirportServiceTests
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        service.Delete(5);
+        service.DeleteAirportUsingId(5);
 
         mockAirportRepo.Verify(repo => repo.DeleteAirportUsingId(5), Times.Once);
     }
@@ -297,7 +297,7 @@ public class AirportServiceTests
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        var result = service.HasFlights(1);
+        var result = service.CheckIfAirportHasFlightsUsingId(1);
 
         Assert.True(result);
     }
@@ -312,7 +312,7 @@ public class AirportServiceTests
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        var result = service.HasFlights(1);
+        var result = service.CheckIfAirportHasFlightsUsingId(1);
 
         Assert.False(result);
     }

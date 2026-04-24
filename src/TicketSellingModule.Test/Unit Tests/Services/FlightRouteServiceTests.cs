@@ -40,7 +40,7 @@ public class FlightRouteServiceTests
         var service = BuildService(mockFlightRepo, mockRouteRepo);
 
         Assert.Throws<ArgumentException>(() =>
-            service.Add(1, 1, "DEP", 1,
+            service.AddFlightToRoute(1, 1, "DEP", 1,
                 new DateTime(2025, 6, 10), new DateTime(2025, 6, 1),
                 new TimeOnly(10, 0), new TimeOnly(12, 0), 100, "FL001", 1, 1));
     }
@@ -54,7 +54,7 @@ public class FlightRouteServiceTests
         var service = BuildService(mockFlightRepo, mockRouteRepo);
 
         Assert.Throws<ArgumentException>(() =>
-            service.Add(1, 1, "DEP", 1,
+            service.AddFlightToRoute(1, 1, "DEP", 1,
                 new DateTime(2025, 1, 1), new DateTime(2025, 1, 10),
                 new TimeOnly(10, 0), new TimeOnly(12, 0), 0, "FL001", 1, 1));
     }
@@ -86,7 +86,7 @@ public class FlightRouteServiceTests
         var service = BuildService(mockFlightRepo, mockRouteRepo);
 
         Assert.Throws<InvalidOperationException>(() =>
-            service.Add(1, 1, "DEP", 1, start, start,
+            service.AddFlightToRoute(1, 1, "DEP", 1, start, start,
                 new TimeOnly(10, 0), new TimeOnly(12, 0), 100, "FL001", 2, 1));
     }
 
@@ -117,7 +117,7 @@ public class FlightRouteServiceTests
         var service = BuildService(mockFlightRepo, mockRouteRepo);
 
         Assert.Throws<InvalidOperationException>(() =>
-            service.Add(1, 1, "DEP", 1, start, start,
+            service.AddFlightToRoute(1, 1, "DEP", 1, start, start,
                 new TimeOnly(10, 0), new TimeOnly(12, 0), 100, "FL001", 2, 1));
     }
 
@@ -137,7 +137,7 @@ public class FlightRouteServiceTests
         var service = BuildService(mockFlightRepo, mockRouteRepo, mockCompanyRepo, mockAirportRepo);
 
         var start = new DateTime(2025, 1, 1);
-        var result = service.Add(1, 1, "DEP", 1, start, start,
+        var result = service.AddFlightToRoute(1, 1, "DEP", 1, start, start,
             new TimeOnly(10, 0), new TimeOnly(12, 0), 100, "FL001", 1, 1);
 
         Assert.Equal(20, result);
@@ -164,14 +164,13 @@ public class FlightRouteServiceTests
         var mockFlightRepo = new Mock<IFlightRepository>();
         var mockRouteRepo = new Mock<IRouteRepository>();
         var flight = new Flight { FlightNumber = "FL001" };
-        mockFlightRepo.Setup(r => r.GetById(1)).Returns(flight);
+        mockFlightRepo.Setup(r => r.GetFlightById(1)).Returns(flight);
 
         var service = BuildService(mockFlightRepo, mockRouteRepo);
 
         Assert.Equal(flight, service.GetFlightById(1));
     }
 
-    // ── GetAllRoutes / GetAllFlights ─────────────────────────
     [Fact]
     public void GetAllRoutes_Should_Return_All_Routes()
     {
@@ -205,8 +204,8 @@ public class FlightRouteServiceTests
         var mockRouteRepo = new Mock<IRouteRepository>();
         var service = BuildService(mockFlightRepo, mockRouteRepo);
 
-        Assert.Throws<ArgumentException>(() => service.DeleteFlight(0));
-        Assert.Throws<ArgumentException>(() => service.DeleteFlight(-1));
+        Assert.Throws<ArgumentException>(() => service.DeleteFlightUsingId(0));
+        Assert.Throws<ArgumentException>(() => service.DeleteFlightUsingId(-1));
     }
 
     [Fact]
@@ -214,11 +213,11 @@ public class FlightRouteServiceTests
     {
         var mockFlightRepo = new Mock<IFlightRepository>();
         var mockRouteRepo = new Mock<IRouteRepository>();
-        mockFlightRepo.Setup(r => r.GetById(5)).Returns((Flight)null);
+        mockFlightRepo.Setup(r => r.GetFlightById(5)).Returns((Flight)null);
 
         var service = BuildService(mockFlightRepo, mockRouteRepo);
 
-        Assert.Throws<ArgumentException>(() => service.DeleteFlight(5));
+        Assert.Throws<ArgumentException>(() => service.DeleteFlightUsingId(5));
     }
 
     [Fact]
@@ -226,10 +225,10 @@ public class FlightRouteServiceTests
     {
         var mockFlightRepo = new Mock<IFlightRepository>();
         var mockRouteRepo = new Mock<IRouteRepository>();
-        mockFlightRepo.Setup(r => r.GetById(5)).Returns(new Flight());
+        mockFlightRepo.Setup(r => r.GetFlightById(5)).Returns(new Flight());
 
         var service = BuildService(mockFlightRepo, mockRouteRepo);
-        service.DeleteFlight(5);
+        service.DeleteFlightUsingId(5);
 
         mockFlightRepo.Verify(r => r.DeleteFlightUsingId(5), Times.Once);
     }
@@ -255,7 +254,7 @@ public class FlightRouteServiceTests
         mockFlightRepo.Setup(r => r.GetAllFlights()).Returns(flights);
 
         var service = BuildService(mockFlightRepo, mockRouteRepo);
-        var result = service.GetFlightsByCompany(10);
+        var result = service.GetFlightsByCompanyId(10);
 
         Assert.Single(result);
         Assert.Equal("FL001", result[0].FlightNumber);
@@ -271,7 +270,7 @@ public class FlightRouteServiceTests
         mockFlightRepo.Setup(r => r.GetAllFlights()).Returns(new List<Flight> { new Flight { Route = new Route { Id = 1 } } });
 
         var service = BuildService(mockFlightRepo, mockRouteRepo);
-        var result = service.GetFlightsByCompany(10);
+        var result = service.GetFlightsByCompanyId(10);
 
         Assert.Empty(result);
     }

@@ -33,7 +33,7 @@ public class RouteServiceTests
 
         var service = BuildService(mockRouteRepo, mockFlightRepo);
 
-        Assert.Equal(route, service.GetById(1));
+        Assert.Equal(route, service.GetRouteById(1));
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public class RouteServiceTests
 
         var service = BuildService(mockRouteRepo, mockFlightRepo);
 
-        Assert.Null(service.GetById(99));
+        Assert.Null(service.GetRouteById(99));
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public class RouteServiceTests
 
         var service = BuildService(mockRouteRepo, mockFlightRepo);
 
-        Assert.Equal(2, service.GetAll().Count);
+        Assert.Equal(2, service.GetAllRoutes().Count);
     }
 
     [Fact]

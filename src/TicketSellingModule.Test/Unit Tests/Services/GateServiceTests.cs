@@ -23,7 +23,7 @@ public class GateServiceTests
         mockGateRepo.Setup(r => r.GetAllGates()).Returns(gates);
 
         var service = new GateService(mockGateRepo.Object, mockFlightRepo.Object);
-        var result = service.GetAll();
+        var result = service.GetAllGates();
 
         Assert.Equal(2, result.Count);
         Assert.Equal(gates, result);
@@ -36,8 +36,8 @@ public class GateServiceTests
         var mockFlightRepo = new Mock<IFlightRepository>();
         var service = new GateService(mockGateRepo.Object, mockFlightRepo.Object);
 
-        Assert.Null(service.GetById(0));
-        Assert.Null(service.GetById(-1));
+        Assert.Null(service.GetGateById(0));
+        Assert.Null(service.GetGateById(-1));
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public class GateServiceTests
         mockGateRepo.Setup(r => r.GetGateById(1)).Returns(gate);
 
         var service = new GateService(mockGateRepo.Object, mockFlightRepo.Object);
-        var result = service.GetById(1);
+        var result = service.GetGateById(1);
 
         Assert.Equal(gate, result);
     }
@@ -143,8 +143,8 @@ public class GateServiceTests
         var mockFlightRepo = new Mock<IFlightRepository>();
         var service = new GateService(mockGateRepo.Object, mockFlightRepo.Object);
 
-        service.Delete(0);
-        service.Delete(-3);
+        service.DeleteGateUsingId(0);
+        service.DeleteGateUsingId(-3);
 
         mockGateRepo.Verify(r => r.DeleteGateUsingId(It.IsAny<int>()), Times.Never);
     }
@@ -156,7 +156,7 @@ public class GateServiceTests
         var mockFlightRepo = new Mock<IFlightRepository>();
         var service = new GateService(mockGateRepo.Object, mockFlightRepo.Object);
 
-        service.Delete(4);
+        service.DeleteGateUsingId(4);
 
         mockGateRepo.Verify(r => r.DeleteGateUsingId(4), Times.Once);
     }

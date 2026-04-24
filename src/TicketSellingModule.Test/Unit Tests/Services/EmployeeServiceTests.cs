@@ -22,7 +22,7 @@ public class EmployeeServiceTests
 
         var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
 
-        var result = service.GetAll();
+        var result = service.GetAllEmployees();
 
         Assert.Equal(2, result.Count);
     }
@@ -34,7 +34,7 @@ public class EmployeeServiceTests
             new Mock<IEmployeeRepository>().Object,
             new Mock<IEmployeeFlightService>().Object);
 
-        Assert.Null(service.GetById(0));
+        Assert.Null(service.GetEmployeeById(0));
     }
 
     [Fact]
@@ -134,10 +134,10 @@ public class EmployeeServiceTests
         var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
 
         Assert.Throws<ArgumentException>(() =>
-            service.Add(null, EmployeeRole.Pilot, DateOnly.FromDateTime(DateTime.Now), 100, DateOnly.FromDateTime(DateTime.Now)));
+            service.AddEmployee(null, EmployeeRole.Pilot, DateOnly.FromDateTime(DateTime.Now), 100, DateOnly.FromDateTime(DateTime.Now)));
 
         Assert.Throws<ArgumentException>(() =>
-            service.Add("Test", EmployeeRole.Pilot, DateOnly.FromDateTime(DateTime.Now), -1, DateOnly.FromDateTime(DateTime.Now)));
+            service.AddEmployee("Test", EmployeeRole.Pilot, DateOnly.FromDateTime(DateTime.Now), -1, DateOnly.FromDateTime(DateTime.Now)));
     }
 
     [Fact]
@@ -150,7 +150,7 @@ public class EmployeeServiceTests
 
         var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
 
-        var result = service.Add(
+        var result = service.AddEmployee(
             "Test",
             EmployeeRole.Pilot,
             DateOnly.FromDateTime(DateTime.Now.AddYears(-20)),
@@ -170,7 +170,7 @@ public class EmployeeServiceTests
 
         mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Returns((Employee)null);
 
-        service.Update(1, name: "New");
+        service.UpdateEmployee(1, name: "New");
 
         mockEmployeeRepo.Verify(r => r.UpdateEmployee(It.IsAny<Employee>()), Times.Never);
     }
@@ -186,7 +186,7 @@ public class EmployeeServiceTests
         mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Returns(employee);
 
         var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
-        service.Update(1,
+        service.UpdateEmployee(1,
             name: "New",
             role: EmployeeRole.CoPilot,
             salary: 2000,
@@ -206,7 +206,7 @@ public class EmployeeServiceTests
         var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
         var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
 
-        service.Delete(0);
+        service.DeleteEmployeeUsingId(0);
 
         mockEmployeeRepo.Verify(r => r.DeleteEmployee(It.IsAny<int>()), Times.Never);
     }
@@ -221,7 +221,7 @@ public class EmployeeServiceTests
 
         service.DeleteWithAssignments(1);
 
-        mockEmployeeFlightService.Verify(r => r.CleanUpEmployeeAssignments(1), Times.Once);
+        mockEmployeeFlightService.Verify(r => r.RemoveAllFlightsAssignmentsForEmployee(1), Times.Once);
         mockEmployeeRepo.Verify(r => r.DeleteEmployee(1), Times.Once);
     }
 
