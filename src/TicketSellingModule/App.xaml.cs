@@ -34,43 +34,28 @@ namespace TicketSellingModule
         private static void ConfigureServices(ServiceCollection services)
         {
             // Infrastructure
-            services.AddSingleton<DatabaseConnectionFactory>();
+            services.AddTransient<DatabaseConnectionFactory>();
 
             // Repos
-            // services.AddTransient<CompanyRepository>();
-            // services.AddTransient<AirportRepository>();
-            // services.AddTransient<RunwayRepository>();
-            // services.AddTransient<GateRepository>();
-            // services.AddTransient<EmployeeRepository>();
-            // services.AddTransient<FlightRepository>();
-            // services.AddTransient<RouteRepository>();
-            // services.AddTransient<EmployeeFlightRepository>();
-            services.AddSingleton<ICompanyRepository, CompanyRepository>();
-            services.AddSingleton<IAirportRepository, AirportRepository>();
-            services.AddSingleton<IRunwayRepository, RunwayRepository>();
-            services.AddSingleton<IGateRepository, GateRepository>();
-            services.AddSingleton<IEmployeeRepository, EmployeeRepository>();
-            services.AddSingleton<IFlightRepository, FlightRepository>();
-            services.AddSingleton<IRouteRepository, RouteRepository>();
-            services.AddSingleton<IEmployeeFlightRepository, EmployeeFlightRepository>();
+            services.AddTransient<ICompanyRepository, CompanyRepository>();
+            services.AddTransient<IAirportRepository, AirportRepository>();
+            services.AddTransient<IRunwayRepository, RunwayRepository>();
+            services.AddTransient<IGateRepository, GateRepository>();
+            services.AddTransient<IEmployeeRepository, EmployeeRepository>();
+            services.AddTransient<IFlightRepository, FlightRepository>();
+            services.AddTransient<IRouteRepository, RouteRepository>();
+            services.AddTransient<IEmployeeFlightRepository, EmployeeFlightRepository>();
 
             // Services
-            // services.AddTransient<CompanyService>();
-            // services.AddTransient<AirportService>();
-            // services.AddTransient<RunwayService>();
-            // services.AddTransient<GateService>();
-            // services.AddTransient<EmployeeService>();
-            // services.AddTransient<FlightRouteService>();
-            // services.AddTransient<EmployeeFlightService>();
-            services.AddSingleton<INavigationService, NavigationService>();
-            services.AddSingleton<ICompanyService, CompanyService>();
-            services.AddSingleton<IAirportService, AirportService>();
-            services.AddSingleton<IRunwayService, RunwayService>();
-            services.AddSingleton<IGateService, GateService>();
-            services.AddSingleton<IEmployeeService, EmployeeService>();
-            services.AddSingleton<IFlightRouteService, FlightRouteService>();
-            services.AddSingleton<IEmployeeFlightService, EmployeeFlightService>();
-            services.AddSingleton<IRouteService, RouteService>();
+            services.AddTransient<INavigationService, NavigationService>();
+            services.AddTransient<ICompanyService, CompanyService>();
+            services.AddTransient<IAirportService, AirportService>();
+            services.AddTransient<IRunwayService, RunwayService>();
+            services.AddTransient<IGateService, GateService>();
+            services.AddTransient<IEmployeeService, EmployeeService>();
+            services.AddTransient<IFlightRouteService, FlightRouteService>();
+            services.AddTransient<IEmployeeFlightService, EmployeeFlightService>();
+            services.AddTransient<IRouteService, RouteService>();
 
             // ViewModels
             services.AddTransient<SelectCompanyViewModel>();
