@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
 
-using TicketSellingModule.Data.Services.Interfaces;
 using TicketSellingModule.WinUI.Services;
 
 namespace TicketSellingModule.ViewModel
@@ -12,7 +11,6 @@ namespace TicketSellingModule.ViewModel
         IEmployeeService employeeService,
         INavigationService navigationService) : ObservableObject
     {
-
         [ObservableProperty] private string employeeIdText;
         [ObservableProperty] private string errorMessage;
         [ObservableProperty] private Visibility errorVisibility = Visibility.Collapsed;

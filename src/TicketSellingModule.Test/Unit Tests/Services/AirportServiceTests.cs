@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using Moq;
-
-using TicketSellingModule.Data.Repositories.Interfaces;
+﻿using Moq;
 
 namespace TicketSellingModule.Test.Unit_Tests.Services;
 
@@ -297,7 +291,7 @@ public class AirportServiceTests
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        var result = service.CheckIfAirportHasFlightsUsingId(1);
+        var result = service.HasFlights(1);
 
         Assert.True(result);
     }
@@ -312,7 +306,7 @@ public class AirportServiceTests
 
         var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
 
-        var result = service.CheckIfAirportHasFlightsUsingId(1);
+        var result = service.HasFlights(1);
 
         Assert.False(result);
     }
