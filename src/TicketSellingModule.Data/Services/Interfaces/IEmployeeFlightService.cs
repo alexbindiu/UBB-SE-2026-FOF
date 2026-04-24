@@ -2,15 +2,15 @@
 
 public interface IEmployeeFlightService
 {
-    void AssignCrewMember(int flightId, int employeeId);
-    void RemoveCrewMember(int flightId, int employeeId);
-    List<Employee> GetFlightCrew(int flightId);
+    void AssignEmployeeToFlightUsingIds(int flightId, int employeeId);
+    void RemoveEmployeeFromFlightUsingIds(int flightId, int employeeId);
+    List<Employee> GetEmployeesAssignedToFlight(int flightId);
     List<Flight> GetEmployeeSchedule(int employeeId);
-    // List<Employee> GetAvailableEmployeesForFlight(Flight targetFlight);
-    void AssignCrewToFlight(int flightId, List<int> employeeIds);
-    void UpdateCrewForFlight(int flightId, List<int> newEmployeeIds);
-    void CleanUpFlightAssignments(int flightId);
-    void CleanUpEmployeeAssignments(int employeeId);
+    bool IsEmployeeAvailable(int employeeId, DateTime targetDate, int targetRouteId, int? excludedFlightId);
+    void AssignEmpolyeesToFlightUsingIds(int flightId, List<int> employeeIds);
+    void UpdateEmployeesForFlightUsingIds(int flightId, List<int> updatedEmployeeIds);
+    void RemoveAllCrewAssignmentsForFlight(int flightId);
+    void RemoveAllFlightsAssignmentsForEmployee(int employeeId);
     List<EmployeeScheduleItem> GetFormattedEmployeeSchedule(int employeeId);
-    List<Employee> GetAvailableCrewGroupedByRole(Flight flight);
+    List<Employee> GetAvailableEmployeesGroupedByRole(Flight flight);
 }

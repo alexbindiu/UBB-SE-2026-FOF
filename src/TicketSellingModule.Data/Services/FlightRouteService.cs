@@ -1,97 +1,90 @@
-﻿using TicketSellingModule.Data.Repositories.Interfaces;
-using TicketSellingModule.Data.Services.Interfaces;
-
-namespace TicketSellingModule.Data.Services
+﻿namespace TicketSellingModule.Data.Services
 {
-    public class FlightRouteService : IFlightRouteService
+    public class FlightRouteService(
+        IFlightRepository flightRepository,
+        IRouteRepository routeRepository,
+        ICompanyRepository companyRepository,
+        IAirportRepository airportRepository,
+        IRunwayService runwayService,
+        IGateService gateService,
+        IAirportService airportService) : IFlightRouteService
     {
-        private readonly IFlightRepository flightRepo;
-        private readonly IRouteRepository routeRepo;
-        private readonly ICompanyRepository companyRepo;
-        private readonly IAirportRepository airportRepo;
-        private readonly IRunwayService runwayService;
-        private readonly IGateService gateService;
-        private readonly IAirportService airportService;
+        private const int MinutesInADay = 1440;
 
-        public FlightRouteService(
-            IFlightRepository flightRepo,
-            IRouteRepository routeRepo,
-            ICompanyRepository companyRepo,
-            IAirportRepository airportRepo,
-            IRunwayService runwayService,
-            IGateService gateService,
-            IAirportService airportService)
+        private bool CheckOverlappingTimes(TimeOnly startTime1, TimeOnly endTime1, TimeOnly startTime2, TimeOnly endTime2)
         {
-            this.flightRepo = flightRepo;
-            this.routeRepo = routeRepo;
-            this.companyRepo = companyRepo;
-            this.airportRepo = airportRepo;
-            this.runwayService = runwayService;
-            this.gateService = gateService;
-            this.airportService = airportService;
-        }
+            int startMinutes1 = (startTime1.Hour * 60) + startTime1.Minute;
+            int endMinutes1 = (endTime1.Hour * 60) + endTime1.Minute;
 
-        private bool CheckOverlappingTimes(TimeOnly start1, TimeOnly end1, TimeOnly start2, TimeOnly end2)
-        {
-            int s1 = (start1.Hour * 60) + start1.Minute;
-            int e1 = (end1.Hour * 60) + end1.Minute;
-            if (e1 <= s1)
+            if (endMinutes1 <= startMinutes1)
             {
-                e1 += 1440;
+                endMinutes1 += MinutesInADay;
             }
 
-            int s2 = (start2.Hour * 60) + start2.Minute;
-            int e2 = (end2.Hour * 60) + end2.Minute;
-            if (e2 <= s2)
+            int startMinutes2 = (startTime2.Hour * 60) + startTime2.Minute;
+            int endMinutes2 = (endTime2.Hour * 60) + endTime2.Minute;
+
+            if (endMinutes2 <= startMinutes2)
             {
-                e2 += 1440;
+                endMinutes2 += MinutesInADay;
             }
 
-            return s1 < e2 && s2 < e1;
+            return startMinutes1 < endMinutes2 && startMinutes2 < endMinutes1;
         }
 
-        public int Add(int companyID, int airportID, string route_type, int recurrence_interval,
-                       DateTime start_date, DateTime end_date, TimeOnly dep_time, TimeOnly arr_time,
-                       int capacity, string flight_number, int runwayID, int gateID)
+        public int AddFlightToRoute(
+            int companyId,
+            int airportId,
+            string routeType,
+            int recurrenceInterval,
+            DateTime startDate,
+            DateTime endDate,
+            TimeOnly departureTime,
+            TimeOnly arrivalTime,
+            int capacity,
+            string flightNumber,
+            int runwayId,
+            int gateId)
         {
-            if (start_date > end_date)
+            if (startDate > endDate)
             {
-                throw new ArgumentException("Start date can not be after end date.");
+                throw new ArgumentException("The start date cannot be after the end date.");
             }
 
             if (capacity <= 0)
             {
-                throw new ArgumentException("Capacity must be greater than 0.");
+                throw new ArgumentException("Capacity must be a positive number greater than 0.");
             }
 
-            var allFlights = flightRepo.GetAllFlights();
-            var flightsOnSameDate = allFlights.Where(f => f.Date.Date == start_date.Date).ToList();
-            DateTime flightFullDateTime = start_date.Date.Add(dep_time.ToTimeSpan());
+            List<Flight> allFlights = flightRepository.GetAllFlights();
 
-            foreach (var existingFlight in flightsOnSameDate)
+            foreach (Flight existingFlight in allFlights)
             {
-                if (existingFlight.Gate.Id == gateID || existingFlight.Runway.Id == runwayID)
+                if (existingFlight.Date.Date == startDate.Date)
                 {
-                    var existingRoute = routeRepo.GetRouteById(existingFlight.Route.Id);
-
-                    if (existingRoute != null)
+                    if (existingFlight.Gate.Id == gateId || existingFlight.Runway.Id == runwayId)
                     {
-                        bool isTimeOverlap = CheckOverlappingTimes(dep_time, arr_time, existingRoute.DepartureTime, existingRoute.ArrivalTime);
+                        Route? existingRoute = routeRepository.GetRouteById(existingFlight.Route.Id);
 
-                        if (isTimeOverlap)
+                        if (existingRoute != null)
                         {
-                            if (existingFlight.Gate.Id == gateID)
-                            {
-                                throw new InvalidOperationException(
-                                    $"Gate Conflict: Gate {gateID} is already occupied by Flight {existingFlight.FlightNumber} " +
-                                    $"from {existingRoute.DepartureTime} to {existingRoute.ArrivalTime}.");
-                            }
+                            bool isTimeOverlap = this.CheckOverlappingTimes(
+                                departureTime,
+                                arrivalTime,
+                                existingRoute.DepartureTime,
+                                existingRoute.ArrivalTime);
 
-                            if (existingFlight.Runway.Id == runwayID)
+                            if (isTimeOverlap)
                             {
-                                throw new InvalidOperationException(
-                                    $"Runway Conflict: Runway {runwayID} is already in use by Flight {existingFlight.FlightNumber} " +
-                                    $"from {existingRoute.DepartureTime} to {existingRoute.ArrivalTime}.");
+                                if (existingFlight.Gate.Id == gateId)
+                                {
+                                    throw new InvalidOperationException($"Gate Conflict: Gate {gateId} is occupied by Flight {existingFlight.FlightNumber}.");
+                                }
+
+                                if (existingFlight.Runway.Id == runwayId)
+                                {
+                                    throw new InvalidOperationException($"Runway Conflict: Runway {runwayId} is occupied by Flight {existingFlight.FlightNumber}.");
+                                }
                             }
                         }
                     }
@@ -100,44 +93,58 @@ namespace TicketSellingModule.Data.Services
 
             Route newRoute = new Route
             {
-                Company = companyRepo.GetCompanyById(companyID),
-                Airport = airportRepo.GetAirportById(airportID),
-                RouteType = route_type,
-                RecurrenceInterval = recurrence_interval,
-                StartDate = DateOnly.FromDateTime(start_date),
-                EndDate = DateOnly.FromDateTime(end_date),
-                DepartureTime = dep_time,
-                ArrivalTime = arr_time,
+                Company = companyRepository.GetCompanyById(companyId),
+                Airport = airportRepository.GetAirportById(airportId),
+                RouteType = routeType,
+                RecurrenceInterval = recurrenceInterval,
+                StartDate = DateOnly.FromDateTime(startDate),
+                EndDate = DateOnly.FromDateTime(endDate),
+                DepartureTime = departureTime,
+                ArrivalTime = arrivalTime,
                 Capacity = capacity
             };
 
-            int routeId = routeRepo.AddRoute(newRoute);
+            int routeId = routeRepository.AddRoute(newRoute);
+
+            DateTime flightFullDateTime = startDate.Date.Add(departureTime.ToTimeSpan());
 
             Flight initialFlight = new Flight
             {
                 Route = new Route { Id = routeId },
                 Date = flightFullDateTime,
-                FlightNumber = flight_number,
-                Runway = new Runway { Id = runwayID },
-                Gate = new Gate { Id = gateID }
+                FlightNumber = flightNumber,
+                Runway = new Runway { Id = runwayId },
+                Gate = new Gate { Id = gateId }
             };
 
-            flightRepo.AddFlight(initialFlight);
+            flightRepository.AddFlight(initialFlight);
 
             return routeId;
         }
 
         public void CreateFlightWithSchedule(
-            int companyId, string routeType, int airportId, int capacity, TimeSpan departureOffset, TimeSpan arrivalOffset,
-            bool isRecurrent, DateTime? startDate, DateTime? endDate, DateTime? singleDate, string recurrenceType, string customDaysText,
-            int runwayId, int gateId, Func<int, string> flightCodeGenerator)
+            int companyId,
+            string routeType,
+            int airportId,
+            int capacity,
+            TimeSpan departureOffset,
+            TimeSpan arrivalOffset,
+            bool isRecurrent,
+            DateTime? startDate,
+            DateTime? endDate,
+            DateTime? singleDate,
+            string recurrenceType,
+            string customDaysText,
+            int runwayId,
+            int gateId,
+            Func<int, string> flightCodeGenerator)
         {
             DateTime start = isRecurrent ? startDate?.Date ?? DateTime.Today : singleDate?.Date ?? DateTime.Today;
             DateTime end = isRecurrent ? endDate?.Date ?? start : start;
 
             if (isRecurrent && end < start)
             {
-                throw new InvalidOperationException("End date must be after start date.");
+                throw new InvalidOperationException("The end date must be after the start date.");
             }
 
             int interval = 0;
@@ -149,7 +156,7 @@ namespace TicketSellingModule.Data.Services
                     "Weekly" => 7,
                     "Monthly" => 30,
                     "Custom" => int.TryParse(customDaysText, out int custom) && custom > 0 ? custom : throw new InvalidOperationException("Invalid custom interval."),
-                    _ => throw new InvalidOperationException("Recurrence type is required.")
+                    _ => throw new InvalidOperationException("A recurrence type is required for recurrent flights.")
                 };
             }
 
@@ -158,79 +165,109 @@ namespace TicketSellingModule.Data.Services
 
             if (depTime == arrTime)
             {
-                throw new InvalidOperationException("Arrival time cannot be the same as departure time.");
+                throw new InvalidOperationException("Arrival time cannot be identical to departure time.");
             }
 
             string flightNum = flightCodeGenerator(companyId);
 
-            Add(companyId, airportId, routeType, interval, start, end, depTime, arrTime, capacity, flightNum, runwayId, gateId);
+            this.AddFlightToRoute(companyId, airportId, routeType, interval, start, end, depTime, arrTime, capacity, flightNum, runwayId, gateId);
         }
 
         public List<Flight> GetAllFlightsWithDetails()
         {
-            var flights = GetAllFlights();
-            foreach (var flight in flights)
+            List<Flight> flights = this.GetAllFlights();
+
+            foreach (Flight flight in flights)
             {
-                if (flight.Runway?.Id > 0)
+                if (flight.Runway != null && flight.Runway.Id > 0)
                 {
-                    flight.Runway = runwayService.GetById(flight.Runway.Id);
+                    flight.Runway = runwayService.GetRunwayById(flight.Runway.Id);
                 }
 
-                if (flight.Gate?.Id > 0)
+                if (flight.Gate != null && flight.Gate.Id > 0)
                 {
-                    flight.Gate = gateService.GetById(flight.Gate.Id);
+                    flight.Gate = gateService.GetGateById(flight.Gate.Id);
                 }
 
-                if (flight.Route?.Id > 0)
+                if (flight.Route != null && flight.Route.Id > 0)
                 {
-                    flight.Route = GetRouteById(flight.Route.Id);
-                    if (flight.Route?.Airport?.Id > 0)
+                    flight.Route = this.GetRouteById(flight.Route.Id);
+
+                    if (flight.Route?.Airport != null && flight.Route.Airport.Id > 0)
                     {
-                        flight.Route.Airport = airportService.GetById(flight.Route.Airport.Id);
+                        flight.Route.Airport = airportService.GetAirportById(flight.Route.Airport.Id);
                     }
                 }
             }
+
             return flights;
         }
 
-        public Route? GetRouteById(int routeId) => routeRepo.GetRouteById(routeId);
+        public Route? GetRouteById(int routeId)
+        {
+            return routeRepository.GetRouteById(routeId);
+        }
 
-        public Flight? GetFlightById(int flightId) => flightRepo.GetById(flightId);
+        public Flight? GetFlightById(int flightId)
+        {
+            return flightRepository.GetFlightById(flightId);
+        }
 
-        public List<Route> GetAllRoutes() => routeRepo.GetAllRoutes();
+        public List<Route> GetAllRoutes()
+        {
+            return routeRepository.GetAllRoutes();
+        }
 
-        public List<Flight> GetAllFlights() => flightRepo.GetAllFlights();
+        public List<Flight> GetAllFlights()
+        {
+            return flightRepository.GetAllFlights();
+        }
 
-        public void DeleteFlight(int flightId)
+        public void DeleteFlightUsingId(int flightId)
         {
             if (flightId <= 0)
             {
-                throw new ArgumentException("Invalid flight ID.");
+                throw new ArgumentException("The provided flight Id is invalid.");
             }
 
-            if (flightRepo.GetById(flightId) == null)
+            if (this.GetFlightById(flightId) == null)
             {
-                throw new ArgumentException("Flight with the given ID does not exist.");
+                throw new ArgumentException("A flight with the specified Id does not exist.");
             }
 
-            flightRepo.DeleteFlightUsingId(flightId);
+            flightRepository.DeleteFlightUsingId(flightId);
         }
 
-        public List<Flight> GetFlightsByCompany(int companyId)
+        public List<Flight> GetFlightsByCompanyId(int companyId)
         {
-            var companyRouteIds = routeRepo.GetAllRoutes()
-                .Where(r => r.Company.Id == companyId)
-                .Select(r => r.Id)
-                .ToList();
+            List<Route> allRoutes = routeRepository.GetAllRoutes();
+            List<int> companyRouteIds = new List<int>();
 
-            return flightRepo.GetAllFlights()
-                .Where(f => companyRouteIds.Contains(f.Route.Id))
-                .ToList();
+            foreach (Route route in allRoutes)
+            {
+                if (route.Company.Id == companyId)
+                {
+                    companyRouteIds.Add(route.Id);
+                }
+            }
+
+            List<Flight> allFlights = flightRepository.GetAllFlights();
+            List<Flight> filteredFlights = new List<Flight>();
+
+            foreach (Flight flight in allFlights)
+            {
+                if (companyRouteIds.Contains(flight.Route.Id))
+                {
+                    filteredFlights.Add(flight);
+                }
+            }
+
+            return filteredFlights;
         }
 
         public string GetDestinationText(Flight flight)
         {
-            if (flight.Route?.Airport == null)
+            if (flight.Route == null || flight.Route.Airport == null)
             {
                 return "-";
             }

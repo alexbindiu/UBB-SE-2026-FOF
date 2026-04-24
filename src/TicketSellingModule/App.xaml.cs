@@ -36,7 +36,7 @@ namespace TicketSellingModule
             // Infrastructure
             services.AddTransient<DatabaseConnectionFactory>();
 
-            // Repos
+            // Repositories
             services.AddTransient<ICompanyRepository, CompanyRepository>();
             services.AddTransient<IAirportRepository, AirportRepository>();
             services.AddTransient<IRunwayRepository, RunwayRepository>();
@@ -47,7 +47,6 @@ namespace TicketSellingModule
             services.AddTransient<IEmployeeFlightRepository, EmployeeFlightRepository>();
 
             // Services
-            services.AddTransient<INavigationService, NavigationService>();
             services.AddTransient<ICompanyService, CompanyService>();
             services.AddTransient<IAirportService, AirportService>();
             services.AddTransient<IRunwayService, RunwayService>();
@@ -57,14 +56,14 @@ namespace TicketSellingModule
             services.AddTransient<IEmployeeFlightService, EmployeeFlightService>();
             services.AddTransient<IRouteService, RouteService>();
 
+            services.AddSingleton<INavigationService, NavigationService>();
+
             // ViewModels
             services.AddTransient<SelectCompanyViewModel>();
             services.AddTransient<AirportAdminViewModel>();
             services.AddTransient<EmployeesDashboardViewModel>();
             services.AddTransient<AirportDashboardViewModel>();
             services.AddTransient<FlightsDashboardViewModel>();
-            services.AddTransient<RouteRepository>();
-            services.AddTransient<RouteService>();
             services.AddTransient<CompanyViewModel>();
             services.AddTransient<StaffPageViewModel>();
             services.AddTransient<HeaderViewModel>();

@@ -1,84 +1,58 @@
-using TicketSellingModule.Data.Repositories.Interfaces;
-using TicketSellingModule.Data.Services.Interfaces;
-
 namespace TicketSellingModule.Data.Services
 {
-    public class RunwayService : IRunwayService
+    public class RunwayService(
+        IRunwayRepository runwayRepository,
+        IFlightRepository flightRepository) : IRunwayService
     {
-        private readonly IRunwayRepository runwayRepo;
-        private readonly IFlightRepository flightRepo;
-        public RunwayService(IRunwayRepository runwayRepo, IFlightRepository flightRepo)
+        public List<Runway> GetAllRunways()
         {
-            this.runwayRepo = runwayRepo;
-            this.flightRepo = flightRepo;
+            return runwayRepository.GetAllRunways();
         }
 
-        public List<Runway> GetAll()
+        public Runway? GetRunwayById(int runwayId)
         {
-            return runwayRepo.GetAllRunways();
-        }
-
-        public Runway GetById(int id)
-        {
-            if (id <= 0)
-            {
-                throw new ArgumentException("Invalid runway ID.");
-            }
-
-            var runway = runwayRepo.GetRunwayById(id);
-            if (runway == null)
-            {
-                throw new InvalidOperationException($"Runway with ID {id} does not exist.");
-            }
-
-            return runway;
-        }
-
-        public Runway? GetByIdSafe(int id)
-        {
-            if (id <= 0)
+            if (runwayId <= 0)
             {
                 return null;
             }
-            try
-            {
-                return runwayRepo.GetRunwayById(id);
-            }
-            catch
-            {
-                return null;
-            }
+            return runwayRepository.GetRunwayById(runwayId);
         }
 
-        public int Add(string name, int handleTime)
+        public int AddRunway(string runwayName, int handleTime)
         {
-            if (string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(runwayName))
             {
-                throw new ArgumentException("Runway name cannot be empty.");
+                throw new ArgumentException("The runway name cannot be empty.");
             }
 
             if (handleTime <= 0)
             {
-                throw new ArgumentException("HandleTime must be greater than zero.");
+                throw new ArgumentException("The handle time must be a positive number greater than zero.");
             }
 
-            Runway newRunway = new Runway { Name = name, HandleTime = handleTime };
-            return runwayRepo.AddRunway(newRunway);
+            Runway newRunway = new Runway
+            {
+                Name = runwayName,
+                HandleTime = handleTime
+            };
+
+            return runwayRepository.AddRunway(newRunway);
         }
 
-        public void Update(int id, string? newName = null, int? newHandleTime = null)
+        public void UpdateRunway(int runwayId, string? newName = null, int? newHandleTime = null)
         {
-            var existingRunway = runwayRepo.GetRunwayById(id);
+            Runway? existingRunway = runwayRepository.GetRunwayById(runwayId);
+
             if (existingRunway == null)
             {
-                throw new InvalidOperationException($"Runway with ID {id} does not exist.");
+                throw new InvalidOperationException($"Runway with Id {runwayId} does not exist.");
             }
 
             if (newName != null)
             {
                 if (string.IsNullOrWhiteSpace(newName))
                 {
-                    throw new ArgumentException("New runway name cannot be empty.");
+                    throw new ArgumentException("The new runway name cannot be empty.");
                 }
 
                 existingRunway.Name = newName;
@@ -88,44 +62,49 @@ namespace TicketSellingModule.Data.Services
             {
                 if (newHandleTime <= 0)
                 {
-                    throw new ArgumentException("HandleTime must be greater than zero.");
+                    throw new ArgumentException("The handle time must be a positive number greater than zero.");
                 }
 
                 existingRunway.HandleTime = newHandleTime.Value;
             }
-            runwayRepo.UpdateRunway(existingRunway);
+
+            runwayRepository.UpdateRunway(existingRunway);
         }
 
-        public void Delete(int id)
+        public void DeleteRunwayUsingId(int runwayId)
         {
-            var runway = runwayRepo.GetRunwayById(id);
+            Runway? runway = runwayRepository.GetRunwayById(runwayId);
+
             if (runway == null)
             {
-                throw new InvalidOperationException($"Runway with ID {id} does not exist.");
+                throw new InvalidOperationException($"Runway with Id {runwayId} does not exist.");
             }
-            runwayRepo.DeleteRunwayUsingId(id);
+
+            runwayRepository.DeleteRunwayUsingId(runwayId);
         }
 
-        public void SaveRunway(int id, string name, string handleTimeText)
+        public void SaveRunway(int runwayId, string runwayName, string handleTimeText)
         {
             if (!int.TryParse(handleTimeText, out int handleTime) || handleTime <= 0)
             {
-                throw new ArgumentException("Handle Time must be a valid positive number.");
+                throw new ArgumentException("Handle time must be a valid positive numeric value.");
             }
 
-            if (id == 0)
+            if (runwayId == 0)
             {
-                Add(name, handleTime);
+                this.AddRunway(runwayName, handleTime);
             }
             else
             {
-                Update(id, name, handleTime);
+                this.UpdateRunway(runwayId, runwayName, handleTime);
             }
         }
 
         public bool HasFlights(int runwayId)
         {
-            return flightRepo.GetFlightsByRunwayId(runwayId).Any();
+            List<Flight> associatedFlights = flightRepository.GetFlightsByRunwayId(runwayId);
+
+            return associatedFlights.Count > 0;
         }
     }
 }

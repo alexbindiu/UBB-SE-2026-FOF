@@ -50,7 +50,7 @@ namespace TicketSellingModule.ViewModel
 
             currentEmployeeId = employeeId;
 
-            var employee = employeeService.GetById(employeeId);
+            var employee = employeeService.GetEmployeeById(employeeId);
             if (employee == null)
             {
                 ResetEmployeeInfo();

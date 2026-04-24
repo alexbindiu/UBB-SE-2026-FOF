@@ -1,52 +1,42 @@
-﻿using TicketSellingModule.Data.Repositories.Interfaces;
-using TicketSellingModule.Data.Services.Interfaces;
-
-namespace TicketSellingModule.Data.Services
+﻿namespace TicketSellingModule.Data.Services
 {
-    public class FlightService : IFlightService
+    public class FlightService(IFlightRepository flightRepository) : IFlightService
     {
-        private readonly IFlightRepository flightRepo;
-
-        public FlightService(IFlightRepository flightRepo)
+        public List<Flight> GetAllFlights()
         {
-            this.flightRepo = flightRepo;
+            return flightRepository.GetAllFlights();
         }
 
-        public List<Flight> GetAll()
+        public Flight? GetFlightById(int flightId)
         {
-            return flightRepo.GetAllFlights();
-        }
-
-        public Flight? GetById(int id)
-        {
-            if (id <= 0)
+            if (flightId <= 0)
             {
                 return null;
             }
 
-            return flightRepo.GetById(id);
+            return flightRepository.GetFlightById(flightId);
         }
 
-        public List<Flight> GetByRoute(int routeId)
+        public List<Flight> GetFlightsByRouteId(int routeId)
         {
             if (routeId <= 0)
             {
                 return new List<Flight>();
             }
 
-            return flightRepo.GetFlightsByRouteId(routeId);
+            return flightRepository.GetFlightsByRouteId(routeId);
         }
 
-        public int Add(string flightNumber, int routeId, DateTime date, int runwayId, int gateId)
+        public int AddFlight(string flightNumber, int routeId, DateTime date, int runwayId, int gateId)
         {
             if (string.IsNullOrWhiteSpace(flightNumber))
             {
-                throw new ArgumentException("Flight number cannot be empty.");
+                throw new ArgumentException("The flight number cannot be empty.");
             }
 
             if (routeId <= 0)
             {
-                throw new ArgumentException("Invalid route ID.");
+                throw new ArgumentException("A valid route Id is required.");
             }
 
             Flight newFlight = new Flight
@@ -58,54 +48,59 @@ namespace TicketSellingModule.Data.Services
                 Gate = new Gate { Id = gateId }
             };
 
-            return flightRepo.AddFlight(newFlight);
+            return flightRepository.AddFlight(newFlight);
         }
 
-        public void Update(int id, DateTime? date = null, string? flightNumber = null,
-                           int? runwayId = null, int? gateId = null)
+        public void UpdateFlight(
+            int flightId,
+            DateTime? date = null,
+            string? flightNumber = null,
+            int? runwayId = null,
+            int? gateId = null)
         {
-            var existing = flightRepo.GetById(id);
-            if (existing == null)
+            Flight? existingFlight = flightRepository.GetFlightById(flightId);
+
+            if (existingFlight == null)
             {
-                throw new InvalidOperationException($"Flight with ID {id} does not exist.");
+                throw new InvalidOperationException($"Flight with Id {flightId} does not exist in the system.");
             }
 
             if (date.HasValue)
             {
-                existing.Date = date.Value;
+                existingFlight.Date = date.Value;
             }
 
             if (flightNumber != null)
             {
-                existing.FlightNumber = flightNumber;
+                existingFlight.FlightNumber = flightNumber;
             }
 
             if (runwayId.HasValue)
             {
-                existing.Runway = new Runway { Id = runwayId.Value };
+                existingFlight.Runway = new Runway { Id = runwayId.Value };
             }
 
             if (gateId.HasValue)
             {
-                existing.Gate = new Gate { Id = gateId.Value };
+                existingFlight.Gate = new Gate { Id = gateId.Value };
             }
 
-            flightRepo.UpdateFlight(existing);
+            flightRepository.UpdateFlight(existingFlight);
         }
 
-        public void Delete(int id)
+        public void DeleteFlightUsingId(int flightId)
         {
-            if (id <= 0)
+            if (flightId <= 0)
             {
-                throw new ArgumentException("Invalid flight ID.");
+                throw new ArgumentException("The provided flight Id is invalid.");
             }
 
-            if (flightRepo.GetById(id) == null)
+            if (flightRepository.GetFlightById(flightId) == null)
             {
-                throw new InvalidOperationException($"Flight with ID {id} does not exist.");
+                throw new InvalidOperationException($"Flight with Id {flightId} does not exist.");
             }
 
-            flightRepo.DeleteFlightUsingId(id);
+            flightRepository.DeleteFlightUsingId(flightId);
         }
     }
 }

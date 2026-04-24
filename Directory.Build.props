@@ -17,9 +17,9 @@
     
     <Using Include="TicketSellingModule.Data.Domain" />
     <Using Include="TicketSellingModule.Data.Repositories" />
-    <!-- <Using Include="TicketSellingModule.Data.Repositories.Interfaces" /> -->
+    <Using Include="TicketSellingModule.Data.Repositories.Interfaces" />
     <Using Include="TicketSellingModule.Data.Services" />
-    <!-- <Using Include="TicketSellingModule.Data.Services.Interfaces" /> -->
+    <Using Include="TicketSellingModule.Data.Services.Interfaces" />
     
     <Using Include="Microsoft.Data.SqlClient" />
 

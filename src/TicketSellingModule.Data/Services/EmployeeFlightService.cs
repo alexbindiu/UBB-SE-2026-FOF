@@ -3,50 +3,31 @@ using TicketSellingModule.Data.Services.Interfaces;
 
 namespace TicketSellingModule.Data.Services
 {
-    public class EmployeeFlightService : IEmployeeFlightService
+    public class EmployeeFlightService(
+        IEmployeeFlightRepository employeeFlightRepository,
+        IEmployeeRepository employeeRepository,
+        IFlightRepository flightRepository,
+        IRouteRepository routeRepository,
+        IGateService gateService,
+        IRunwayService runwayService,
+        IRouteService routeService) : IEmployeeFlightService
     {
-        private readonly IEmployeeFlightRepository linkRepo;
-        private readonly IEmployeeRepository employeeRepo;
-        private readonly IFlightRepository flightRepo;
-        private readonly IRouteRepository routeRepo;
-        private readonly IGateService gateService;
-        private readonly IRunwayService runwayService;
-        private readonly IRouteService routeService;
-
-        public EmployeeFlightService(
-            IEmployeeFlightRepository linkRepo,
-            IEmployeeRepository employeeRepo,
-            IFlightRepository flightRepo,
-            IRouteRepository routeRepo,
-            IGateService gateService,
-            IRunwayService runwayService,
-            IRouteService routeService)
-        {
-            this.linkRepo = linkRepo ?? throw new ArgumentNullException(nameof(linkRepo));
-            this.employeeRepo = employeeRepo ?? throw new ArgumentNullException(nameof(employeeRepo));
-            this.flightRepo = flightRepo ?? throw new ArgumentNullException(nameof(flightRepo));
-            this.routeRepo = routeRepo ?? throw new ArgumentNullException(nameof(routeRepo));
-            this.gateService = gateService ?? throw new ArgumentNullException(nameof(gateService));
-            this.runwayService = runwayService ?? throw new ArgumentNullException(nameof(runwayService));
-            this.routeService = routeService ?? throw new ArgumentNullException(nameof(routeService));
-        }
-
-        public void AssignCrewMember(int flightId, int employeeId)
+        public void AssignEmployeeToFlightUsingIds(int flightId, int employeeId)
         {
             if (flightId <= 0 || employeeId <= 0)
             {
                 throw new ArgumentException("Invalid flight or employee ID.");
             }
 
-            var emp = employeeRepo.GetEmployeeById(employeeId);
-            var flight = flightRepo.GetById(flightId);
+            Employee? employee = employeeRepository.GetEmployeeById(employeeId);
+            Flight? flight = flightRepository.GetFlightById(flightId);
 
-            if (emp == null || flight == null)
+            if (employee == null || flight == null)
             {
                 throw new InvalidOperationException("Employee or Flight does not exist.");
             }
 
-            var currentCrewIds = linkRepo.GetEmployeesByFlightId(flightId);
+            var currentCrewIds = employeeFlightRepository.GetEmployeesByFlightId(flightId);
             if (currentCrewIds.Contains(employeeId))
             {
                 throw new InvalidOperationException("Employee already assigned to this flight.");
@@ -54,45 +35,48 @@ namespace TicketSellingModule.Data.Services
 
             if (!IsEmployeeAvailable(employeeId, flight.Date, flight.Route.Id, flight.Id))
             {
-                throw new InvalidOperationException($"Conflict: Employee {emp.Name} is already assigned to another flight during this time.");
+                throw new InvalidOperationException($"Conflict: Employee {employee.Name} is already assigned to another flight during this time.");
             }
 
-            linkRepo.AssignFlightToEmployeesUsingIds(employeeId, flightId);
+            employeeFlightRepository.AssignFlightToEmployeesUsingIds(employeeId, flightId);
         }
 
-        public void RemoveCrewMember(int flightId, int employeeId)
+        public void RemoveEmployeeFromFlightUsingIds(int flightId, int employeeId)
         {
-            linkRepo.RemoveFlightFromEmployeeUsingIds(employeeId, flightId);
+            employeeFlightRepository.RemoveFlightFromEmployeeUsingIds(employeeId, flightId);
         }
 
-        public void CleanUpFlightAssignments(int flightId)
+        public void RemoveAllCrewAssignmentsForFlight(int flightId)
         {
             if (flightId > 0)
             {
-                linkRepo.RemoveAllByFlightId(flightId);
+                employeeFlightRepository.RemoveAllByFlightId(flightId);
             }
         }
 
-        public void CleanUpEmployeeAssignments(int employeeId)
+        public void RemoveAllFlightsAssignmentsForEmployee(int employeeId)
         {
             if (employeeId > 0)
             {
-                linkRepo.RemoveAllByEmployeeId(employeeId);
+                employeeFlightRepository.RemoveAllByEmployeeId(employeeId);
             }
         }
 
-        public List<Employee> GetFlightCrew(int flightId)
+        public List<Employee> GetEmployeesAssignedToFlight(int flightId)
         {
-            var crew = new List<Employee>();
-            foreach (var id in linkRepo.GetEmployeesByFlightId(flightId))
+            List<Employee> flightCrew = new List<Employee>();
+            List<int> crewIdentifiers = employeeFlightRepository.GetEmployeesByFlightId(flightId);
+
+            foreach (int identifier in crewIdentifiers)
             {
-                var emp = employeeRepo.GetEmployeeById(id);
-                if (emp != null)
+                Employee? employee = employeeRepository.GetEmployeeById(identifier);
+                if (employee != null)
                 {
-                    crew.Add(emp);
+                    flightCrew.Add(employee);
                 }
             }
-            return crew;
+
+            return flightCrew;
         }
 
         public List<Flight> GetEmployeeSchedule(int employeeId)
@@ -102,78 +86,19 @@ namespace TicketSellingModule.Data.Services
                 return new List<Flight>();
             }
 
-            var flightIds = linkRepo.GetFlightsByEmployeeId(employeeId);
-            var flights = new List<Flight>();
+            List<int> assignedFlightIdentifiers = employeeFlightRepository.GetFlightsByEmployeeId(employeeId);
+            List<Flight> scheduledFlights = new List<Flight>();
 
-            foreach (var id in flightIds)
+            foreach (int identifier in assignedFlightIdentifiers)
             {
-                var flight = flightRepo.GetById(id);
+                Flight? flight = flightRepository.GetFlightById(identifier);
                 if (flight != null)
                 {
-                    flights.Add(flight);
-                }
-            }
-            return flights;
-        }
-
-        public bool IsEmployeeAvailable(int employeeId, DateTime targetDate, int targetRouteId, int? excludeFlightId = null)
-        {
-            var targetRoute = routeRepo.GetRouteById(targetRouteId);
-            if (targetRoute == null)
-            {
-                return false;
-            }
-
-            var schedule = GetEmployeeSchedule(employeeId);
-            var sameDayFlights = schedule.Where(f => f.Date.Date == targetDate.Date && f.Id != excludeFlightId);
-
-            foreach (var flight in sameDayFlights)
-            {
-                var scheduledRoute = routeRepo.GetRouteById(flight.Route.Id);
-                if (scheduledRoute == null)
-                {
-                    continue;
-                }
-
-                bool overlap = targetRoute.DepartureTime < scheduledRoute.ArrivalTime &&
-                               targetRoute.ArrivalTime > scheduledRoute.DepartureTime;
-
-                if (overlap)
-                {
-                    return false;
+                    scheduledFlights.Add(flight);
                 }
             }
 
-            return true;
-        }
-
-        public void AssignCrewToFlight(int flightId, List<int> employeeIds)
-        {
-            foreach (var empId in employeeIds)
-            {
-                try
-                {
-                    AssignCrewMember(flightId, empId);
-                }
-                catch
-                {
-                }
-            }
-        }
-
-        public void UpdateCrewForFlight(int flightId, List<int> newEmployeeIds)
-        {
-            var currentCrewIds = linkRepo.GetEmployeesByFlightId(flightId);
-
-            foreach (var empId in currentCrewIds.Except(newEmployeeIds).ToList())
-            {
-                RemoveCrewMember(flightId, empId);
-            }
-
-            foreach (var empId in newEmployeeIds.Except(currentCrewIds).ToList())
-            {
-                AssignCrewMember(flightId, empId);
-            }
+            return scheduledFlights;
         }
 
         public List<EmployeeScheduleItem> GetFormattedEmployeeSchedule(int employeeId)
@@ -184,14 +109,24 @@ namespace TicketSellingModule.Data.Services
                 return scheduleItems;
             }
 
-            var flights = GetEmployeeSchedule(employeeId);
+            List<Flight> flights = this.GetEmployeeSchedule(employeeId);
             flights.Sort(new FlightDateComparer());
 
-            foreach (var flight in flights)
+            foreach (Flight flight in flights)
             {
-                Route? route = routeRepo.GetRouteById(flight.Route.Id);
-                Gate? gate = flight.Gate?.Id > 0 ? gateService.GetById(flight.Gate.Id) : null;
-                Runway? runway = runwayService.GetByIdSafe(flight.Runway?.Id ?? 0);
+                Route? route = routeRepository.GetRouteById(flight.Route.Id);
+
+                Gate? gate = null;
+                if (flight.Gate != null && flight.Gate.Id > 0)
+                {
+                    gate = gateService.GetGateById(flight.Gate.Id);
+                }
+
+                Runway? runway = null;
+                if (flight.Runway != null)
+                {
+                    runway = runwayService.GetRunwayById(flight.Runway.Id);
+                }
 
                 scheduleItems.Add(new EmployeeScheduleItem
                 {
@@ -207,31 +142,153 @@ namespace TicketSellingModule.Data.Services
             return scheduleItems;
         }
 
+        public bool IsEmployeeAvailable(int employeeId, DateTime targetDate, int targetRouteId, int? excludedFlightId = null)
+        {
+            Route? targetRoute = routeRepository.GetRouteById(targetRouteId);
+            if (targetRoute == null)
+            {
+                return false;
+            }
+
+            List<Flight> completeSchedule = this.GetEmployeeSchedule(employeeId);
+
+            foreach (Flight scheduledFlight in completeSchedule)
+            {
+                if (scheduledFlight.Date.Date == targetDate.Date && scheduledFlight.Id != excludedFlightId)
+                {
+                    Route? scheduledRoute = routeRepository.GetRouteById(scheduledFlight.Route.Id);
+
+                    if (scheduledRoute != null)
+                    {
+                        bool isTimeOverlap = targetRoute.DepartureTime < scheduledRoute.ArrivalTime &&
+                                             targetRoute.ArrivalTime > scheduledRoute.DepartureTime;
+
+                        if (isTimeOverlap)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public void AssignEmpolyeesToFlightUsingIds(int flightId, List<int> employeeIds)
+        {
+            foreach (int employeeId in employeeIds)
+            {
+                try
+                {
+                    AssignEmployeeToFlightUsingIds(flightId, employeeId);
+                }
+                catch
+                {
+                    //--intent: ignore existing assignments or minor conflicts during bulk operation.
+                }
+            }
+        }
+
+        public void UpdateEmployeesForFlightUsingIds(int flightId, List<int> updatedEmployeeIds)
+        {
+            List<int> existingCrewId = employeeFlightRepository.GetEmployeesByFlightId(flightId);
+
+            foreach (int existingId in existingCrewId)
+            {
+                if (!updatedEmployeeIds.Contains(existingId))
+                {
+                    this.RemoveEmployeeFromFlightUsingIds(flightId, existingId);
+                }
+            }
+
+            foreach (int newId in existingCrewId)
+            {
+                if (!existingCrewId.Contains(newId))
+                {
+                    this.AssignEmployeeToFlightUsingIds(flightId, newId);
+                }
+            }
+        }
+
+        public List<EmployeeScheduleItem> GenerateFormattedSchedule(int employeeId)
+        {
+            List<EmployeeScheduleItem> formattedItems = new List<EmployeeScheduleItem>();
+            if (employeeId <= 0)
+            {
+                return formattedItems;
+            }
+
+            List<Flight> scheduledFlights = this.GetEmployeeSchedule(employeeId);
+            scheduledFlights.Sort(new FlightDateComparer());
+
+            foreach (Flight flight in scheduledFlights)
+            {
+                Route? route = routeRepository.GetRouteById(flight.Route.Id);
+                Gate? gate = flight.Gate?.Id > 0 ? gateService.GetGateById(flight.Gate.Id) : null;
+                Runway? runway = runwayService.GetRunwayById(flight.Runway?.Id ?? 0);
+
+                formattedItems.Add(new EmployeeScheduleItem
+                {
+                    Id = flight.Id.ToString(),
+                    FlightNumber = flight.FlightNumber,
+                    FlightType = routeService.NormalizeFlightType(route?.RouteType),
+                    Date = flight.Date.ToString("dd MMM yyyy"),
+                    GateName = gate?.Name ?? "-",
+                    RunwayName = runway?.Name ?? "-",
+                    FlightTime = routeService.GetRelevantTime(route)
+                });
+            }
+
+            return formattedItems;
+        }
+
         private class FlightDateComparer : IComparer<Flight>
         {
-            public int Compare(Flight? x, Flight? y) => x?.Date.CompareTo(y?.Date) ?? 0;
-        }
-
-        public List<Employee> GetAvailableCrewGroupedByRole(Flight flight)
-        {
-            var allEmployees = employeeRepo.GetAllEmployees();
-            var validEmployees = allEmployees.Where(e => IsEmployeeAvailable(e.Id, flight.Date, flight.Route.Id, flight.Id)).ToList();
-
-            validEmployees.Sort(new EmployeeRoleAndNameComparer());
-            return validEmployees;
-        }
-
-        private class EmployeeRoleAndNameComparer : IComparer<Employee>
-        {
-            public int Compare(Employee? x, Employee? y)
+            public int Compare(Flight? firstFlight, Flight? secondFlight)
             {
-                if (x == null || y == null)
+                if (firstFlight == null || secondFlight == null)
                 {
                     return 0;
                 }
 
-                int roleComp = x.Role.CompareTo(y.Role);
-                return roleComp != 0 ? roleComp : string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase);
+                return firstFlight.Date.CompareTo(secondFlight.Date);
+            }
+        }
+
+        public List<Employee> GetAvailableEmployeesGroupedByRole(Flight flight)
+        {
+            List<Employee> allEmployees = employeeRepository.GetAllEmployees();
+            List<Employee> availableEmployees = new List<Employee>();
+
+            foreach (Employee candidate in allEmployees)
+            {
+                if (this.IsEmployeeAvailable(candidate.Id, flight.Date, flight.Route.Id, flight.Id))
+                {
+                    availableEmployees.Add(candidate);
+                }
+            }
+
+            availableEmployees.Sort(new EmployeeRoleAndNameComparer());
+            return availableEmployees;
+        }
+
+        private class EmployeeRoleAndNameComparer : IComparer<Employee>
+        {
+            public int Compare(Employee? firstEmployee, Employee? secondEmployee)
+            {
+                if (firstEmployee == null || secondEmployee == null)
+                {
+                    return 0;
+                }
+
+                int roleComparison = firstEmployee.Role.CompareTo(secondEmployee.Role);
+
+                if (roleComparison != 0)
+                {
+                    return roleComparison;
+                }
+
+                return string.Compare(firstEmployee.Name, secondEmployee.Name, StringComparison.OrdinalIgnoreCase);
             }
         }
     }

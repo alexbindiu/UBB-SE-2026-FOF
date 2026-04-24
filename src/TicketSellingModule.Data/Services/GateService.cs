@@ -1,90 +1,86 @@
-using TicketSellingModule.Data.Repositories.Interfaces;
-using TicketSellingModule.Data.Services.Interfaces;
-
 namespace TicketSellingModule.Data.Services
 {
-    public class GateService : IGateService
+    public class GateService(
+        IGateRepository gateRepository,
+        IFlightRepository flightRepository) : IGateService
     {
-        private readonly IGateRepository gateRepo;
-        private readonly IFlightRepository flightRepo;
-        public GateService(IGateRepository gateRepo, IFlightRepository flightRepo)
+        public List<Gate> GetAllGates()
         {
-            this.gateRepo = gateRepo;
-            this.flightRepo = flightRepo;
+            return gateRepository.GetAllGates();
         }
 
-        public List<Gate> GetAll()
+        public Gate? GetGateById(int gateId)
         {
-            return gateRepo.GetAllGates();
-        }
-
-        public Gate GetById(int id)
-        {
-            if (id <= 0)
+            if (gateId <= 0)
             {
                 return null;
             }
-            return gateRepo.GetGateById(id);
+
+            return gateRepository.GetGateById(gateId);
         }
 
-        public int Add(string name)
+        public int Add(string gateName)
         {
-            if (string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(gateName))
             {
-                throw new ArgumentException("Gate name cannot be empty.");
+                throw new ArgumentException("The gate name cannot be empty.");
             }
 
             Gate newGate = new Gate
             {
-                Name = name
+                Name = gateName
             };
 
-            return gateRepo.AddGate(newGate);
+            return gateRepository.AddGate(newGate);
         }
 
-        public void Update(int id, string? newName = null)
+        public void Update(int gateId, string? updatedGateName = null)
         {
-            var existingGate = gateRepo.GetGateById(id);
+            Gate? existingGate = gateRepository.GetGateById(gateId);
+
             if (existingGate == null)
             {
                 return;
             }
 
-            if (newName != null)
+            if (updatedGateName != null)
             {
-                if (string.IsNullOrWhiteSpace(newName))
+                if (string.IsNullOrWhiteSpace(updatedGateName))
                 {
-                    throw new ArgumentException("New gate name cannot be empty.");
+                    throw new ArgumentException("The new gate name cannot be empty.");
                 }
-                existingGate.Name = newName;
+
+                existingGate.Name = updatedGateName;
             }
 
-            gateRepo.UpdateGate(existingGate);
+            gateRepository.UpdateGate(existingGate);
         }
 
-        public void Delete(int id)
+        public void DeleteGateUsingId(int gateId)
         {
-            if (id > 0)
+            if (gateId > 0)
             {
-                gateRepo.DeleteGateUsingId(id);
+                gateRepository.DeleteGateUsingId(gateId);
             }
         }
 
-        public void SaveGate(int id, string name)
+        public void SaveGate(int gateId, string gateName)
         {
-            if (id == 0)
+            if (gateId == 0)
             {
-                Add(name);
+                this.Add(gateName);
             }
             else
             {
-                Update(id, name);
+                this.Update(gateId, gateName);
             }
         }
 
         public bool HasFlights(int gateId)
         {
-            return flightRepo.GetFlightsByGateId(gateId).Any();
+            List<Flight> associatedFlights = flightRepository.GetFlightsByGateId(gateId);
+
+            return associatedFlights.Count > 0;
         }
     }
 }

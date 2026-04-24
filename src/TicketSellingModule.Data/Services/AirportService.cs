@@ -3,59 +3,59 @@ using TicketSellingModule.Data.Services.Interfaces;
 
 namespace TicketSellingModule.Data.Services
 {
-    public class AirportService : IAirportService
+    public class AirportService(
+       IAirportRepository airportRepository,
+       IFlightRepository flightRepository) : IAirportService
     {
-        private readonly IAirportRepository airportRepo;
-        private readonly IFlightRepository flightRepo;
-        public AirportService(IAirportRepository airportRepo, IFlightRepository flightRepo)
+        public List<Airport> GetAllAirports()
         {
-            this.airportRepo = airportRepo;
-            this.flightRepo = flightRepo;
+            return airportRepository.GetAllAirports();
         }
 
-        public List<Airport> GetAll()
+        public Airport? GetAirportById(int airportId)
         {
-            return airportRepo.GetAllAirports();
-        }
-
-        public Airport GetById(int id)
-        {
-            if (id <= 0)
+            if (airportId <= 0)
             {
                 return null;
             }
-            return airportRepo.GetAirportById(id);
+
+            return airportRepository.GetAirportById(airportId);
         }
 
-        public int Add(string code, string name, string city)
+        public int AddAirport(string airportCode, string airportName, string city)
         {
-            if (string.IsNullOrWhiteSpace(code))
+            if (string.IsNullOrWhiteSpace(airportCode))
             {
-                throw new ArgumentException("Airport code cannot be empty.");
+                throw new ArgumentException("The airport code cannot be empty.");
             }
-            if (string.IsNullOrWhiteSpace(name))
+
+            if (string.IsNullOrWhiteSpace(airportName))
             {
-                throw new ArgumentException("Airport name cannot be empty.");
+                throw new ArgumentException("The airport name cannot be empty.");
             }
 
             if (string.IsNullOrWhiteSpace(city))
             {
-                throw new ArgumentException("City cannot be empty.");
+                throw new ArgumentException("The city name cannot be empty.");
             }
 
             Airport newAirport = new Airport
             {
-                AirportCode = code,
-                AirportName = name,
+                AirportCode = airportCode,
+                AirportName = airportName,
                 City = city
             };
 
-            return airportRepo.AddAirport(newAirport);
+            return airportRepository.AddAirport(newAirport);
         }
 
-        public void Update(int id, string? newCity = null, string? newName = null, string? newCode = null)
+        public void UpdateAirport(int airportId,
+            string? newCity = null,
+            string? newName = null,
+            string? newCode = null)
         {
-            var existingAirport = airportRepo.GetAirportById(id);
+            Airport? existingAirport = airportRepository.GetAirportById(airportId);
+
             if (existingAirport == null)
             {
                 return;
@@ -65,29 +65,32 @@ namespace TicketSellingModule.Data.Services
             {
                 existingAirport.AirportName = newName;
             }
+
             if (newCity != null)
             {
                 existingAirport.City = newCity;
             }
+
             if (newCode != null)
             {
                 existingAirport.AirportCode = newCode;
             }
 
-            airportRepo.UpdateAirport(existingAirport);
+            airportRepository.UpdateAirport(existingAirport);
         }
 
-        public void Delete(int id)
+        public void DeleteAirportUsingId(int airportId)
         {
-            if (id > 0)
+            if (airportId > 0)
             {
-                airportRepo.DeleteAirportUsingId(id);
+                airportRepository.DeleteAirportUsingId(airportId);
             }
         }
 
-        public bool HasFlights(int airportId)
+        public bool CheckIfAirportHasFlightsUsingId(int airportId)
         {
-            return flightRepo.GetFlightsByAirportId(airportId).Any();
+            List<Flight> associatedFlights = flightRepository.GetFlightsByAirportId(airportId);
+            return associatedFlights.Count > 0;
         }
     }
 }

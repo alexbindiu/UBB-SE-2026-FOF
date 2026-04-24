@@ -1,6 +1,4 @@
-﻿using TicketSellingModule.Data.Repositories.Interfaces;
-
-namespace TicketSellingModule.Data.Repositories
+﻿namespace TicketSellingModule.Data.Repositories
 {
     public class CompanyRepository(DatabaseConnectionFactory databaseConnectionFactory) : ICompanyRepository
     {
@@ -51,7 +49,7 @@ namespace TicketSellingModule.Data.Repositories
             return null;
         }
 
-        public int AddNewCompany(Company newCompany)
+        public int AddCompany(Company newCompany)
         {
             using SqlConnection databaseConnection = databaseConnectionFactory.GetConnection();
             databaseConnection.Open();

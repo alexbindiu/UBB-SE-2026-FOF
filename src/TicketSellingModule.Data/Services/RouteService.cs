@@ -1,91 +1,119 @@
-﻿using TicketSellingModule.Data.Repositories.Interfaces;
-using TicketSellingModule.Data.Services.Interfaces;
-
-namespace TicketSellingModule.Data.Services
+﻿namespace TicketSellingModule.Data.Services
 {
-    public class RouteService : IRouteService
+    public class RouteService(
+        IRouteRepository routeRepository,
+        IFlightRepository flightRepository,
+        ICompanyRepository companyRepository,
+        IAirportRepository airportRepository) : IRouteService
     {
-        private readonly IRouteRepository routeRepo;
-        private readonly IFlightRepository flightRepo;
-        private readonly ICompanyRepository companyRepo;
-        private readonly IAirportRepository airportRepo;
+        private const int MinutesInADay = 1440;
 
-        public RouteService(IRouteRepository routeRepo, IFlightRepository flightRepo,
-                            ICompanyRepository companyRepo, IAirportRepository airportRepo)
+        private bool CheckOverlappingTimes(TimeOnly startTime1, TimeOnly endTime1, TimeOnly startTime2, TimeOnly endTime2)
         {
-            this.routeRepo = routeRepo;
-            this.flightRepo = flightRepo;
-            this.companyRepo = companyRepo;
-            this.airportRepo = airportRepo;
-        }
+            int startMinutes1 = (startTime1.Hour * 60) + startTime1.Minute;
+            int endMinutes1 = (endTime1.Hour * 60) + endTime1.Minute;
 
-        private bool CheckOverlappingTimes(TimeOnly start1, TimeOnly end1, TimeOnly start2, TimeOnly end2)
-        {
-            int s1 = (start1.Hour * 60) + start1.Minute;
-            int e1 = (end1.Hour * 60) + end1.Minute;
-            if (e1 <= s1)
+            if (endMinutes1 <= startMinutes1)
             {
-                e1 += 1440;
+                endMinutes1 += MinutesInADay;
             }
 
-            int s2 = (start2.Hour * 60) + start2.Minute;
-            int e2 = (end2.Hour * 60) + end2.Minute;
-            if (e2 <= s2)
+            int startMinutes2 = (startTime2.Hour * 60) + startTime2.Minute;
+            int endMinutes2 = (endTime2.Hour * 60) + endTime2.Minute;
+
+            if (endMinutes2 <= startMinutes2)
             {
-                e2 += 1440;
+                endMinutes2 += MinutesInADay;
             }
 
-            return s1 < e2 && s2 < e1;
+            return startMinutes1 < endMinutes2 && startMinutes2 < endMinutes1;
         }
 
-        public int AddWithInitialFlight(int companyId, int airportId, string routeType,
-                                        int interval, DateTime start, DateTime end,
-                                        TimeOnly dep, TimeOnly arr, int capacity,
-                                        string flightNum, int runwayId, int gateId)
+        public int AddWithInitialFlight(
+            int companyId,
+            int airportId,
+            string routeType,
+            int recurrenceInterval,
+            DateTime startDate,
+            DateTime endDate,
+            TimeOnly departureTime,
+            TimeOnly arrivalTime,
+            int capacity,
+            string flightNumber,
+            int runwayId,
+            int gateId)
         {
-            var sameDayFlights = flightRepo.GetAllFlights().Where(f => f.Date.Date == start.Date);
-            foreach (var existing in sameDayFlights)
+            List<Flight> allFlights = flightRepository.GetAllFlights();
+            List<Flight> sameDayFlights = new List<Flight>();
+
+            foreach (Flight flight in allFlights)
             {
-                if (existing.Gate?.Id == gateId || existing.Runway?.Id == runwayId)
+                if (flight.Date.Date == startDate.Date)
                 {
-                    var existingRoute = routeRepo.GetRouteById(existing.Route.Id);
-                    if (existingRoute != null && CheckOverlappingTimes(dep, arr, existingRoute.DepartureTime, existingRoute.ArrivalTime))
+                    sameDayFlights.Add(flight);
+                }
+            }
+
+            foreach (Flight existingFlight in sameDayFlights)
+            {
+                if (existingFlight.Gate?.Id == gateId || existingFlight.Runway?.Id == runwayId)
+                {
+                    Route? existingRoute = routeRepository.GetRouteById(existingFlight.Route.Id);
+
+                    if (existingRoute != null)
                     {
-                        throw new InvalidOperationException("Resource Conflict: Gate or Runway occupied.");
+                        bool isTimeOverlap = this.CheckOverlappingTimes(
+                            departureTime,
+                            arrivalTime,
+                            existingRoute.DepartureTime,
+                            existingRoute.ArrivalTime);
+
+                        if (isTimeOverlap)
+                        {
+                            throw new InvalidOperationException("Resource Conflict: The selected Gate or Runway is already occupied during this time.");
+                        }
                     }
                 }
             }
 
             Route newRoute = new Route
             {
-                Company = companyRepo.GetCompanyById(companyId),
-                Airport = airportRepo.GetAirportById(airportId),
+                Company = companyRepository.GetCompanyById(companyId),
+                Airport = airportRepository.GetAirportById(airportId),
                 RouteType = routeType,
-                RecurrenceInterval = interval,
-                StartDate = DateOnly.FromDateTime(start),
-                EndDate = DateOnly.FromDateTime(end),
-                DepartureTime = dep,
-                ArrivalTime = arr,
+                RecurrenceInterval = recurrenceInterval,
+                StartDate = DateOnly.FromDateTime(startDate),
+                EndDate = DateOnly.FromDateTime(endDate),
+                DepartureTime = departureTime,
+                ArrivalTime = arrivalTime,
                 Capacity = capacity
             };
 
-            int routeId = routeRepo.AddRoute(newRoute);
+            int routeId = routeRepository.AddRoute(newRoute);
 
             Flight initialFlight = new Flight
             {
                 Route = new Route { Id = routeId },
-                Date = start,
-                FlightNumber = flightNum,
+                Date = startDate,
+                FlightNumber = flightNumber,
                 Runway = new Runway { Id = runwayId },
                 Gate = new Gate { Id = gateId }
             };
-            flightRepo.AddFlight(initialFlight);
+
+            flightRepository.AddFlight(initialFlight);
 
             return routeId;
         }
 
-        public Route? GetById(int id) => routeRepo.GetRouteById(id);
-        public List<Route> GetAll() => routeRepo.GetAllRoutes();
+        public Route? GetRouteById(int routeId)
+        {
+            return routeRepository.GetRouteById(routeId);
+        }
+
+        public List<Route> GetAllRoutes()
+        {
+            return routeRepository.GetAllRoutes();
+        }
 
         public string NormalizeFlightType(string? routeType)
         {
@@ -94,18 +122,19 @@ namespace TicketSellingModule.Data.Services
                 return "-";
             }
 
-            string value = routeType.Trim().ToUpperInvariant();
-            if (value.StartsWith("ARR") || value.StartsWith("ARRIVAL"))
+            string upperCaseType = routeType.Trim().ToUpperInvariant();
+
+            if (upperCaseType.StartsWith("ARR") || upperCaseType.StartsWith("ARRIVAL"))
             {
                 return "ARR";
             }
 
-            if (value.StartsWith("DEP") || value.StartsWith("DEPARTURE"))
+            if (upperCaseType.StartsWith("DEP") || upperCaseType.StartsWith("DEPARTURE"))
             {
                 return "DEP";
             }
 
-            return value;
+            return upperCaseType;
         }
 
         public string GetRelevantTime(Route? route)
@@ -115,9 +144,14 @@ namespace TicketSellingModule.Data.Services
                 return "-";
             }
 
-            return NormalizeFlightType(route.RouteType) == "ARR"
-                ? route.ArrivalTime.ToString("HH:mm")
-                : route.DepartureTime.ToString("HH:mm");
+            string normalizedType = this.NormalizeFlightType(route.RouteType);
+
+            if (normalizedType == "ARR")
+            {
+                return route.ArrivalTime.ToString("HH:mm");
+            }
+
+            return route.DepartureTime.ToString("HH:mm");
         }
     }
 }

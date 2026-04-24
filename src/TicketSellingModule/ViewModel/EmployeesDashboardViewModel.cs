@@ -54,7 +54,7 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         public void LoadData()
         {
-            var allEmployees = employeeService.GetAll();
+            var allEmployees = employeeService.GetAllEmployees();
 
             ClearAllCollections();
 

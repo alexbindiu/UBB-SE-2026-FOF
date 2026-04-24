@@ -6,8 +6,8 @@ public interface IRouteService
                                         int interval, DateTime start, DateTime end,
                                         TimeOnly dep, TimeOnly arr, int capacity,
                                         string flightNum, int runwayId, int gateId);
-    Route? GetById(int id);
-    List<Route> GetAll();
+    Route? GetRouteById(int routeId);
+    List<Route> GetAllRoutes();
     string NormalizeFlightType(string? routeType);
     string GetRelevantTime(Route? route);
 }

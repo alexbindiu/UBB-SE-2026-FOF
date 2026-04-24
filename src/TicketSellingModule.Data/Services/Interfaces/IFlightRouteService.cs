@@ -2,7 +2,7 @@
 
 public interface IFlightRouteService
 {
-    int Add(int companyID, int airportID, string route_type, int recurrence_interval,
+    int AddFlightToRoute(int companyID, int airportID, string route_type, int recurrence_interval,
                        DateTime start_date, DateTime end_date, TimeOnly dep_time, TimeOnly arr_time,
                        int capacity, string flight_number, int runwayID, int gateID);
     void CreateFlightWithSchedule(
@@ -17,7 +17,7 @@ public interface IFlightRouteService
     List<Route> GetAllRoutes();
 
     List<Flight> GetAllFlights();
-    void DeleteFlight(int flightId);
-    List<Flight> GetFlightsByCompany(int companyId);
+    void DeleteFlightUsingId(int flightId);
+    List<Flight> GetFlightsByCompanyId(int companyId);
     string GetDestinationText(Flight flight);
 }
