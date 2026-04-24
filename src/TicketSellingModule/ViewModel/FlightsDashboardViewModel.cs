@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Text;
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
@@ -7,11 +9,10 @@ using TicketSellingModule.WinUI.AirportAdmin.Components;
 
 namespace TicketSellingModule.ViewModel
 {
-    public partial class FlightsDashboardViewModel : ObservableObject
+    public partial class FlightsDashboardViewModel(
+       IFlightRouteService flightRouteService,
+       IEmployeeFlightService flightEmployeeService) : ObservableObject
     {
-        private readonly IFlightRouteService flightRouteService;
-        private readonly IEmployeeFlightService flightEmployeeService;
-
         private List<Flight> allFlights = new();
 
         [ObservableProperty] private string searchText = string.Empty;
@@ -23,14 +24,6 @@ namespace TicketSellingModule.ViewModel
         public ObservableCollection<CrewSelectionWrapper> AvailableCrew { get; } = new();
         public ObservableCollection<FlightRow> FilteredFlights { get; } = new();
 
-        public FlightsDashboardViewModel(
-            IFlightRouteService flightRouteService,
-            IEmployeeFlightService flightEmployeeService)
-        {
-            this.flightRouteService = flightRouteService;
-            this.flightEmployeeService = flightEmployeeService;
-        }
-
         [RelayCommand]
         public void LoadFlights()
         {
@@ -38,7 +31,10 @@ namespace TicketSellingModule.ViewModel
             ApplyFilter();
         }
 
-        partial void OnSearchTextChanged(string value) => ApplyFilter();
+        partial void OnSearchTextChanged(string value)
+        {
+            ApplyFilter();
+        }
 
         [RelayCommand]
         private void OpenCrewManagement()
@@ -48,7 +44,7 @@ namespace TicketSellingModule.ViewModel
                 return;
             }
 
-            var flight = flightRouteService.GetFlightById(SelectedFlight.Id);
+            Flight? flight = flightRouteService.GetFlightById(SelectedFlight.Id);
             if (flight == null)
             {
                 return;
@@ -97,35 +93,51 @@ namespace TicketSellingModule.ViewModel
                 return;
             }
 
-            var selectedIds = AvailableCrew.Where(x => x.IsSelected).Select(x => x.Employee.Id).ToList();
+            List<int> selectedEmployeeIds = new List<int>();
+            foreach (CrewSelectionWrapper selectionContext in this.AvailableCrew)
+            {
+                if (selectionContext.IsSelected)
+                {
+                    selectedEmployeeIds.Add(selectionContext.Employee.Id);
+                }
+            }
 
-            flightEmployeeService.UpdateEmployeesForFlightUsingIds(SelectedFlight.Id, selectedIds);
+            flightEmployeeService.UpdateEmployeesForFlightUsingIds(SelectedFlight.Id, selectedEmployeeIds);
             CrewDialogVisibility = Visibility.Collapsed;
             LoadFlights();
         }
 
         [RelayCommand]
-        private void CloseDialog() => CrewDialogVisibility = Visibility.Collapsed;
+        private void CloseDialog()
+        {
+            CrewDialogVisibility = Visibility.Collapsed;
+        }
 
         private void ApplyFilter()
         {
-            string text = SearchText?.Trim().ToLowerInvariant() ?? string.Empty;
+            string query = this.SearchText?.Trim().ToLowerInvariant() ?? string.Empty;
+            List<Flight> matchingFlights = new List<Flight>();
 
-            var filtered = string.IsNullOrWhiteSpace(text)
-                ? allFlights
-                : allFlights.Where(f =>
-                       (f.FlightNumber?.ToLowerInvariant().Contains(text) ?? false) ||
-                       f.Date.ToString("dd.MM.yyyy HH:mm").ToLowerInvariant().Contains(text) ||
-                       (flightRouteService.GetDestinationText(f).ToLowerInvariant().Contains(text)) ||
-                       (f.Runway?.Name?.ToLowerInvariant().Contains(text) ?? false) ||
-                       (f.Gate?.Name?.ToLowerInvariant().Contains(text) ?? false))
-                    .ToList();
-
-            FilteredFlights.Clear();
-            foreach (var flight in filtered)
+            foreach (Flight flight in this.allFlights)
             {
-                var crew = flightEmployeeService.GetEmployeesAssignedToFlight(flight.Id);
-                FilteredFlights.Add(new FlightRow
+                if (string.IsNullOrWhiteSpace(query))
+                {
+                    matchingFlights.Add(flight);
+                    continue;
+                }
+
+                if (this.IsFlightMatch(flight, query))
+                {
+                    matchingFlights.Add(flight);
+                }
+            }
+
+            this.FilteredFlights.Clear();
+            foreach (Flight flight in matchingFlights)
+            {
+                List<Employee> crew = flightEmployeeService.GetEmployeesAssignedToFlight(flight.Id);
+
+                this.FilteredFlights.Add(new FlightRow
                 {
                     Id = flight.Id,
                     FlightNumber = flight.FlightNumber ?? string.Empty,
@@ -133,19 +145,60 @@ namespace TicketSellingModule.ViewModel
                     DestinationText = flightRouteService.GetDestinationText(flight),
                     RunwayText = flight.Runway?.Name ?? "-",
                     GateText = flight.Gate?.Name ?? "-",
-                    CrewText = crew.Count > 0 ? string.Join(", ", crew.Select(c => c.Name)) : "Unassigned"
+                    CrewText = this.FormatCrewList(crew)
                 });
             }
         }
 
-        private static string GetDestinationText(Flight flight)
+        private bool IsFlightMatch(Flight flight, string query)
         {
-            if (flight.Route?.Airport == null)
+            if (flight.FlightNumber != null && flight.FlightNumber.ToLowerInvariant().Contains(query))
             {
-                return "-";
+                return true;
             }
 
-            return $"{flight.Route.Airport.AirportCode} - {flight.Route.Airport.AirportName}";
+            if (flight.Date.ToString("dd.MM.yyyy HH:mm").ToLowerInvariant().Contains(query))
+            {
+                return true;
+            }
+
+            string destination = flightRouteService.GetDestinationText(flight).ToLowerInvariant();
+            if (destination.Contains(query))
+            {
+                return true;
+            }
+
+            if (flight.Runway?.Name != null && flight.Runway.Name.ToLowerInvariant().Contains(query))
+            {
+                return true;
+            }
+
+            if (flight.Gate?.Name != null && flight.Gate.Name.ToLowerInvariant().Contains(query))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private string FormatCrewList(List<Employee> crew)
+        {
+            if (crew.Count == 0)
+            {
+                return "Unassigned";
+            }
+
+            StringBuilder crewNames = new StringBuilder();
+            for (int index = 0; index < crew.Count; index++)
+            {
+                crewNames.Append(crew[index].Name);
+                if (index < crew.Count - 1)
+                {
+                    crewNames.Append(", ");
+                }
+            }
+
+            return crewNames.ToString();
         }
     }
 

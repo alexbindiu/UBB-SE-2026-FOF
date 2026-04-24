@@ -7,31 +7,25 @@ using TicketSellingModule.WinUI.Services;
 
 namespace TicketSellingModule.ViewModel
 {
-    public partial class StaffLoginViewModel : ObservableObject
+    public partial class StaffLoginViewModel(
+        IEmployeeService employeeService,
+        INavigationService navigationService) : ObservableObject
     {
-        private readonly IEmployeeService employeeService;
-        private readonly INavigationService navigationService;
 
         [ObservableProperty] private string employeeIdText;
         [ObservableProperty] private string errorMessage;
         [ObservableProperty] private Visibility errorVisibility = Visibility.Collapsed;
 
-        public StaffLoginViewModel(IEmployeeService employeeService, INavigationService navigationService)
-        {
-            this.employeeService = employeeService;
-            this.navigationService = navigationService;
-        }
-
         [RelayCommand]
         private void Login()
         {
-            if (!int.TryParse(EmployeeIdText, out int id))
+            if (!int.TryParse(EmployeeIdText, out int employeeId))
             {
                 ShowError("Invalid ID.");
                 return;
             }
 
-            var emp = employeeService.GetEmployeeById(id);
+            var emp = employeeService.GetEmployeeById(employeeId);
             if (emp == null)
             {
                 ShowError("ID was not found!");
@@ -41,7 +35,7 @@ namespace TicketSellingModule.ViewModel
             ErrorVisibility = Visibility.Collapsed;
             ErrorMessage = string.Empty;
 
-            navigationService.NavigateToStaffDashboard(id);
+            navigationService.NavigateToStaffDashboard(employeeId);
         }
 
         private void ShowError(string message)

@@ -84,7 +84,7 @@
             }
         }
 
-        public bool CheckIfAirportHasFlightsUsingId(int airportId)
+        public bool HasFlights(int airportId)
         {
             List<Flight> associatedFlights = flightRepository.GetFlightsByAirportId(airportId);
             return associatedFlights.Count > 0;

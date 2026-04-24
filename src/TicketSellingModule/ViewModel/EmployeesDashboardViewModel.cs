@@ -94,7 +94,6 @@ namespace TicketSellingModule.ViewModel
                 DeleteErrorMessage = "Please select an employee to delete.";
                 ConfirmDeleteDialogVisibility = Visibility.Visible;
 
-                // Refresh flags
                 OnPropertyChanged(nameof(IsConfirmationVisible));
                 OnPropertyChanged(nameof(IsErrorOnlyVisible));
                 return;
@@ -126,9 +125,9 @@ namespace TicketSellingModule.ViewModel
                 EmployeeToDelete = null;
                 LoadData();
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                DeleteErrorMessage = $"Could not delete employee: {ex.Message}";
+                DeleteErrorMessage = $"Could not delete employee: {exception.Message}";
             }
         }
 
@@ -227,9 +226,9 @@ namespace TicketSellingModule.ViewModel
                 LoadData();
                 DialogVisibility = Visibility.Collapsed;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                DialogErrorMessage = ex.Message;
+                DialogErrorMessage = exception.Message;
             }
         }
     }
