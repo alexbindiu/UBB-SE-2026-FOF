@@ -201,7 +201,7 @@ namespace TicketSellingModule.Data.Services
                 }
             }
 
-            foreach (int newId in existingCrewId)
+            foreach (int newId in updatedEmployeeIds)
             {
                 if (!existingCrewId.Contains(newId))
                 {

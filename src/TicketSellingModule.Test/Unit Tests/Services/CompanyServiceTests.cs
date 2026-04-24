@@ -210,6 +210,70 @@ public class CompanyServiceTests
     }
 
     [Fact]
+    public void GenerateFlightCode_Should_Use_Starting_Sequence_When_Flights_List_Is_Null()
+    {
+        var mockRepo = new Mock<ICompanyRepository>();
+        var mockFlightRouteService = new Mock<IFlightRouteService>();
+
+        mockRepo.Setup(r => r.GetCompanyById(1))
+            .Returns(new Company { Name = "Test Company" });
+
+        mockFlightRouteService.Setup(r => r.GetFlightsByCompanyId(1))
+            .Returns((List<Flight>)null);
+
+        var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
+
+        var result = service.GenerateFlightCodeUsingCompanyId(1);
+
+        Assert.EndsWith("-1000", result);
+    }
+
+    [Fact]
+    public void GenerateFlightCode_Should_Handle_Null_Or_Empty_Existing_FlightNumbers()
+    {
+        var mockRepo = new Mock<ICompanyRepository>();
+        var mockFlightRouteService = new Mock<IFlightRouteService>();
+
+        mockRepo.Setup(r => r.GetCompanyById(1))
+            .Returns(new Company { Name = "Test Company" });
+
+        var flights = new List<Flight>
+        {
+            new Flight { FlightNumber = null },
+            new Flight { FlightNumber = string.Empty },
+            new Flight { FlightNumber = "NoDelimiterHere" }
+        };
+
+        mockFlightRouteService.Setup(r => r.GetFlightsByCompanyId(1))
+            .Returns(flights);
+
+        var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
+
+        var result = service.GenerateFlightCodeUsingCompanyId(1);
+
+        Assert.EndsWith("-1000", result);
+    }
+
+    [Fact]
+    public void GenerateFlightCode_Should_Use_Full_Name_When_Single_Word_Is_Shorter_Than_Minimum_Prefix()
+    {
+        var mockRepo = new Mock<ICompanyRepository>();
+        var mockFlightRouteService = new Mock<IFlightRouteService>();
+
+        mockRepo.Setup(r => r.GetCompanyById(1))
+            .Returns(new Company { Name = "X" });
+
+        mockFlightRouteService.Setup(r => r.GetFlightsByCompanyId(1))
+            .Returns(new List<Flight>());
+
+        var service = new CompanyService(mockRepo.Object, mockFlightRouteService.Object);
+
+        var result = service.GenerateFlightCodeUsingCompanyId(1);
+
+        Assert.StartsWith("X-", result);
+    }
+
+    [Fact]
     public void Update_Should_Do_Nothing_If_Company_Not_Found()
     {
         var mockRepo = new Mock<ICompanyRepository>();
