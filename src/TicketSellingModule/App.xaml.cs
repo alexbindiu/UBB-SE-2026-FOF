@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 
+using TicketSellingModule.Data.Repositories.Interfaces;
+using TicketSellingModule.Data.Services.Interfaces;
 using TicketSellingModule.ViewModel;
 using TicketSellingModule.WinUI.Services;
 namespace TicketSellingModule
@@ -32,7 +34,7 @@ namespace TicketSellingModule
         private static void ConfigureServices(ServiceCollection services)
         {
             // Infrastructure
-            services.AddSingleton<DatabaseConnectionFactory>();
+            services.AddTransient<DatabaseConnectionFactory>();
 
             // Repositories
             services.AddTransient<ICompanyRepository, CompanyRepository>();

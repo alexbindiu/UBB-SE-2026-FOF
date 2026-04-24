@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 
 using TicketSellingModule.Data;
+using TicketSellingModule.Data.Services.Interfaces;
 
 namespace TicketSellingModule.ViewModel
 {

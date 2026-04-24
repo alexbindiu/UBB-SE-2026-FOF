@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
 
+using TicketSellingModule.Data.Services.Interfaces;
 using TicketSellingModule.WinUI.Services;
 
 namespace TicketSellingModule.ViewModel
