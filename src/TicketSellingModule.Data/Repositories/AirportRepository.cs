@@ -1,6 +1,4 @@
-﻿using TicketSellingModule.Data.Repositories.Interfaces;
-
-namespace TicketSellingModule.Data.Repositories
+﻿namespace TicketSellingModule.Data.Repositories
 {
     public class AirportRepository(DatabaseConnectionFactory databaseConnectionFactory) : IAirportRepository
     {

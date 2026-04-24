@@ -7,9 +7,9 @@ namespace TicketSellingModule.ViewModel
 {
     public partial class AirportDashboardViewModel : ObservableObject
     {
-        private readonly AirportService airportService;
-        private readonly RunwayService runwayService;
-        private readonly GateService gateService;
+        private readonly IAirportService airportService;
+        private readonly IRunwayService runwayService;
+        private readonly IGateService gateService;
 
         public ObservableCollection<Runway> RunwaysList { get; } = new();
         public ObservableCollection<Gate> GatesList { get; } = new();
@@ -37,7 +37,10 @@ namespace TicketSellingModule.ViewModel
 
         private string currentEntity = string.Empty;
 
-        public AirportDashboardViewModel(AirportService airportService, RunwayService runwayService, GateService gateService)
+        public AirportDashboardViewModel(
+            IAirportService airportService,
+            IRunwayService runwayService,
+            IGateService gateService)
         {
             this.airportService = airportService;
             this.runwayService = runwayService;
@@ -47,21 +50,21 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         public void LoadData()
         {
-            var runways = runwayService.GetAll();
+            var runways = runwayService.GetAllRunways();
             RunwaysList.Clear();
             foreach (var r in runways)
             {
                 RunwaysList.Add(r);
             }
 
-            var gates = gateService.GetAll();
+            var gates = gateService.GetAllGates();
             GatesList.Clear();
             foreach (var g in gates)
             {
                 GatesList.Add(g);
             }
 
-            var airports = airportService.GetAll();
+            var airports = airportService.GetAllAirports();
             AirportsList.Clear();
             foreach (var a in airports)
             {
@@ -227,11 +230,11 @@ namespace TicketSellingModule.ViewModel
             {
                 if (editingId == 0)
                 {
-                    airportService.Add(code, name, city);
+                    airportService.AddAirport(code, name, city);
                 }
                 else
                 {
-                    airportService.Update(editingId, city, name, code);
+                    airportService.UpdateAirport(editingId, city, name, code);
                 }
 
                 return;
@@ -269,19 +272,19 @@ namespace TicketSellingModule.ViewModel
         {
             if (itemToDelete is Runway runway)
             {
-                runwayService.Delete(runway.Id);
+                runwayService.DeleteRunwayUsingId(runway.Id);
                 return;
             }
 
             if (itemToDelete is Gate gate)
             {
-                gateService.Delete(gate.Id);
+                gateService.DeleteGateUsingId(gate.Id);
                 return;
             }
 
             if (itemToDelete is Airport airport)
             {
-                airportService.Delete(airport.Id);
+                airportService.DeleteAirportUsingId(airport.Id);
                 return;
             }
 
@@ -308,7 +311,7 @@ namespace TicketSellingModule.ViewModel
 
             if (itemToDelete is Airport airport)
             {
-                bool hasFlights = airportService.HasFlights(airport.Id);
+                bool hasFlights = airportService.CheckIfAirportHasFlightsUsingId(airport.Id);
                 return hasFlights
                     ? $"Warning: Airport '{airport.AirportName}' has flights assigned. Deleting it will remove ALL associated flights. Continue?"
                     : $"Are you sure you want to delete airport '{airport.AirportName}'?";

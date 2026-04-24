@@ -9,8 +9,8 @@ namespace TicketSellingModule.ViewModel
 {
     public partial class FlightsDashboardViewModel : ObservableObject
     {
-        private readonly FlightRouteService flightRouteService;
-        private readonly EmployeeFlightService flightEmployeeService;
+        private readonly IFlightRouteService flightRouteService;
+        private readonly IEmployeeFlightService flightEmployeeService;
 
         private List<Flight> allFlights = new();
 
@@ -24,8 +24,8 @@ namespace TicketSellingModule.ViewModel
         public ObservableCollection<FlightRow> FilteredFlights { get; } = new();
 
         public FlightsDashboardViewModel(
-            FlightRouteService flightRouteService,
-            EmployeeFlightService flightEmployeeService)
+            IFlightRouteService flightRouteService,
+            IEmployeeFlightService flightEmployeeService)
         {
             this.flightRouteService = flightRouteService;
             this.flightEmployeeService = flightEmployeeService;
@@ -54,7 +54,7 @@ namespace TicketSellingModule.ViewModel
                 return;
             }
 
-            List<Employee> currentCrewMembers = flightEmployeeService.GetFlightCrew(flight.Id);
+            List<Employee> currentCrewMembers = flightEmployeeService.GetEmployeesAssignedToFlight(flight.Id);
             List<int> currentCrewIdentifiers = new List<int>();
 
             foreach (Employee crewMember in currentCrewMembers)
@@ -62,7 +62,7 @@ namespace TicketSellingModule.ViewModel
                 currentCrewIdentifiers.Add(crewMember.Id);
             }
 
-            List<Employee> availableEmployees = flightEmployeeService.GetAvailableCrewGroupedByRole(flight);
+            List<Employee> availableEmployees = flightEmployeeService.GetAvailableEmployeesGroupedByRole(flight);
 
             AvailableCrew.Clear();
 
@@ -99,7 +99,7 @@ namespace TicketSellingModule.ViewModel
 
             var selectedIds = AvailableCrew.Where(x => x.IsSelected).Select(x => x.Employee.Id).ToList();
 
-            flightEmployeeService.UpdateCrewForFlight(SelectedFlight.Id, selectedIds);
+            flightEmployeeService.UpdateEmployeesForFlightUsingIds(SelectedFlight.Id, selectedIds);
             CrewDialogVisibility = Visibility.Collapsed;
             LoadFlights();
         }
@@ -124,7 +124,7 @@ namespace TicketSellingModule.ViewModel
             FilteredFlights.Clear();
             foreach (var flight in filtered)
             {
-                var crew = flightEmployeeService.GetFlightCrew(flight.Id);
+                var crew = flightEmployeeService.GetEmployeesAssignedToFlight(flight.Id);
                 FilteredFlights.Add(new FlightRow
                 {
                     Id = flight.Id,

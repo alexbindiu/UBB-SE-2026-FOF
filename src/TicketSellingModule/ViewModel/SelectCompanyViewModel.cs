@@ -7,12 +7,12 @@ namespace TicketSellingModule.ViewModel
 {
     public partial class SelectCompanyViewModel : ObservableObject
     {
-        private readonly CompanyService companyService;
+        private readonly ICompanyService companyService;
         private readonly INavigationService navigationService;
 
         public ObservableCollection<Company> Companies { get; } = new();
 
-        public SelectCompanyViewModel(CompanyService companyService, INavigationService navigationService)
+        public SelectCompanyViewModel(ICompanyService companyService, INavigationService navigationService)
         {
             this.companyService = companyService;
             this.navigationService = navigationService;
@@ -23,7 +23,7 @@ namespace TicketSellingModule.ViewModel
         private void LoadCompanies()
         {
             Companies.Clear();
-            var list = companyService.GetAll();
+            var list = companyService.GetAllCompanies();
             foreach (var company in list)
             {
                 Companies.Add(company);

@@ -9,14 +9,14 @@ namespace TicketSellingModule.ViewModel
 {
     public partial class StaffLoginViewModel : ObservableObject
     {
-        private readonly EmployeeService employeeService;
+        private readonly IEmployeeService employeeService;
         private readonly INavigationService navigationService;
 
         [ObservableProperty] private string employeeIdText;
         [ObservableProperty] private string errorMessage;
         [ObservableProperty] private Visibility errorVisibility = Visibility.Collapsed;
 
-        public StaffLoginViewModel(EmployeeService employeeService, INavigationService navigationService)
+        public StaffLoginViewModel(IEmployeeService employeeService, INavigationService navigationService)
         {
             this.employeeService = employeeService;
             this.navigationService = navigationService;
@@ -31,7 +31,7 @@ namespace TicketSellingModule.ViewModel
                 return;
             }
 
-            var emp = employeeService.GetById(id);
+            var emp = employeeService.GetEmployeeById(id);
             if (emp == null)
             {
                 ShowError("ID was not found!");

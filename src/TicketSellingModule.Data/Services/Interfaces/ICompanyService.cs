@@ -2,10 +2,10 @@
 
 public interface ICompanyService
 {
-    List<Company> GetAll();
-    Company GetCompanyById(int id);
-    int Add(string name);
-    string GenerateFlightCode(int companyId);
-    void Update(int id, string? newName = null);
-    void Delete(int id);
+    List<Company> GetAllCompanies();
+    Company? GetCompanyById(int id);
+    int AddCompany(string name);
+    string GenerateFlightCodeUsingCompanyId(int companyId);
+    void UpdateCompany(int id, string? newName = null);
+    void DeleteCompanyUsingId(int id);
 }

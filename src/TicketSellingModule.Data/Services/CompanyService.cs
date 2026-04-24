@@ -1,125 +1,152 @@
-using TicketSellingModule.Data.Services.Interfaces;
-
 namespace TicketSellingModule.Data.Services
 {
-    public class CompanyService : ICompanyService
+    public class CompanyService(
+        ICompanyRepository companyRepository,
+        IFlightRouteService flightRouteService) : ICompanyService
     {
-        private readonly CompanyRepository companyRepo;
-        private readonly FlightRouteService flightRouteService;
-        private const int InitialFlightNumber = 1000;
-        private const string DefaultFlightPrefix = "FL";
+        private const int StartingFlightSequenceNumber = 1000;
+        private const string DefaultFlightIdentificationPrefix = "FL";
+        private const char FlightCodeDelimiter = '-';
+        private const int RequiredWordsForInitials = 2;
+        private const int MinimumPrefixLength = 2;
 
-        public CompanyService(CompanyRepository companyRepo, FlightRouteService flightRouteService)
+        public List<Company> GetAllCompanies()
         {
-            this.companyRepo = companyRepo;
-            this.flightRouteService = flightRouteService;
+            return companyRepository.GetAllCompanies();
         }
 
-        public List<Company> GetAll()
+        public Company? GetCompanyById(int companyId)
         {
-            return companyRepo.GetAllCompanies();
-        }
-
-        public Company GetCompanyById(int id)
-        {
-            if (id <= 0)
+            if (companyId <= 0)
             {
                 return null;
             }
-            return companyRepo.GetCompanyById(id);
+
+            return companyRepository.GetCompanyById(companyId);
         }
 
-        public int Add(string name)
+        public int AddCompany(string companyName)
         {
-            if (string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(companyName))
             {
-                throw new ArgumentException("Company name cannot be empty.");
+                throw new ArgumentException("The company name cannot be empty.");
             }
 
             Company newCompany = new Company
             {
-                Name = name
+                Name = companyName
             };
 
-            return companyRepo.AddNewCompany(newCompany);
+            return companyRepository.AddCompany(newCompany);
         }
 
-        public string GenerateFlightCode(int companyId)
+        public string GenerateFlightCodeUsingCompanyId(int companyId)
         {
-            var company = companyRepo.GetCompanyById(companyId);
-            string prefix = DefaultFlightPrefix;
+            Company? company = companyRepository.GetCompanyById(companyId);
+            string characterPrefix = this.DetermineFlightPrefix(company);
 
-            if (company != null && !string.IsNullOrEmpty(company.Name))
+            List<Flight> existingFlights = flightRouteService.GetFlightsByCompanyId(companyId);
+            int nextSequenceNumber = this.CalculateNextAvailableFlightNumber(existingFlights);
+
+            return $"{characterPrefix}{FlightCodeDelimiter}{nextSequenceNumber}";
+        }
+
+        private string DetermineFlightPrefix(Company? company)
+        {
+            if (company == null || string.IsNullOrWhiteSpace(company.Name))
             {
-                string[] words = company.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                if (words.Length >= 2)
+                return DefaultFlightIdentificationPrefix;
+            }
+
+            string[] nameWords = company.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            if (nameWords.Length >= RequiredWordsForInitials)
+            {
+                string firstInitial = nameWords[0][0].ToString();
+                string secondInitial = nameWords[1][0].ToString();
+                return (firstInitial + secondInitial).ToUpper();
+            }
+
+            if (company.Name.Length >= MinimumPrefixLength)
+            {
+                return company.Name.Substring(0, MinimumPrefixLength).ToUpper();
+            }
+
+            return company.Name.ToUpper();
+        }
+
+        private int CalculateNextAvailableFlightNumber(List<Flight> existingFlights)
+        {
+            int maxFlightNumberFound = 0;
+
+            if (existingFlights == null)
+            {
+                return StartingFlightSequenceNumber;
+            }
+
+            foreach (Flight flight in existingFlights)
+            {
+                int extractedNumber = this.ExtractNumericPartFromFlightCode(flight.FlightNumber);
+
+                if (extractedNumber > maxFlightNumberFound)
                 {
-                    prefix = (words[0][0].ToString() + words[1][0].ToString()).ToUpper();
-                }
-                else if (company.Name.Length >= 2)
-                {
-                    prefix = company.Name.Substring(0, 2).ToUpper();
+                    maxFlightNumberFound = extractedNumber;
                 }
             }
 
-            var existingFlights = flightRouteService.GetFlightsByCompany(companyId);
-            int nextNumber = InitialFlightNumber;
-
-            if (existingFlights != null)
+            if (maxFlightNumberFound >= StartingFlightSequenceNumber)
             {
-                int maxNumber = 0;
-
-                foreach (var f in existingFlights)
-                {
-                    if (!string.IsNullOrEmpty(f.FlightNumber) && f.FlightNumber.Contains("-"))
-                    {
-                        string[] parts = f.FlightNumber.Split('-');
-                        string lastPart = parts[parts.Length - 1];
-
-                        if (int.TryParse(lastPart, out int currentVal))
-                        {
-                            if (currentVal > maxNumber)
-                            {
-                                maxNumber = currentVal;
-                            }
-                        }
-                    }
-                }
-
-                if (maxNumber >= InitialFlightNumber)
-                {
-                    nextNumber = maxNumber + 1;
-                }
+                return maxFlightNumberFound + 1;
             }
 
-            return $"{prefix}-{nextNumber}";
+            return StartingFlightSequenceNumber;
         }
 
-        public void Update(int id, string? newName = null)
+        private int ExtractNumericPartFromFlightCode(string? flightNumber)
         {
-            var existingCompany = companyRepo.GetCompanyById(id);
+            if (string.IsNullOrEmpty(flightNumber) || !flightNumber.Contains(FlightCodeDelimiter))
+            {
+                return 0;
+            }
+
+            string[] codeParts = flightNumber.Split(FlightCodeDelimiter);
+            string lastSegment = codeParts[codeParts.Length - 1];
+
+            if (int.TryParse(lastSegment, out int parsedFlightNumber))
+            {
+                return parsedFlightNumber;
+            }
+
+            return 0;
+        }
+
+        public void UpdateCompany(int companyId, string? updatedName = null)
+        {
+            Company? existingCompany = companyRepository.GetCompanyById(companyId);
+
             if (existingCompany == null)
             {
                 return;
             }
 
-            if (newName != null)
+            if (updatedName != null)
             {
-                if (string.IsNullOrWhiteSpace(newName))
+                if (string.IsNullOrWhiteSpace(updatedName))
                 {
-                    throw new ArgumentException("New company name cannot be empty.");
+                    throw new ArgumentException("The new company name cannot be empty.");
                 }
-                existingCompany.Name = newName;
+
+                existingCompany.Name = updatedName;
             }
 
-            companyRepo.UpdateCompany(existingCompany);
+            companyRepository.UpdateCompany(existingCompany);
         }
 
-        public void Delete(int id)
+        public void DeleteCompanyUsingId(int companyId)
         {
-            if (id > 0)
+            if (companyId > 0)
             {
-                companyRepo.DeleteCompanyUsingId(id);
+                companyRepository.DeleteCompanyUsingId(companyId);
             }
         }
     }

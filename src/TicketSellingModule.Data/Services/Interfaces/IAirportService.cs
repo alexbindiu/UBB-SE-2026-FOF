@@ -2,10 +2,10 @@
 
 public interface IAirportService
 {
-    List<Airport> GetAll();
-    Airport GetById(int id);
-    int Add(string code, string namde, string city);
-    void Update(int id, string? newCity = null, string? newName = null, string? newCode = null);
-    void Delete(int id);
-    bool HasFlights(int airportId);
+    List<Airport> GetAllAirports();
+    Airport? GetAirportById(int airportId);
+    int AddAirport(string airportCode, string airportName, string city);
+    void UpdateAirport(int airportId, string? newCity = null, string? newName = null, string? newCode = null);
+    void DeleteAirportUsingId(int airportId);
+    bool CheckIfAirportHasFlightsUsingId(int airportId);
 }

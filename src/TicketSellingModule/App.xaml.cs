@@ -34,24 +34,26 @@ namespace TicketSellingModule
             // Infrastructure
             services.AddSingleton<DatabaseConnectionFactory>();
 
-            // Repos
-            services.AddTransient<CompanyRepository>();
-            services.AddTransient<AirportRepository>();
-            services.AddTransient<RunwayRepository>();
-            services.AddTransient<GateRepository>();
-            services.AddTransient<EmployeeRepository>();
-            services.AddTransient<FlightRepository>();
-            services.AddTransient<RouteRepository>();
-            services.AddTransient<EmployeeFlightRepository>();
+            // Repositories
+            services.AddTransient<ICompanyRepository, CompanyRepository>();
+            services.AddTransient<IAirportRepository, AirportRepository>();
+            services.AddTransient<IRunwayRepository, RunwayRepository>();
+            services.AddTransient<IGateRepository, GateRepository>();
+            services.AddTransient<IEmployeeRepository, EmployeeRepository>();
+            services.AddTransient<IFlightRepository, FlightRepository>();
+            services.AddTransient<IRouteRepository, RouteRepository>();
+            services.AddTransient<IEmployeeFlightRepository, EmployeeFlightRepository>();
 
             // Services
-            services.AddTransient<CompanyService>();
-            services.AddTransient<AirportService>();
-            services.AddTransient<RunwayService>();
-            services.AddTransient<GateService>();
-            services.AddTransient<EmployeeService>();
-            services.AddTransient<FlightRouteService>();
-            services.AddTransient<EmployeeFlightService>();
+            services.AddTransient<ICompanyService, CompanyService>();
+            services.AddTransient<IAirportService, AirportService>();
+            services.AddTransient<IRunwayService, RunwayService>();
+            services.AddTransient<IGateService, GateService>();
+            services.AddTransient<IEmployeeService, EmployeeService>();
+            services.AddTransient<IFlightRouteService, FlightRouteService>();
+            services.AddTransient<IEmployeeFlightService, EmployeeFlightService>();
+            services.AddTransient<IRouteService, RouteService>();
+
             services.AddSingleton<INavigationService, NavigationService>();
 
             // ViewModels
@@ -60,8 +62,6 @@ namespace TicketSellingModule
             services.AddTransient<EmployeesDashboardViewModel>();
             services.AddTransient<AirportDashboardViewModel>();
             services.AddTransient<FlightsDashboardViewModel>();
-            services.AddTransient<RouteRepository>();
-            services.AddTransient<RouteService>();
             services.AddTransient<CompanyViewModel>();
             services.AddTransient<StaffPageViewModel>();
             services.AddTransient<HeaderViewModel>();

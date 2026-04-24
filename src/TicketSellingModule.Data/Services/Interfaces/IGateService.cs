@@ -2,11 +2,11 @@
 
 public interface IGateService
 {
-    List<Gate> GetAll();
-    Gate GetById(int id);
+    List<Gate> GetAllGates();
+    Gate? GetGateById(int gateId);
     int Add(string name);
-    void Update(int id, string? newName = null);
-    void Delete(int id);
-    void SaveGate(int id, string name);
+    void Update(int gateId, string? newName = null);
+    void DeleteGateUsingId(int gateId);
+    void SaveGate(int gateId, string name);
     bool HasFlights(int gateId);
 }
