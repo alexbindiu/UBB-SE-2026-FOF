@@ -9,4 +9,5 @@ public interface IGateService
     void DeleteGateUsingId(int gateId);
     void SaveGate(int gateId, string name);
     bool HasFlights(int gateId);
+    string GetDeleteWarningMessage(int gateId);
 }

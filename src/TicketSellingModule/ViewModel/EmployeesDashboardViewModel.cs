@@ -10,42 +10,27 @@ namespace TicketSellingModule.ViewModel
     public partial class EmployeesDashboardViewModel : ObservableObject
     {
         private readonly IEmployeeService employeeService;
-        public ObservableCollection<Employee> PilotEmployees { get; } = new();
-        public ObservableCollection<Employee> FlightAttendantEmployees { get; } = new();
-        public ObservableCollection<Employee> CoPilotEmployees { get; } = new();
-        public ObservableCollection<Employee> FlightDispatcherEmployees { get; } = new();
-        public ObservableCollection<Employee> OtherEmployees { get; } = new();
 
-        [ObservableProperty]
-        private Employee? selectedEmployee;
+        [ObservableProperty] private ObservableCollection<Employee> pilotEmployees = new();
+        [ObservableProperty] private ObservableCollection<Employee> flightAttendantEmployees = new();
+        [ObservableProperty] private ObservableCollection<Employee> coPilotEmployees = new();
+        [ObservableProperty] private ObservableCollection<Employee> flightDispatcherEmployees = new();
 
-        [ObservableProperty]
-        private Visibility dialogVisibility = Visibility.Collapsed;
+        [ObservableProperty] private Employee? selectedEmployee;
+        [ObservableProperty] private Visibility dialogVisibility = Visibility.Collapsed;
+        [ObservableProperty] private string dialogTitle = string.Empty;
+        [ObservableProperty] private Employee editingEmployee = new();
+        [ObservableProperty] private string dialogErrorMessage = string.Empty;
+        [ObservableProperty] private DateTimeOffset? editingBirthday;
+        [ObservableProperty] private DateTimeOffset? editingHiringDate;
+        [ObservableProperty] private string editingSalaryText = string.Empty;
+        [ObservableProperty] private Visibility confirmDeleteDialogVisibility = Visibility.Collapsed;
+        [ObservableProperty] private Employee? employeeToDelete;
+        [ObservableProperty] private string deleteErrorMessage = string.Empty;
 
-        [ObservableProperty]
-        private string dialogTitle = string.Empty;
-
-        [ObservableProperty]
-        private Employee editingEmployee = new Employee();
-        [ObservableProperty]
-        private string dialogErrorMessage = string.Empty;
-        [ObservableProperty]
-        private DateTimeOffset? editingBirthday;
-        [ObservableProperty]
-        private DateTimeOffset? editingHiringDate;
-        [ObservableProperty]
-        private string editingSalaryText = string.Empty;
-
-        [ObservableProperty]
-        private Visibility confirmDeleteDialogVisibility = Visibility.Collapsed;
-
-        [ObservableProperty]
-        private Employee? employeeToDelete;
-
-        [ObservableProperty]
-        private string deleteErrorMessage = string.Empty;
         public bool IsConfirmationVisible => EmployeeToDelete != null;
         public bool IsErrorOnlyVisible => EmployeeToDelete == null && !string.IsNullOrEmpty(DeleteErrorMessage);
+
         public EmployeesDashboardViewModel(IEmployeeService employeeService)
         {
             this.employeeService = employeeService;
@@ -54,37 +39,10 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         public void LoadData()
         {
-            var allEmployees = employeeService.GetAllEmployees();
-
-            ClearAllCollections();
-
-            foreach (var employee in employeeService.GetPilots())
-            {
-                PilotEmployees.Add(employee);
-            }
-
-            foreach (var employee in employeeService.GetFlightAttendants())
-            {
-                FlightAttendantEmployees.Add(employee);
-            }
-
-            foreach (var employee in employeeService.GetCoPilots())
-            {
-                CoPilotEmployees.Add(employee);
-            }
-
-            foreach (var employee in employeeService.GetFlightDispatchers())
-            {
-                FlightDispatcherEmployees.Add(employee);
-            }
-        }
-
-        private void ClearAllCollections()
-        {
-            PilotEmployees.Clear();
-            FlightAttendantEmployees.Clear();
-            CoPilotEmployees.Clear();
-            FlightDispatcherEmployees.Clear();
+            PilotEmployees = new ObservableCollection<Employee>(employeeService.GetPilots());
+            FlightAttendantEmployees = new ObservableCollection<Employee>(employeeService.GetFlightAttendants());
+            CoPilotEmployees = new ObservableCollection<Employee>(employeeService.GetCoPilots());
+            FlightDispatcherEmployees = new ObservableCollection<Employee>(employeeService.GetFlightDispatchers());
         }
 
         [RelayCommand]
@@ -95,7 +53,6 @@ namespace TicketSellingModule.ViewModel
                 EmployeeToDelete = null;
                 DeleteErrorMessage = "Please select an employee to delete.";
                 ConfirmDeleteDialogVisibility = Visibility.Visible;
-
                 OnPropertyChanged(nameof(IsConfirmationVisible));
                 OnPropertyChanged(nameof(IsErrorOnlyVisible));
                 return;
@@ -104,7 +61,6 @@ namespace TicketSellingModule.ViewModel
             EmployeeToDelete = employee;
             DeleteErrorMessage = string.Empty;
             ConfirmDeleteDialogVisibility = Visibility.Visible;
-
             OnPropertyChanged(nameof(IsConfirmationVisible));
             OnPropertyChanged(nameof(IsErrorOnlyVisible));
         }
@@ -121,7 +77,6 @@ namespace TicketSellingModule.ViewModel
             try
             {
                 employeeService.DeleteWithAssignments(EmployeeToDelete.Id);
-
                 ConfirmDeleteDialogVisibility = Visibility.Collapsed;
                 DeleteErrorMessage = string.Empty;
                 EmployeeToDelete = null;
@@ -139,7 +94,6 @@ namespace TicketSellingModule.ViewModel
             ConfirmDeleteDialogVisibility = Visibility.Collapsed;
             DeleteErrorMessage = string.Empty;
             EmployeeToDelete = null;
-
             OnPropertyChanged(nameof(IsConfirmationVisible));
             OnPropertyChanged(nameof(IsErrorOnlyVisible));
         }
@@ -147,9 +101,7 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void AddEmployee(string targetRole)
         {
-            EmployeeRole parsedRole = ParseRoleFromUserInterface(targetRole);
-
-            EditingEmployee = new Employee { Role = parsedRole };
+            EditingEmployee = new Employee { Role = employeeService.ParseRole(targetRole) };
             EditingBirthday = null;
             EditingHiringDate = null;
             EditingSalaryText = string.Empty;
@@ -157,23 +109,6 @@ namespace TicketSellingModule.ViewModel
             DialogTitle = $"Add New {targetRole}";
             DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
-        }
-
-        private EmployeeRole ParseRoleFromUserInterface(string requestedRoleText)
-        {
-            if (string.IsNullOrWhiteSpace(requestedRoleText))
-            {
-                return EmployeeRole.Other;
-            }
-
-            string normalizedText = requestedRoleText.Replace(" ", string.Empty).Replace("-", string.Empty);
-
-            if (Enum.TryParse(normalizedText, true, out EmployeeRole result))
-            {
-                return result;
-            }
-
-            return EmployeeRole.Other;
         }
 
         [RelayCommand]
@@ -193,6 +128,7 @@ namespace TicketSellingModule.ViewModel
                 Birthday = employee.Birthday,
                 HiringDate = employee.HiringDate
             };
+
             EditingSalaryText = employee.Salary.ToString();
             EditingBirthday = new DateTimeOffset(employee.Birthday.ToDateTime(TimeOnly.MinValue));
             EditingHiringDate = new DateTimeOffset(employee.HiringDate.ToDateTime(TimeOnly.MinValue));
@@ -213,18 +149,7 @@ namespace TicketSellingModule.ViewModel
         {
             try
             {
-                if (EditingBirthday.HasValue)
-                {
-                    EditingEmployee.Birthday = DateOnly.FromDateTime(EditingBirthday.Value.DateTime);
-                }
-
-                if (EditingHiringDate.HasValue)
-                {
-                    EditingEmployee.HiringDate = DateOnly.FromDateTime(EditingHiringDate.Value.DateTime);
-                }
-
                 employeeService.SaveEmployee(EditingEmployee, EditingBirthday, EditingHiringDate, EditingSalaryText);
-
                 LoadData();
                 DialogVisibility = Visibility.Collapsed;
             }

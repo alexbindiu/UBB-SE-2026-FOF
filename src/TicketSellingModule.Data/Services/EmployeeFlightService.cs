@@ -1,3 +1,5 @@
+using System.Text;
+
 using TicketSellingModule.Data.Repositories.Interfaces;
 using TicketSellingModule.Data.Services.Interfaces;
 
@@ -77,6 +79,28 @@ namespace TicketSellingModule.Data.Services
             }
 
             return flightCrew;
+        }
+
+        public string FormatCrewList(int flightId)
+        {
+            List<Employee> crew = this.GetEmployeesAssignedToFlight(flightId);
+
+            if (crew.Count == 0)
+            {
+                return "Unassigned";
+            }
+
+            StringBuilder crewNames = new StringBuilder();
+            for (int index = 0; index < crew.Count; index++)
+            {
+                crewNames.Append(crew[index].Name);
+                if (index < crew.Count - 1)
+                {
+                    crewNames.Append(", ");
+                }
+            }
+
+            return crewNames.ToString();
         }
 
         public List<Flight> GetEmployeeSchedule(int employeeId)

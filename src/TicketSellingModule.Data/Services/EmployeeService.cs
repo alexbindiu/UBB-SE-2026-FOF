@@ -203,5 +203,21 @@ namespace TicketSellingModule.Data.Services
 
             employeeRepository.DeleteEmployee(employeeId);
         }
+
+        public EmployeeRole ParseRole(string roleText)
+        {
+            if (string.IsNullOrWhiteSpace(roleText))
+            {
+                return EmployeeRole.Other;
+            }
+
+            string normalized = roleText
+                .Replace(" ", string.Empty)
+                .Replace("-", string.Empty);
+
+            return Enum.TryParse(normalized, ignoreCase: true, out EmployeeRole result)
+                ? result
+                : EmployeeRole.Other;
+        }
     }
 }

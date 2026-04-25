@@ -20,4 +20,5 @@ public interface IFlightRouteService
     void DeleteFlightUsingId(int flightId);
     List<Flight> GetFlightsByCompanyId(int companyId);
     string GetDestinationText(Flight flight);
+    List<Flight> SearchFlights(List<Flight> flights, string query);
 }
