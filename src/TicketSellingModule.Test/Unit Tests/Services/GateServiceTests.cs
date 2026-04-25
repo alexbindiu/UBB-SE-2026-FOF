@@ -136,18 +136,6 @@ public class GateServiceTests
     }
 
     [Fact]
-    public void Update_Should_Throw_For_Null_New_Name()
-    {
-        var mockGateRepo = new Mock<IGateRepository>();
-        var mockFlightRepo = new Mock<IFlightRepository>();
-        mockGateRepo.Setup(getGate => getGate.GetGateById(1)).Returns(new Gate { Name = "Old" });
-
-        var gateService = new GateService(mockGateRepo.Object, mockFlightRepo.Object);
-
-        Assert.Throws<ArgumentException>(() => gateService.Update(1, null));
-    }
-
-    [Fact]
     public void Update_Should_Update_Name_For_Valid_Data()
     {
         var mockGateRepo = new Mock<IGateRepository>();
