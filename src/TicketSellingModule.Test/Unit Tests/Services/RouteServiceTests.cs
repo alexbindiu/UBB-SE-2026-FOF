@@ -24,95 +24,108 @@ public class RouteServiceTests
     }
 
     [Fact]
-    public void GetById_Should_Return_Route()
+    public void GetById_Should_Return_Route_When_Route_Exists()
     {
         var mockRouteRepo = new Mock<IRouteRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
         var route = new Route { RouteType = "DEP" };
-        mockRouteRepo.Setup(r => r.GetRouteById(1)).Returns(route);
+        mockRouteRepo.Setup(getRoute => getRoute.GetRouteById(1)).Returns(route);
 
-        var service = BuildService(mockRouteRepo, mockFlightRepo);
+        var routeService = BuildService(mockRouteRepo, mockFlightRepo);
 
-        Assert.Equal(route, service.GetRouteById(1));
+        Assert.Equal(route, routeService.GetRouteById(1));
     }
 
     [Fact]
-    public void GetById_Should_Return_Null_When_Not_Found()
+    public void GetById_Should_Return_Null_When_Route_Not_Found()
     {
         var mockRouteRepo = new Mock<IRouteRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
-        mockRouteRepo.Setup(r => r.GetRouteById(99)).Returns((Route)null);
+        mockRouteRepo.Setup(getNoRoute => getNoRoute.GetRouteById(99)).Returns((Route)null);
+        var routeService = BuildService(mockRouteRepo, mockFlightRepo);
 
-        var service = BuildService(mockRouteRepo, mockFlightRepo);
-
-        Assert.Null(service.GetRouteById(99));
+        Assert.Null(routeService.GetRouteById(99));
     }
 
     [Fact]
-    public void GetAll_Should_Return_All_Routes()
+    public void GetAll_Should_Return_All_Routes_Always()
     {
         var mockRouteRepo = new Mock<IRouteRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
         var routes = new List<Route> { new Route(), new Route() };
-        mockRouteRepo.Setup(r => r.GetAllRoutes()).Returns(routes);
+        mockRouteRepo.Setup(getAllRoutes => getAllRoutes.GetAllRoutes()).Returns(routes);
 
-        var service = BuildService(mockRouteRepo, mockFlightRepo);
+        var routeService = BuildService(mockRouteRepo, mockFlightRepo);
 
-        Assert.Equal(2, service.GetAllRoutes().Count);
+        Assert.Equal(2, routeService.GetAllRoutes().Count);
     }
 
     [Fact]
-    public void NormalizeFlightType_Should_Return_Dash_For_Null_Or_Whitespace()
+    public void NormalizeFlightType_Should_Return_Dash_For_Null()
     {
-        var service = BuildService(new Mock<IRouteRepository>(), new Mock<IFlightRepository>());
+        var routeService = BuildService(new Mock<IRouteRepository>(), new Mock<IFlightRepository>());
 
-        Assert.Equal("-", service.NormalizeFlightType(null));
-        Assert.Equal("-", service.NormalizeFlightType(string.Empty));
-        Assert.Equal("-", service.NormalizeFlightType("  "));
+        Assert.Equal("-", routeService.NormalizeFlightType(null));
+    }
+
+    [Fact]
+    public void NormalizeFlightType_Should_Return_Dash_For_Empty_String()
+    {
+        var routeService = BuildService(new Mock<IRouteRepository>(), new Mock<IFlightRepository>());
+
+        Assert.Equal("-", routeService.NormalizeFlightType(string.Empty));
+    }
+
+    [Fact]
+    public void NormalizeFlightType_Should_Return_Dash_For_Whitespace()
+    {
+        var routeService = BuildService(new Mock<IRouteRepository>(), new Mock<IFlightRepository>());
+
+        Assert.Equal("-", routeService.NormalizeFlightType("  "));
     }
 
     [Fact]
     public void NormalizeFlightType_Should_Return_ARR_For_Arrival_Variants()
     {
-        var service = BuildService(new Mock<IRouteRepository>(), new Mock<IFlightRepository>());
+        var routeService = BuildService(new Mock<IRouteRepository>(), new Mock<IFlightRepository>());
 
-        Assert.Equal("ARR", service.NormalizeFlightType("arr"));
-        Assert.Equal("ARR", service.NormalizeFlightType("ARR"));
-        Assert.Equal("ARR", service.NormalizeFlightType("arrival"));
-        Assert.Equal("ARR", service.NormalizeFlightType("ARRIVAL"));
+        Assert.Equal("ARR", routeService.NormalizeFlightType("arr"));
+        Assert.Equal("ARR", routeService.NormalizeFlightType("ARR"));
+        Assert.Equal("ARR", routeService.NormalizeFlightType("arrival"));
+        Assert.Equal("ARR", routeService.NormalizeFlightType("ARRIVAL"));
     }
 
     [Fact]
     public void NormalizeFlightType_Should_Return_DEP_For_Departure_Variants()
     {
-        var service = BuildService(new Mock<IRouteRepository>(), new Mock<IFlightRepository>());
+        var routeService = BuildService(new Mock<IRouteRepository>(), new Mock<IFlightRepository>());
 
-        Assert.Equal("DEP", service.NormalizeFlightType("dep"));
-        Assert.Equal("DEP", service.NormalizeFlightType("DEP"));
-        Assert.Equal("DEP", service.NormalizeFlightType("departure"));
-        Assert.Equal("DEP", service.NormalizeFlightType("DEPARTURE"));
+        Assert.Equal("DEP", routeService.NormalizeFlightType("dep"));
+        Assert.Equal("DEP", routeService.NormalizeFlightType("DEP"));
+        Assert.Equal("DEP", routeService.NormalizeFlightType("departure"));
+        Assert.Equal("DEP", routeService.NormalizeFlightType("DEPARTURE"));
     }
 
     [Fact]
     public void NormalizeFlightType_Should_Return_Uppercased_Value_For_Unknown_Type()
     {
-        var service = BuildService(new Mock<IRouteRepository>(), new Mock<IFlightRepository>());
+        var routeService = BuildService(new Mock<IRouteRepository>(), new Mock<IFlightRepository>());
 
-        Assert.Equal("TRANSIT", service.NormalizeFlightType("transit"));
+        Assert.Equal("TRANSIT", routeService.NormalizeFlightType("transit"));
     }
 
     [Fact]
     public void GetRelevantTime_Should_Return_Dash_For_Null_Route()
     {
-        var service = BuildService(new Mock<IRouteRepository>(), new Mock<IFlightRepository>());
+        var routeService = BuildService(new Mock<IRouteRepository>(), new Mock<IFlightRepository>());
 
-        Assert.Equal("-", service.GetRelevantTime(null));
+        Assert.Equal("-", routeService.GetRelevantTime(null));
     }
 
     [Fact]
     public void GetRelevantTime_Should_Return_ArrivalTime_For_ARR_Route()
     {
-        var service = BuildService(new Mock<IRouteRepository>(), new Mock<IFlightRepository>());
+        var routeService = BuildService(new Mock<IRouteRepository>(), new Mock<IFlightRepository>());
         var route = new Route
         {
             RouteType = "ARR",
@@ -120,13 +133,13 @@ public class RouteServiceTests
             DepartureTime = new TimeOnly(10, 0)
         };
 
-        Assert.Equal("14:30", service.GetRelevantTime(route));
+        Assert.Equal("14:30", routeService.GetRelevantTime(route));
     }
 
     [Fact]
     public void GetRelevantTime_Should_Return_DepartureTime_For_DEP_Route()
     {
-        var service = BuildService(new Mock<IRouteRepository>(), new Mock<IFlightRepository>());
+        var routeService = BuildService(new Mock<IRouteRepository>(), new Mock<IFlightRepository>());
         var route = new Route
         {
             RouteType = "DEP",
@@ -134,32 +147,32 @@ public class RouteServiceTests
             DepartureTime = new TimeOnly(10, 0)
         };
 
-        Assert.Equal("10:00", service.GetRelevantTime(route));
+        Assert.Equal("10:00", routeService.GetRelevantTime(route));
     }
 
     [Fact]
-    public void AddWithInitialFlight_Should_Succeed_With_No_Conflicts()
+    public void AddWithInitialFlight_Should_Succeed_When_No_Conflicts()
     {
         var mockRouteRepo = new Mock<IRouteRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
         var mockCompanyRepo = new Mock<ICompanyRepository>();
         var mockAirportRepo = new Mock<IAirportRepository>();
 
-        mockFlightRepo.Setup(r => r.GetAllFlights()).Returns(new List<Flight>());
-        mockCompanyRepo.Setup(r => r.GetCompanyById(It.IsAny<int>())).Returns(new Company());
-        mockAirportRepo.Setup(r => r.GetAirportById(It.IsAny<int>())).Returns(new Airport());
-        mockRouteRepo.Setup(r => r.AddRoute(It.IsAny<Route>())).Returns(10);
+        mockFlightRepo.Setup(getFlights => getFlights.GetAllFlights()).Returns(new List<Flight>());
+        mockCompanyRepo.Setup(getCompany => getCompany.GetCompanyById(It.IsAny<int>())).Returns(new Company());
+        mockAirportRepo.Setup(getAirport => getAirport.GetAirportById(It.IsAny<int>())).Returns(new Airport());
+        mockRouteRepo.Setup(addRoute => addRoute.AddRoute(It.IsAny<Route>())).Returns(10);
 
-        var service = new RouteService(mockRouteRepo.Object, mockFlightRepo.Object,
+        var routeService = new RouteService(mockRouteRepo.Object, mockFlightRepo.Object,
             mockCompanyRepo.Object, mockAirportRepo.Object);
 
-        var start = new DateTime(2025, 1, 1);
-        var result = service.AddWithInitialFlight(1, 1, "DEP", 1, start, start,
+        var startDate = new DateTime(2025, 1, 1);
+        var result = routeService.AddWithInitialFlight(1, 1, "DEP", 1, startDate, startDate,
             new TimeOnly(10, 0), new TimeOnly(12, 0), 100, "FL001", 1, 1);
 
         Assert.Equal(10, result);
-        mockRouteRepo.Verify(r => r.AddRoute(It.IsAny<Route>()), Times.Once);
-        mockFlightRepo.Verify(r => r.AddFlight(It.IsAny<Flight>()), Times.Once);
+        mockRouteRepo.Verify(addRoute => addRoute.AddRoute(It.IsAny<Route>()), Times.Once);
+        mockFlightRepo.Verify(addFlight => addFlight.AddFlight(It.IsAny<Flight>()), Times.Once);
     }
 
     [Fact]
@@ -170,7 +183,7 @@ public class RouteServiceTests
         var mockCompanyRepo = new Mock<ICompanyRepository>();
         var mockAirportRepo = new Mock<IAirportRepository>();
 
-        var start = new DateTime(2025, 1, 1);
+        var startDate = new DateTime(2025, 1, 1);
         var existingFlight = new Flight
         {
             Gate = new Gate { Id = 1 },
@@ -183,23 +196,23 @@ public class RouteServiceTests
             ArrivalTime = new TimeOnly(9, 0)
         };
 
-        mockFlightRepo.Setup(r => r.GetAllFlights()).Returns(new List<Flight> { existingFlight });
-        mockRouteRepo.Setup(r => r.GetRouteById(5)).Returns(existingRoute);
-        mockCompanyRepo.Setup(r => r.GetCompanyById(It.IsAny<int>())).Returns(new Company());
-        mockAirportRepo.Setup(r => r.GetAirportById(It.IsAny<int>())).Returns(new Airport());
-        mockRouteRepo.Setup(r => r.AddRoute(It.IsAny<Route>())).Returns(11);
+        mockFlightRepo.Setup(getFlights => getFlights.GetAllFlights()).Returns(new List<Flight> { existingFlight });
+        mockRouteRepo.Setup(getRoute => getRoute.GetRouteById(5)).Returns(existingRoute);
+        mockCompanyRepo.Setup(getCompany => getCompany.GetCompanyById(It.IsAny<int>())).Returns(new Company());
+        mockAirportRepo.Setup(getAirport => getAirport.GetAirportById(It.IsAny<int>())).Returns(new Airport());
+        mockRouteRepo.Setup(addRoute => addRoute.AddRoute(It.IsAny<Route>())).Returns(11);
 
-        var service = new RouteService(mockRouteRepo.Object, mockFlightRepo.Object,
+        var routeService = new RouteService(mockRouteRepo.Object, mockFlightRepo.Object,
             mockCompanyRepo.Object, mockAirportRepo.Object);
 
-        var result = service.AddWithInitialFlight(1, 1, "DEP", 1, start, start,
+        var result = routeService.AddWithInitialFlight(1, 1, "DEP", 1, startDate, startDate,
             new TimeOnly(10, 0), new TimeOnly(12, 0), 100, "FL002", 1, 1);
 
         Assert.Equal(11, result);
     }
 
     [Fact]
-    public void AddWithInitialFlight_Should_Throw_On_Gate_Conflict()
+    public void AddWithInitialFlight_Should_Throw_When_Gate_Conflict()
     {
         var mockRouteRepo = new Mock<IRouteRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
@@ -208,19 +221,19 @@ public class RouteServiceTests
         var existingFlight = new Flight { Date = date, Gate = new Gate { Id = 10 }, Runway = new Runway { Id = 20 }, Route = new Route { Id = 5 }, FlightNumber = "EX123" };
         var existingRoute = new Route { DepartureTime = new TimeOnly(10, 0), ArrivalTime = new TimeOnly(12, 0) };
 
-        mockFlightRepo.Setup(r => r.GetAllFlights()).Returns(new List<Flight> { existingFlight });
-        mockRouteRepo.Setup(r => r.GetRouteById(5)).Returns(existingRoute);
+        mockFlightRepo.Setup(getFlights => getFlights.GetAllFlights()).Returns(new List<Flight> { existingFlight });
+        mockRouteRepo.Setup(getRoute => getRoute.GetRouteById(5)).Returns(existingRoute);
 
-        var service = BuildService(mockRouteRepo, mockFlightRepo);
+        var routeService = BuildService(mockRouteRepo, mockFlightRepo);
 
         var ex = Assert.Throws<InvalidOperationException>(() =>
-            service.AddWithInitialFlight(1, 1, "DEP", 0, date, date, new TimeOnly(11, 0), new TimeOnly(13, 0), 100, "NEW123", 99, 10));
+            routeService.AddWithInitialFlight(1, 1, "DEP", 0, date, date, new TimeOnly(11, 0), new TimeOnly(13, 0), 100, "NEW123", 99, 10));
 
         Assert.Contains("Conflict", ex.Message);
     }
 
     [Fact]
-    public void AddWithInitialFlight_Should_Throw_On_Runway_Conflict()
+    public void AddWithInitialFlight_Should_Throw_When_Runway_Conflict()
     {
         var mockRouteRepo = new Mock<IRouteRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
@@ -229,19 +242,19 @@ public class RouteServiceTests
         var existingFlight = new Flight { Date = date, Gate = new Gate { Id = 10 }, Runway = new Runway { Id = 20 }, Route = new Route { Id = 5 }, FlightNumber = "EX123" };
         var existingRoute = new Route { DepartureTime = new TimeOnly(10, 0), ArrivalTime = new TimeOnly(12, 0) };
 
-        mockFlightRepo.Setup(r => r.GetAllFlights()).Returns(new List<Flight> { existingFlight });
-        mockRouteRepo.Setup(r => r.GetRouteById(5)).Returns(existingRoute);
+        mockFlightRepo.Setup(getFlights => getFlights.GetAllFlights()).Returns(new List<Flight> { existingFlight });
+        mockRouteRepo.Setup(getRoute => getRoute.GetRouteById(5)).Returns(existingRoute);
 
-        var service = BuildService(mockRouteRepo, mockFlightRepo);
+        var routeService = BuildService(mockRouteRepo, mockFlightRepo);
 
         var ex = Assert.Throws<InvalidOperationException>(() =>
-            service.AddWithInitialFlight(1, 1, "DEP", 0, date, date, new TimeOnly(11, 0), new TimeOnly(13, 0), 100, "NEW123", 20, 99));
+            routeService.AddWithInitialFlight(1, 1, "DEP", 0, date, date, new TimeOnly(11, 0), new TimeOnly(13, 0), 100, "NEW123", 20, 99));
 
         Assert.Contains("Conflict", ex.Message);
     }
 
     [Fact]
-    public void AddWithInitialFlight_Should_Handle_Midnight_Wrap_Overlaps()
+    public void AddWithInitialFlight_Should_Handle_Midnight_Wrap_Overlaps_When_Exist()
     {
         var date = new DateTime(2025, 1, 1);
         var existingRoute = new Route { DepartureTime = new TimeOnly(23, 30), ArrivalTime = new TimeOnly(1, 30) };
@@ -249,12 +262,12 @@ public class RouteServiceTests
             var mockRouteRepo = new Mock<IRouteRepository>();
             var mockFlightRepo = new Mock<IFlightRepository>();
             var existingFlight = new Flight { Date = date, Gate = new Gate { Id = 1 }, Runway = new Runway { Id = 1 }, Route = new Route { Id = 5 } };
-            mockFlightRepo.Setup(r => r.GetAllFlights()).Returns(new List<Flight> { existingFlight });
-            mockRouteRepo.Setup(r => r.GetRouteById(5)).Returns(existingRoute);
-            var service = BuildService(mockRouteRepo, mockFlightRepo);
+            mockFlightRepo.Setup(getFlight => getFlight.GetAllFlights()).Returns(new List<Flight> { existingFlight });
+            mockRouteRepo.Setup(getRoute => getRoute.GetRouteById(5)).Returns(existingRoute);
+            var routeService = BuildService(mockRouteRepo, mockFlightRepo);
 
             Assert.Throws<InvalidOperationException>(() =>
-                service.AddWithInitialFlight(1, 1, "DEP", 0, date, date, new TimeOnly(23, 0), new TimeOnly(1, 0), 100, "WRAP", 1, 1));
+                routeService.AddWithInitialFlight(1, 1, "DEP", 0, date, date, new TimeOnly(23, 0), new TimeOnly(1, 0), 100, "WRAP", 1, 1));
         }
 
         {
@@ -279,13 +292,13 @@ public class RouteServiceTests
 
         var existingFlight = new Flight { Date = date, Gate = new Gate { Id = 1 }, Runway = new Runway { Id = 1 }, Route = new Route { Id = 999 } };
 
-        mockFlightRepo.Setup(r => r.GetAllFlights()).Returns(new List<Flight> { existingFlight });
-        mockRouteRepo.Setup(r => r.GetRouteById(999)).Returns((Route)null);
-        mockRouteRepo.Setup(r => r.AddRoute(It.IsAny<Route>())).Returns(1);
+        mockFlightRepo.Setup(getFlight => getFlight.GetAllFlights()).Returns(new List<Flight> { existingFlight });
+        mockRouteRepo.Setup(getRoute => getRoute.GetRouteById(999)).Returns((Route)null);
+        mockRouteRepo.Setup(addRoute => addRoute.AddRoute(It.IsAny<Route>())).Returns(1);
 
-        var service = BuildService(mockRouteRepo, mockFlightRepo);
+        var routeService = BuildService(mockRouteRepo, mockFlightRepo);
 
-        int resultId = service.AddWithInitialFlight(1, 1, "DEP", 0, date, date, new TimeOnly(10, 0), new TimeOnly(12, 0), 100, "VALID", 1, 1);
+        int resultId = routeService.AddWithInitialFlight(1, 1, "DEP", 0, date, date, new TimeOnly(10, 0), new TimeOnly(12, 0), 100, "VALID", 1, 1);
 
         Assert.Equal(1, resultId);
     }
@@ -309,15 +322,15 @@ public class RouteServiceTests
             Route = new Route { Id = 5 }
         };
 
-        mockFlightRepo.Setup(r => r.GetAllFlights()).Returns(new List<Flight> { otherDayFlight });
-        mockCompanyRepo.Setup(r => r.GetCompanyById(It.IsAny<int>())).Returns(new Company());
-        mockAirportRepo.Setup(r => r.GetAirportById(It.IsAny<int>())).Returns(new Airport());
-        mockRouteRepo.Setup(r => r.AddRoute(It.IsAny<Route>())).Returns(5);
+        mockFlightRepo.Setup(getFlight => getFlight.GetAllFlights()).Returns(new List<Flight> { otherDayFlight });
+        mockCompanyRepo.Setup(getCompany => getCompany.GetCompanyById(It.IsAny<int>())).Returns(new Company());
+        mockAirportRepo.Setup(getAirport => getAirport.GetAirportById(It.IsAny<int>())).Returns(new Airport());
+        mockRouteRepo.Setup(addRoute => addRoute.AddRoute(It.IsAny<Route>())).Returns(5);
 
-        var service = new RouteService(mockRouteRepo.Object, mockFlightRepo.Object,
+        var routeService = new RouteService(mockRouteRepo.Object, mockFlightRepo.Object,
             mockCompanyRepo.Object, mockAirportRepo.Object);
 
-        var result = service.AddWithInitialFlight(1, 1, "DEP", 0, targetDate, targetDate,
+        var result = routeService.AddWithInitialFlight(1, 1, "DEP", 0, targetDate, targetDate,
             new TimeOnly(10, 0), new TimeOnly(12, 0), 100, "FL999", 1, 1);
 
         Assert.Equal(5, result);
