@@ -265,6 +265,8 @@ public class AirportServiceTests
 
         var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
 
+        airportService.UpdateAirport(TargetAirportId, newCode: DefaultTestCode, newName: DefaultTestName, newCity: DefaultTestCity);
+
         Assert.Equal(DefaultTestCode, airportToUpdate.AirportCode);
         Assert.Equal(DefaultTestName, airportToUpdate.AirportName);
         Assert.Equal(DefaultTestCity, airportToUpdate.City);
