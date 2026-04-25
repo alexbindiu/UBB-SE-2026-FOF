@@ -24,8 +24,8 @@ namespace TicketSellingModule.ViewModel
                 return;
             }
 
-            var emp = employeeService.GetEmployeeById(employeeId);
-            if (emp == null)
+            Employee? employee = employeeService.GetEmployeeById(employeeId);
+            if (employee == null)
             {
                 ShowError("ID was not found!");
                 return;
