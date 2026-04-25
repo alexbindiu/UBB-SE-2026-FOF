@@ -9,7 +9,6 @@ public class EmployeeFlightServiceTests
     private const int TargetFlightId = 1;
     private const int TargetEmployeeId = 1;
     private const int TargetRouteId = 1;
-    private const int TargetRouteId2 = 2;
     private const int ConflictingFlightId = 99;
     private const int ConflictingRouteId = 2;
     private const int NextDayFlightId = 50;
