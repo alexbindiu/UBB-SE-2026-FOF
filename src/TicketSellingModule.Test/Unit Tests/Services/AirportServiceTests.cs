@@ -4,309 +4,348 @@ namespace TicketSellingModule.Test.Unit_Tests.Services;
 
 public class AirportServiceTests
 {
+    private const int TargetAirportId = 1;
+    private const int InvalidAirportId = 0;
+    private const string DefaultTestCode = "DTC";
+    private const string DefaultTestName = "DefaultTestName";
+    private const string DefaultTestCity = "DefaultTestCity";
+    private const string SecondTestCode = "STC";
+    private const string SecondTestName = "SecondTestName";
+    private const string SecondTestCity = "SecondTestCity";
+    private const string UpdatedName = "New Name";
+    private const string UpdatedCity = "New City";
+    private const string UpdatedCode = "NEW";
+
     [Fact]
-    public void Add_Should_Throw_Exception_For_Null_Code()
+    public void AddAirport_ThrowsArgumentException_WhenCodeIsNull()
     {
-        Mock<IFlightRepository> mockFlightRepo = new Mock<IFlightRepository>();
-        Mock<IAirportRepository> mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
 
-        AirportService airportService = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
-
-        Assert.Throws<ArgumentException>(() => airportService.AddAirport(null, "Test", "Test"));
-        Assert.Throws<ArgumentException>(() => airportService.AddAirport(string.Empty, "Test", "Test"));
-        Assert.Throws<ArgumentException>(() => airportService.AddAirport(" ", "Test", "Test"));
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport(null, DefaultTestName, DefaultTestCity));
     }
 
     [Fact]
-    public void Add_Should_Throw_Exception_For_Null_Name()
+    public void AddAirport_ThrowsArgumentException_WhenCodeIsEmpty()
     {
-        Mock<IFlightRepository> mockFlightRepo = new Mock<IFlightRepository>();
-        Mock<IAirportRepository> mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
 
-        AirportService airportService = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
-
-        Assert.Throws<ArgumentException>(() => airportService.AddAirport("Test", null, "Test"));
-        Assert.Throws<ArgumentException>(() => airportService.AddAirport("Test", string.Empty, "Test"));
-        Assert.Throws<ArgumentException>(() => airportService.AddAirport("Test", " ", "Test"));
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport(string.Empty, DefaultTestName, DefaultTestCity));
     }
 
     [Fact]
-    public void Add_Should_Throw_Exception_For_Null_City()
+    public void AddAirport_ThrowsArgumentException_WhenCodeIsWhitespace()
     {
-        Mock<IFlightRepository> mockFlightRepo = new Mock<IFlightRepository>();
-        Mock<IAirportRepository> mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
 
-        AirportService airportService = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
-
-        Assert.Throws<ArgumentException>(() => airportService.AddAirport("Test", "Test", null));
-        Assert.Throws<ArgumentException>(() => airportService.AddAirport("Test", "Test", string.Empty));
-        Assert.Throws<ArgumentException>(() => airportService.AddAirport("Test", "Test", " "));
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport(" ", DefaultTestName, DefaultTestCity));
     }
 
     [Fact]
-    public void Add_Should_Work()
+    public void AddAirport_ThrowsArgumentException_WhenNameIsNull()
     {
-        Mock<IFlightRepository> mockFlightRepo = new Mock<IFlightRepository>();
-        Mock<IAirportRepository> mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
 
-        AirportService airportService = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
-
-        mockAirportRepo.Setup(repo => repo.AddAirport(It.IsAny<Airport>())).Returns(1);
-
-        Assert.Equal(1, airportService.AddAirport("Test", "Test", "Test"));
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport(DefaultTestCode, null, DefaultTestCity));
     }
 
     [Fact]
-    public void GetAll_Should_Return_All_Airports()
+    public void AddAirport_ThrowsArgumentException_WhenNameIsEmpty()
     {
-        var mockFlightRepo = new Mock<IFlightRepository>();
-        var mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
 
-        var airports = new List<Airport>
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport(DefaultTestCode, string.Empty, DefaultTestCity));
+    }
+
+    [Fact]
+    public void AddAirport_ThrowsArgumentException_WhenNameIsWhiteSpace()
+    {
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
+
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport(DefaultTestCode, " ", DefaultTestCity));
+    }
+
+    [Fact]
+    public void AddAirport_ThrowsArgumentException_WhenCityIsNull()
+    {
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
+
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport(DefaultTestCode, DefaultTestName, null));
+    }
+
+    [Fact]
+    public void AddAirport_ThrowsArgumentException_WhenCityIsEmpty()
+    {
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
+
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport(DefaultTestCode, DefaultTestName, string.Empty));
+    }
+
+    [Fact]
+    public void AddAirport_ThrowsArgumentException_WhenCityIsWhitespace()
+    {
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
+
+        Assert.Throws<ArgumentException>(() => airportService.AddAirport(DefaultTestCode, DefaultTestName, " "));
+    }
+
+    [Fact]
+    public void AddAirport_ReturnsGeneratedId_WhenArgumentsAreValid()
+    {
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+
+        airportDataSource.Setup(addValidAirport => addValidAirport.AddAirport(It.IsAny<Airport>()))
+            .Returns(TargetAirportId);
+
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
+
+        int resultId = airportService.AddAirport(DefaultTestCode, DefaultTestName, DefaultTestCity);
+
+        Assert.Equal(TargetAirportId, resultId);
+    }
+
+    [Fact]
+    public void GetAllAirports_ReturnsAllRecords_WhenRecordsExist()
+    {
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+
+        var existingAirportsList = new List<Airport>
         {
-            new Airport { AirportCode = "A", AirportName = "A1", City = "C1" },
-            new Airport { AirportCode = "B", AirportName = "B1", City = "C2" }
+            new Airport { AirportCode = DefaultTestCode, AirportName = DefaultTestName, City = DefaultTestCity },
+            new Airport { AirportCode = SecondTestCode, AirportName = SecondTestName, City = SecondTestCity }
         };
 
-        mockAirportRepo.Setup(repo => repo.GetAllAirports()).Returns(airports);
+        airportDataSource.Setup(getAllAirportsFromRepository => getAllAirportsFromRepository.GetAllAirports())
+            .Returns(existingAirportsList);
 
-        var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
 
-        var result = service.GetAllAirports();
+        List<Airport> resultList = airportService.GetAllAirports();
 
-        Assert.Equal(2, result.Count);
-        Assert.Equal(airports, result);
+        Assert.Equal(2, resultList.Count);
+        Assert.Equal(existingAirportsList, resultList);
     }
 
     [Fact]
-    public void GetById_Should_Return_Null_For_Invalid_Id()
+    public void GetAirportById_ReturnsNull_WhenIdIsInvalid()
     {
-        var mockFlightRepo = new Mock<IFlightRepository>();
-        var mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
 
-        var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
-
-        var result = service.GetAirportById(0);
+        Airport? result = airportService.GetAirportById(InvalidAirportId);
 
         Assert.Null(result);
     }
 
     [Fact]
-    public void GetById_Should_Return_Airport()
+    public void GetAirportById_ReturnsAirportObject_WhenIdIsValid()
     {
-        var mockFlightRepo = new Mock<IFlightRepository>();
-        var mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var existingAirport = new Airport { Id = TargetAirportId, AirportCode = DefaultTestCode };
 
-        var airport = new Airport { AirportCode = "A", AirportName = "Test", City = "City" };
+        airportDataSource.Setup(getAirportCorrespondingToId => getAirportCorrespondingToId.GetAirportById(TargetAirportId))
+            .Returns(existingAirport);
 
-        mockAirportRepo.Setup(repo => repo.GetAirportById(1)).Returns(airport);
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
 
-        var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
+        Airport? result = airportService.GetAirportById(TargetAirportId);
 
-        var result = service.GetAirportById(1);
-
-        Assert.Equal(airport, result);
+        Assert.Equal(existingAirport, result);
     }
 
     [Fact]
-    public void Update_Should_Do_Nothing_If_Airport_Not_Found()
+    public void UpdateAirport_DoesNotCallRepository_WhenAirportNotFound()
     {
-        var mockFlightRepo = new Mock<IFlightRepository>();
-        var mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSourceThatReturnsNull = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
 
-        mockAirportRepo.Setup(repo => repo.GetAirportById(1)).Returns((Airport)null);
+        airportDataSourceThatReturnsNull.Setup(noAriportsWithProvidedId => noAriportsWithProvidedId.GetAirportById(TargetAirportId))
+            .Returns((Airport?)null);
 
-        var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
+        var airportService = new AirportService(airportDataSourceThatReturnsNull.Object, flightDataSource.Object);
 
-        service.UpdateAirport(1, "NewCity");
+        airportService.UpdateAirport(TargetAirportId, DefaultTestCity);
 
-        mockAirportRepo.Verify(repo => repo.UpdateAirport(It.IsAny<Airport>()), Times.Never);
+        airportDataSourceThatReturnsNull.Verify(airportDataSource => airportDataSource.UpdateAirport(It.IsAny<Airport>()), Times.Never);
     }
 
     [Fact]
-    public void Update_Should_Update_Only_Name()
+    public void UpdateAirport_UpdatesOnlyProvidedName_WhenOtherFieldsAreNull()
     {
-        var mockFlightRepo = new Mock<IFlightRepository>();
-        var mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportToUpdate = new Airport { AirportCode = DefaultTestCode, AirportName = DefaultTestName, City = DefaultTestCity };
 
-        var airport = new Airport
-        {
-            AirportCode = "OLD",
-            AirportName = "OldName",
-            City = "OldCity"
-        };
+        airportDataSource.Setup(getAirportToUpdate => getAirportToUpdate.GetAirportById(TargetAirportId))
+            .Returns(airportToUpdate);
 
-        mockAirportRepo.Setup(r => r.GetAirportById(1)).Returns(airport);
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
 
-        var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
+        airportService.UpdateAirport(TargetAirportId, newName: UpdatedName);
 
-        service.UpdateAirport(1, newName: "NewName");
+        Assert.Equal(DefaultTestCode, airportToUpdate.AirportCode);
+        Assert.Equal(UpdatedName, airportToUpdate.AirportName);
+        Assert.Equal(DefaultTestCity, airportToUpdate.City);
 
-        Assert.Equal("NewName", airport.AirportName);
-        Assert.Equal("OldCity", airport.City);
-        Assert.Equal("OLD", airport.AirportCode);
-
-        mockAirportRepo.Verify(r => r.UpdateAirport(airport), Times.Once);
+        airportDataSource.Verify(ifChangesWereSentToRepository => ifChangesWereSentToRepository.UpdateAirport(airportToUpdate), Times.Once);
     }
 
     [Fact]
-    public void Update_Should_Update_Only_City()
+    public void UpdateAirport_UpdatesOnlyProvidedCity_WhenOtherFieldsAreNull()
     {
-        var mockFlightRepo = new Mock<IFlightRepository>();
-        var mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportToUpdate = new Airport { AirportCode = DefaultTestCode, AirportName = DefaultTestName, City = DefaultTestCity };
 
-        var airport = new Airport
-        {
-            AirportCode = "OLD",
-            AirportName = "OldName",
-            City = "OldCity"
-        };
+        airportDataSource.Setup(getAirportToUpdate => getAirportToUpdate.GetAirportById(TargetAirportId))
+            .Returns(airportToUpdate);
 
-        mockAirportRepo.Setup(r => r.GetAirportById(1)).Returns(airport);
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
 
-        var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
+        airportService.UpdateAirport(TargetAirportId, newCity: UpdatedCity);
 
-        service.UpdateAirport(1, newCity: "NewCity");
+        Assert.Equal(DefaultTestCode, airportToUpdate.AirportCode);
+        Assert.Equal(DefaultTestName, airportToUpdate.AirportName);
+        Assert.Equal(UpdatedCity, airportToUpdate.City);
 
-        Assert.Equal("NewCity", airport.City);
-        Assert.Equal("OldName", airport.AirportName);
-        Assert.Equal("OLD", airport.AirportCode);
-
-        mockAirportRepo.Verify(r => r.UpdateAirport(airport), Times.Once);
+        airportDataSource.Verify(ifChangesWereSentToRepository => ifChangesWereSentToRepository.UpdateAirport(airportToUpdate), Times.Once);
     }
 
     [Fact]
-    public void Update_Should_Update_Only_Code()
+    public void UpdateAirport_UpdatesOnlyProvidedCode_WhenOtherFieldsAreNull()
     {
-        var mockFlightRepo = new Mock<IFlightRepository>();
-        var mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportToUpdate = new Airport { AirportCode = DefaultTestCode, AirportName = DefaultTestName, City = DefaultTestCity };
 
-        var airport = new Airport
-        {
-            AirportCode = "OLD",
-            AirportName = "OldName",
-            City = "OldCity"
-        };
+        airportDataSource.Setup(getAirportToUpdate => getAirportToUpdate.GetAirportById(TargetAirportId))
+            .Returns(airportToUpdate);
 
-        mockAirportRepo.Setup(r => r.GetAirportById(1)).Returns(airport);
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
 
-        var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
+        airportService.UpdateAirport(TargetAirportId, newCode: UpdatedCode);
 
-        service.UpdateAirport(1, newCode: "NEW");
+        Assert.Equal(UpdatedCode, airportToUpdate.AirportCode);
+        Assert.Equal(DefaultTestName, airportToUpdate.AirportName);
+        Assert.Equal(DefaultTestCity, airportToUpdate.City);
 
-        Assert.Equal("NEW", airport.AirportCode);
-        Assert.Equal("OldName", airport.AirportName);
-        Assert.Equal("OldCity", airport.City);
-
-        mockAirportRepo.Verify(r => r.UpdateAirport(airport), Times.Once);
+        airportDataSource.Verify(ifChangesWereSentToRepository => ifChangesWereSentToRepository.UpdateAirport(airportToUpdate), Times.Once);
     }
 
     [Fact]
-    public void Update_Should_Call_Repo_Even_When_No_Changes()
+    public void UpdateAirport_ShouldCallRepo_EvenWhenNoChanges()
     {
-        var mockFlightRepo = new Mock<IFlightRepository>();
-        var mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportToUpdate = new Airport { AirportCode = DefaultTestCode, AirportName = DefaultTestName, City = DefaultTestCity };
 
-        var airport = new Airport
-        {
-            AirportCode = "OLD",
-            AirportName = "OldName",
-            City = "OldCity"
-        };
+        airportDataSource.Setup(getAirportToUpdate => getAirportToUpdate.GetAirportById(TargetAirportId))
+            .Returns(airportToUpdate);
 
-        mockAirportRepo.Setup(r => r.GetAirportById(1)).Returns(airport);
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
 
-        var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
+        Assert.Equal(DefaultTestCode, airportToUpdate.AirportCode);
+        Assert.Equal(DefaultTestName, airportToUpdate.AirportName);
+        Assert.Equal(DefaultTestCity, airportToUpdate.City);
 
-        service.UpdateAirport(1);
-
-        Assert.Equal("OldName", airport.AirportName);
-        Assert.Equal("OldCity", airport.City);
-        Assert.Equal("OLD", airport.AirportCode);
-
-        mockAirportRepo.Verify(r => r.UpdateAirport(airport), Times.Once);
+        airportDataSource.Verify(ifChangesWereSentToRepository => ifChangesWereSentToRepository.UpdateAirport(airportToUpdate), Times.Once);
     }
 
     [Fact]
-    public void Update_Should_Update_All_Fields()
+    public void UpdateAirport_UpdatesAllFields_WhenAllFieldsAreProvided()
     {
-        var mockFlightRepo = new Mock<IFlightRepository>();
-        var mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportToUpdate = new Airport { AirportCode = DefaultTestCode, AirportName = DefaultTestName, City = DefaultTestCity };
 
-        var airport = new Airport
-        {
-            AirportCode = "OLD",
-            AirportName = "OldName",
-            City = "OldCity"
-        };
+        airportDataSource.Setup(getAirportToUpdate => getAirportToUpdate.GetAirportById(TargetAirportId))
+            .Returns(airportToUpdate);
 
-        mockAirportRepo.Setup(repo => repo.GetAirportById(1)).Returns(airport);
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
 
-        var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
+        airportService.UpdateAirport(TargetAirportId, newCode: UpdatedCode, newName: UpdatedName, newCity: UpdatedCity);
 
-        service.UpdateAirport(1, "NewCity", "NewName", "NEW");
+        Assert.Equal(UpdatedCode, airportToUpdate.AirportCode);
+        Assert.Equal(UpdatedName, airportToUpdate.AirportName);
+        Assert.Equal(UpdatedCity, airportToUpdate.City);
 
-        Assert.Equal("NewCity", airport.City);
-        Assert.Equal("NewName", airport.AirportName);
-        Assert.Equal("NEW", airport.AirportCode);
-
-        mockAirportRepo.Verify(repo => repo.UpdateAirport(airport), Times.Once);
+        airportDataSource.Verify(ifChangesWereSentToRepository => ifChangesWereSentToRepository.UpdateAirport(airportToUpdate), Times.Once);
     }
 
     [Fact]
-    public void Delete_Should_Not_Call_Repo_For_Invalid_Id()
+    public void DeleteAirport_DoesNotCallRepository_WhenIdIsInvalid()
     {
-        var mockFlightRepo = new Mock<IFlightRepository>();
-        var mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
 
-        var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
+        airportService.DeleteAirportUsingId(InvalidAirportId);
 
-        service.DeleteAirportUsingId(0);
-
-        mockAirportRepo.Verify(repo => repo.DeleteAirportUsingId(It.IsAny<int>()), Times.Never);
+        airportDataSource.Verify(doesNotCallRepository => doesNotCallRepository.DeleteAirportUsingId(It.IsAny<int>()), Times.Never);
     }
 
     [Fact]
-    public void Delete_Should_Call_Repo_For_Valid_Id()
+    public void DeleteAirport_CallsRepositoryDelete_WhenIdIsValid()
     {
-        var mockFlightRepo = new Mock<IFlightRepository>();
-        var mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSource = new Mock<IFlightRepository>();
+        var airportService = new AirportService(airportDataSource.Object, flightDataSource.Object);
 
-        var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
+        airportService.DeleteAirportUsingId(TargetAirportId);
 
-        service.DeleteAirportUsingId(5);
-
-        mockAirportRepo.Verify(repo => repo.DeleteAirportUsingId(5), Times.Once);
+        airportDataSource.Verify(doesCallRepository => doesCallRepository.DeleteAirportUsingId(TargetAirportId), Times.Once);
     }
 
     [Fact]
-    public void HasFlights_Should_Return_True_When_Flights_Exist()
+    public void HasFlights_ReturnsTrue_WhenAssociatedFlightsExist()
     {
-        var mockFlightRepo = new Mock<IFlightRepository>();
-        var mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSourceWithFlights = new Mock<IFlightRepository>();
+        var associatedFlightsList = new List<Flight> { new Flight() };
 
-        var flights = new List<Flight> { new Flight() };
+        flightDataSourceWithFlights.Setup(getFlights => getFlights.GetFlightsByAirportId(TargetAirportId))
+            .Returns(associatedFlightsList);
 
-        mockFlightRepo.Setup(repo => repo.GetFlightsByAirportId(1)).Returns(flights);
+        var airportService = new AirportService(airportDataSource.Object, flightDataSourceWithFlights.Object);
 
-        var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
-
-        var result = service.HasFlights(1);
+        bool result = airportService.HasFlights(TargetAirportId);
 
         Assert.True(result);
     }
 
     [Fact]
-    public void HasFlights_Should_Return_False_When_No_Flights_Exist()
+    public void HasFlights_ReturnsFalse_WhenNoAssociatedFlightsFound()
     {
-        var mockFlightRepo = new Mock<IFlightRepository>();
-        var mockAirportRepo = new Mock<IAirportRepository>();
+        var airportDataSource = new Mock<IAirportRepository>();
+        var flightDataSourceWithNoFlights = new Mock<IFlightRepository>();
 
-        mockFlightRepo.Setup(repo => repo.GetFlightsByAirportId(1)).Returns(new List<Flight>());
+        flightDataSourceWithNoFlights.Setup(getNoFlights => getNoFlights.GetFlightsByAirportId(TargetAirportId))
+            .Returns(new List<Flight>());
 
-        var service = new AirportService(mockAirportRepo.Object, mockFlightRepo.Object);
+        var airportService = new AirportService(airportDataSource.Object, flightDataSourceWithNoFlights.Object);
 
-        var result = service.HasFlights(1);
+        bool result = airportService.HasFlights(TargetAirportId);
 
         Assert.False(result);
     }
