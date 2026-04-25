@@ -10,7 +10,6 @@ public class CompanyServiceTests
     private const string DefaultCompanyTwoWordsPrefix = "TC-";
     private const string DefaultCompanyOneWordName = "TestCompany;";
     private const string DefaultCompanyOneWordPrefix = "TE-";
-    private const string OldCompanyName = "OldName";
     private const string UpdatedCompanyName = "NewName";
     private const string NoCompanyPrefix = "FL-";
     private const string StartingSequence = "-1000";
@@ -318,7 +317,7 @@ public class CompanyServiceTests
 
         companyService.UpdateCompany(TargetCompanyId, UpdatedCompanyName);
 
-        companyRepositoryThatReturnsNull.Verify(repositoryIsNotCalledForNullCompany => repositoryIsNotCalledForNullCompany.UpdateCompany(It.IsAny<Company>()), Times.Never);
+        companyRepositoryThatReturnsNull.Verify(doesNotCallRepository => doesNotCallRepository.UpdateCompany(It.IsAny<Company>()), Times.Never);
     }
 
     [Fact]
@@ -351,7 +350,7 @@ public class CompanyServiceTests
         companyService.UpdateCompany(TargetCompanyId, UpdatedCompanyName);
 
         Assert.Equal(UpdatedCompanyName, companyToUpdate.Name);
-        companyRepository.Verify(repositoryIsCalledToUpdatecompanyName => repositoryIsCalledToUpdatecompanyName.UpdateCompany(companyToUpdate), Times.Once);
+        companyRepository.Verify(repositoryIsCalled => repositoryIsCalled.UpdateCompany(companyToUpdate), Times.Once);
     }
 
     [Fact]
@@ -364,7 +363,7 @@ public class CompanyServiceTests
 
         companyService.DeleteCompanyUsingId(InvalidCompanyId);
 
-        companyRepository.Verify(repositoryShouldNotBeCalled => repositoryShouldNotBeCalled.DeleteCompanyUsingId(It.IsAny<int>()), Times.Never);
+        companyRepository.Verify(doesNotCallRepository => doesNotCallRepository.DeleteCompanyUsingId(It.IsAny<int>()), Times.Never);
     }
 
     [Fact]
@@ -377,6 +376,6 @@ public class CompanyServiceTests
 
         companyService.DeleteCompanyUsingId(TargetCompanyId);
 
-        companyRepository.Verify(repositoryShouldBeCalled => repositoryShouldBeCalled.DeleteCompanyUsingId(TargetCompanyId), Times.Once);
+        companyRepository.Verify(repositoryIsCalled => repositoryIsCalled.DeleteCompanyUsingId(TargetCompanyId), Times.Once);
     }
 }

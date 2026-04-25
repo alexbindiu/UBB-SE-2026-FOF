@@ -187,7 +187,7 @@ public class AirportServiceTests
 
         airportService.UpdateAirport(TargetAirportId, DefaultTestCity);
 
-        airportRepositoryThatReturnsNull.Verify(airportRepository => airportRepository.UpdateAirport(It.IsAny<Airport>()), Times.Never);
+        airportRepositoryThatReturnsNull.Verify(doesNotCallRepository => doesNotCallRepository.UpdateAirport(It.IsAny<Airport>()), Times.Never);
     }
 
     [Fact]
@@ -296,7 +296,7 @@ public class AirportServiceTests
     }
 
     [Fact]
-    public void DeleteAirport_DoesNotCallRepository_WhenIdIsInvalid()
+    public void DeleteAirportUsingId_DoesNotCallRepository_WhenIdIsInvalid()
     {
         var airportRepository = new Mock<IAirportRepository>();
         var flightRepository = new Mock<IFlightRepository>();
@@ -308,7 +308,7 @@ public class AirportServiceTests
     }
 
     [Fact]
-    public void DeleteAirport_CallsRepositoryDelete_WhenIdIsValid()
+    public void DeleteAirportUsingId_CallsRepositoryDelete_WhenIdIsValid()
     {
         var airportRepository = new Mock<IAirportRepository>();
         var flightRepository = new Mock<IFlightRepository>();

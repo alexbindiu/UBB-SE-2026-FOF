@@ -1,6 +1,3 @@
-using TicketSellingModule.Data.Repositories.Interfaces;
-using TicketSellingModule.Data.Services.Interfaces;
-
 namespace TicketSellingModule.Data.Services
 {
     public class EmployeeFlightService(
@@ -38,7 +35,7 @@ namespace TicketSellingModule.Data.Services
                 throw new InvalidOperationException($"Conflict: Employee {employee.Name} is already assigned to another flight during this time.");
             }
 
-            employeeFlightRepository.AssignFlightToEmployeesUsingIds(employeeId, flightId);
+            employeeFlightRepository.AssignFlightToEmployeeUsingIds(employeeId, flightId);
         }
 
         public void RemoveEmployeeFromFlightUsingIds(int flightId, int employeeId)
