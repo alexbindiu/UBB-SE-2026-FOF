@@ -156,32 +156,12 @@ namespace TicketSellingModule.ViewModel
 
         public void RefreshCompanyFlights(int companyId)
         {
-            List<Route> allRoutes = flightRouteService.GetAllRoutes();
-            List<int> companyRouteIds = new List<int>();
-
-            if (allRoutes != null)
-            {
-                foreach (Route route in allRoutes)
-                {
-                    if (route.Company.Id == companyId)
-                    {
-                        companyRouteIds.Add(route.Id);
-                    }
-                }
-            }
-
-            List<Flight> allFlightsWithDetails = flightRouteService.GetAllFlightsWithDetails();
+            List<Flight> companyFlights = flightRouteService.GetFlightsByCompanyId(companyId);
             this.masterFlightsCollection.Clear();
 
-            if (allFlightsWithDetails != null)
+            foreach (Flight flight in companyFlights)
             {
-                foreach (Flight flight in allFlightsWithDetails)
-                {
-                    if (companyRouteIds.Contains(flight.Route.Id))
-                    {
-                        this.masterFlightsCollection.Add(flight);
-                    }
-                }
+                this.masterFlightsCollection.Add(flight);
             }
 
             this.UpdateVisibleFlights(this.masterFlightsCollection);
@@ -245,31 +225,19 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         public void AddFlightFromInputs()
         {
-            if (this.currentCompanyId == 0)
-            {
-                throw new InvalidOperationException("A company must be selected before adding a flight.");
-            }
+            int parsedCapacity = companyService.ValidateFlightCreationInputs(
+                this.currentCompanyId,
+                this.SelectedAirport?.Id ?? 0,
+                this.CapacityText,
+                this.SelectedRunway?.Id ?? 0,
+                this.SelectedGate?.Id ?? 0);
 
-            if (this.SelectedAirport == null || this.SelectedRunway == null || this.SelectedGate == null)
-            {
-                throw new InvalidOperationException("Please ensure all required fields are populated.");
-            }
-
-            if (!int.TryParse(this.CapacityText, out int parsedCapacity))
-            {
-                throw new InvalidOperationException("The provided capacity value is invalid.");
-            }
-
-            string flightTypeCode = DepartureCode;
-            if (this.SelectedRouteType == ArrivalText)
-            {
-                flightTypeCode = ArrivalCode;
-            }
+            string flightTypeCode = this.SelectedRouteType == ArrivalText ? ArrivalCode : DepartureCode;
 
             flightRouteService.CreateFlightWithSchedule(
                 this.currentCompanyId,
                 flightTypeCode,
-                this.SelectedAirport.Id,
+                this.SelectedAirport!.Id,
                 parsedCapacity,
                 this.DepartureTime,
                 this.ArrivalTime,

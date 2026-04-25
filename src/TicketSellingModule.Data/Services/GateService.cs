@@ -82,5 +82,15 @@ namespace TicketSellingModule.Data.Services
 
             return associatedFlights.Count > 0;
         }
+
+        public string GetDeleteWarningMessage(int id)
+        {
+            bool hasFlights = HasFlights(id);
+            if (hasFlights)
+            {
+                return $"CRITICAL: Gate '{GetGateById(id).Name}' has flights assigned. Deleting it will remove ALL associated flights. Proceed?";
+            }
+            return $"Are you sure you want to delete gate '{GetGateById(id).Name}'?";
+        }
     }
 }

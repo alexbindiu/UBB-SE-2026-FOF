@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm;
 
 using Microsoft.UI.Xaml;
 
@@ -7,10 +8,10 @@ using TicketSellingModule.Data.Services.Interfaces;
 
 namespace TicketSellingModule.ViewModel
 {
-    /// <summary>
-    /// Represents the types of entities manageable within the airport dashboard.
-    /// </summary>
-    public enum AirportDashboardEntity
+    /// <summary>
+    /// Represents the types of entities manageable within the airport dashboard.
+    /// </summary>
+    public enum AirportDashboardEntity
     {
         None,
         Runway,
@@ -19,14 +20,12 @@ namespace TicketSellingModule.ViewModel
     }
 
     public partial class AirportDashboardViewModel(
-        IAirportService airportService,
-        IRunwayService runwayService,
-        IGateService gateService) : ObservableObject
+      IAirportService airportService, IRunwayService runwayService,
+      IGateService gateService) : ObservableObject
     {
-        public ObservableCollection<Runway> RunwaysList { get; } = new();
-        public ObservableCollection<Gate> GatesList { get; } = new();
-        public ObservableCollection<Airport> AirportsList { get; } = new();
-
+        [ObservableProperty] private ObservableCollection<Runway> runwaysList;
+        [ObservableProperty] private ObservableCollection<Gate> gatesList;
+        [ObservableProperty] private ObservableCollection<Airport> airportsList;
         [ObservableProperty] private Runway? selectedRunway;
         [ObservableProperty] private Gate? selectedGate;
         [ObservableProperty] private Airport? selectedAirport;
@@ -46,6 +45,32 @@ namespace TicketSellingModule.ViewModel
         [ObservableProperty] private Visibility deleteConfirmationVisibility = Visibility.Collapsed;
         [ObservableProperty] private string deleteWarningMessage = string.Empty;
 
+        private Dictionary<AirportDashboardEntity, Action> SaveRegistry => new()
+        {
+            { AirportDashboardEntity.Runway, () => runwayService.SaveRunway(EditingId, EditingName, EditingHandleTimeText) },
+            { AirportDashboardEntity.Gate, () => gateService.SaveGate(EditingId, EditingName) },
+            { AirportDashboardEntity.Airport, () => airportService.SaveAirport(EditingId, EditingCity, EditingName, EditingCode) }
+        };
+
+        private Dictionary<AirportDashboardEntity, Action<object>> DeleteRegistry => new()
+        {
+            { AirportDashboardEntity.Runway, item => runwayService.DeleteRunwayUsingId(((Runway)item).Id) },
+            { AirportDashboardEntity.Gate, item => gateService.DeleteGateUsingId(((Gate)item).Id) },
+            { AirportDashboardEntity.Airport, item => airportService.DeleteAirportUsingId(((Airport)item).Id) }
+        };
+
+        private Dictionary<AirportDashboardEntity, Func<object, string>> WarningRegistry => new()
+        {
+            { AirportDashboardEntity.Runway,  item => runwayService.GetDeleteWarningMessage(((Runway)item).Id) },
+            { AirportDashboardEntity.Gate,    item => gateService.GetDeleteWarningMessage(((Gate)item).Id) },
+            { AirportDashboardEntity.Airport, item => airportService.GetDeleteWarningMessage(((Airport)item).Id) }
+        };
+
+        private string ConstructDeleteWarningMessage(object item) =>
+            WarningRegistry.TryGetValue(currentActiveEntity, out var fn)
+                ? fn(item)
+                : "Are you sure you want to delete the selected item?";
+
         private object? itemPendingDeletion;
         private AirportDashboardEntity currentActiveEntity = AirportDashboardEntity.None;
 
@@ -53,25 +78,13 @@ namespace TicketSellingModule.ViewModel
         public void LoadDashboardData()
         {
             var allRunways = runwayService.GetAllRunways();
-            RunwaysList.Clear();
-            foreach (Runway runway in allRunways)
-            {
-                RunwaysList.Add(runway);
-            }
+            RunwaysList = new ObservableCollection<Runway>(allRunways);
 
             var allGates = gateService.GetAllGates();
-            GatesList.Clear();
-            foreach (Gate gate in allGates)
-            {
-                GatesList.Add(gate);
-            }
+            GatesList = new ObservableCollection<Gate>(allGates);
 
             var allAirports = airportService.GetAllAirports();
-            AirportsList.Clear();
-            foreach (Airport airport in allAirports)
-            {
-                AirportsList.Add(airport);
-            }
+            AirportsList = new ObservableCollection<Airport>(allAirports);
         }
 
         [RelayCommand]
@@ -197,13 +210,11 @@ namespace TicketSellingModule.ViewModel
             try
             {
                 DialogErrorMessage = string.Empty;
-                this.ProcessEntitySave(
-                    currentActiveEntity,
-                    EditingId,
-                    EditingName,
-                    EditingHandleTimeText,
-                    EditingCity,
-                    EditingCode);
+
+                if (SaveRegistry.TryGetValue(currentActiveEntity, out var saveAction))
+                {
+                    saveAction();
+                }
 
                 this.LoadDashboardData();
                 DialogVisibility = Visibility.Collapsed;
@@ -212,36 +223,6 @@ namespace TicketSellingModule.ViewModel
             {
                 DialogErrorMessage = exception.Message;
             }
-        }
-
-        private void ProcessEntitySave(AirportDashboardEntity entityType, int id, string name, string handleTimeText, string city, string code)
-        {
-            if (entityType == AirportDashboardEntity.Runway)
-            {
-                runwayService.SaveRunway(id, name, handleTimeText);
-                return;
-            }
-
-            if (entityType == AirportDashboardEntity.Gate)
-            {
-                gateService.SaveGate(id, name);
-                return;
-            }
-
-            if (entityType == AirportDashboardEntity.Airport)
-            {
-                if (id == 0)
-                {
-                    airportService.AddAirport(code, name, city);
-                }
-                else
-                {
-                    airportService.UpdateAirport(id, city, name, code);
-                }
-                return;
-            }
-
-            throw new ArgumentException("The specified entity type is not supported for saving.");
         }
 
         [RelayCommand]
@@ -274,28 +255,18 @@ namespace TicketSellingModule.ViewModel
 
         private void RemoveEntityFromSystem(object item)
         {
-            if (item is Runway runway)
+            DialogErrorMessage = string.Empty;
+
+            if (item != null && DeleteRegistry.TryGetValue(currentActiveEntity, out var deleteAction))
             {
-                runwayService.DeleteRunwayUsingId(runway.Id);
-                return;
+                deleteAction(item);
             }
 
-            if (item is Gate gate)
-            {
-                gateService.DeleteGateUsingId(gate.Id);
-                return;
-            }
-
-            if (item is Airport airport)
-            {
-                airportService.DeleteAirportUsingId(airport.Id);
-                return;
-            }
-
-            throw new ArgumentException("The selected item is not a valid deletable entity.");
+            LoadDashboardData();
+            DialogVisibility = Visibility.Collapsed;
         }
 
-        private string ConstructDeleteWarningMessage(object item)
+        /*private string ConstructDeleteWarningMessage(object item)
         {
             if (item is Runway runway)
             {
@@ -328,7 +299,7 @@ namespace TicketSellingModule.ViewModel
             }
 
             return "Are you sure you want to delete the selected item?";
-        }
+        }*/
 
         [RelayCommand]
         private void PromptDeleteRunway()
@@ -337,7 +308,7 @@ namespace TicketSellingModule.ViewModel
             {
                 return;
             }
-
+            currentActiveEntity = AirportDashboardEntity.Runway;
             itemPendingDeletion = SelectedRunway;
             DeleteWarningMessage = this.ConstructDeleteWarningMessage(itemPendingDeletion);
             DeleteConfirmationVisibility = Visibility.Visible;
@@ -350,7 +321,7 @@ namespace TicketSellingModule.ViewModel
             {
                 return;
             }
-
+            currentActiveEntity = AirportDashboardEntity.Gate;
             itemPendingDeletion = SelectedGate;
             DeleteWarningMessage = this.ConstructDeleteWarningMessage(itemPendingDeletion);
             DeleteConfirmationVisibility = Visibility.Visible;
@@ -363,7 +334,7 @@ namespace TicketSellingModule.ViewModel
             {
                 return;
             }
-
+            currentActiveEntity = AirportDashboardEntity.Airport;
             itemPendingDeletion = SelectedAirport;
             DeleteWarningMessage = this.ConstructDeleteWarningMessage(itemPendingDeletion);
             DeleteConfirmationVisibility = Visibility.Visible;
