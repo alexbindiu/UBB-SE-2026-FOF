@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-using Moq;
-
-using TicketSellingModule.Data.Repositories.Interfaces;
-
-using Xunit;
+﻿using Moq;
 
 namespace TicketSellingModule.Test.Unit_Tests.Services;
 
@@ -15,8 +8,18 @@ public class RunwayServiceTests
     private const int ValidHandleTime = 10;
     private const int UpdatedHandleTime = 30;
     private const string DefaultRunwayName = "R1";
+    private const int DefaultHandleTime = 10;
+    private const string OldRunwayName = "OldName";
+    private const int OldHandleTime = 5;
+    private const int DefaultHandleTime2 = 15;
+    private const string DefaultRunwayName2 = "R2";
     private const string UpdatedRunwayName = "UpdatedName";
     private const int CreatedId = 7;
+    private const string NonNumericHandleTimeText = "abc";
+    private const int InvalidId = -1;
+    private const int NonExistentId = 999;
+    private const int NegativeHandleTime = -5;
+    private const int NewRunwayId = 0;
 
     [Fact]
     public void GetAll_Should_Return_All_Runways_Always()
@@ -26,11 +29,11 @@ public class RunwayServiceTests
 
         var runways = new List<Runway>
         {
-            new Runway { Name = "R1", HandleTime = 10 },
-            new Runway { Name = "R2", HandleTime = 15 }
+            new Runway { Name = DefaultRunwayName, HandleTime = DefaultHandleTime },
+            new Runway { Name = DefaultRunwayName2, HandleTime = DefaultHandleTime2 }
         };
 
-        mockRunwayRepo.Setup(repo => repo.GetAllRunways()).Returns(runways);
+        mockRunwayRepo.Setup(getallrunways => getallrunways.GetAllRunways()).Returns(runways);
 
         var runwayService = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
         var result = runwayService.GetAllRunways();
@@ -46,8 +49,7 @@ public class RunwayServiceTests
         var mockFlightRepo = new Mock<IFlightRepository>();
         var runwayService = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
-        const int invalidId = -1;
-        Assert.Null(runwayService.GetRunwayById(invalidId));
+        Assert.Null(runwayService.GetRunwayById(InvalidId));
     }
 
     [Fact]
@@ -55,13 +57,12 @@ public class RunwayServiceTests
     {
         var mockRunwayRepo = new Mock<IRunwayRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
-        const int nonExistentId = 999;
 
-        mockRunwayRepo.Setup(repo => repo.GetRunwayById(nonExistentId)).Returns((Runway)null);
+        mockRunwayRepo.Setup(getNullInsteadOfrunway => getNullInsteadOfrunway.GetRunwayById(NonExistentId)).Returns((Runway)null);
 
         var runwayService = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
-        Assert.Null(runwayService.GetRunwayById(nonExistentId));
+        Assert.Null(runwayService.GetRunwayById(NonExistentId));
     }
 
     [Fact]
@@ -71,7 +72,7 @@ public class RunwayServiceTests
         var mockFlightRepo = new Mock<IFlightRepository>();
         var runway = new Runway { Name = DefaultRunwayName, HandleTime = ValidHandleTime };
 
-        mockRunwayRepo.Setup(repo => repo.GetRunwayById(DefaultId)).Returns(runway);
+        mockRunwayRepo.Setup(getDefaultRunway => getDefaultRunway.GetRunwayById(DefaultId)).Returns(runway);
 
         var runwayService = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
         var result = runwayService.GetRunwayById(DefaultId);
@@ -84,7 +85,7 @@ public class RunwayServiceTests
     {
         var mockRunwayRepo = new Mock<IRunwayRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
-        mockRunwayRepo.Setup(repo => repo.GetRunwayById(It.IsAny<int>())).Throws<Exception>();
+        mockRunwayRepo.Setup(throwExceptionInsteadOfGivingRunway => throwExceptionInsteadOfGivingRunway.GetRunwayById(It.IsAny<int>())).Throws<Exception>();
 
         var runwayService = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
@@ -118,8 +119,7 @@ public class RunwayServiceTests
         var mockFlightRepo = new Mock<IFlightRepository>();
         var runwayService = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
-        const int negativeHandleTime = -5;
-        Assert.Throws<ArgumentException>(() => runwayService.AddRunway(DefaultRunwayName, negativeHandleTime));
+        Assert.Throws<ArgumentException>(() => runwayService.AddRunway(DefaultRunwayName, NegativeHandleTime));
     }
 
     [Fact]
@@ -128,13 +128,13 @@ public class RunwayServiceTests
         var mockRunwayRepo = new Mock<IRunwayRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
 
-        mockRunwayRepo.Setup(repo => repo.AddRunway(It.IsAny<Runway>())).Returns(CreatedId);
+        mockRunwayRepo.Setup(addProvidedrunwayAndGetItsId => addProvidedrunwayAndGetItsId.AddRunway(It.IsAny<Runway>())).Returns(CreatedId);
 
         var runwayService = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
         var result = runwayService.AddRunway(DefaultRunwayName, ValidHandleTime);
 
         Assert.Equal(CreatedId, result);
-        mockRunwayRepo.Verify(r => r.AddRunway(It.Is<Runway>(runway =>
+        mockRunwayRepo.Verify(callsRepoToAddRunway => callsRepoToAddRunway.AddRunway(It.Is<Runway>(runway =>
             runway.Name == DefaultRunwayName &&
             runway.HandleTime == ValidHandleTime)), Times.Once);
     }
@@ -144,7 +144,7 @@ public class RunwayServiceTests
     {
         var mockRunwayRepo = new Mock<IRunwayRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
-        mockRunwayRepo.Setup(repo => repo.GetRunwayById(DefaultId)).Returns((Runway)null);
+        mockRunwayRepo.Setup(getNullInsteadOfRunway => getNullInsteadOfRunway.GetRunwayById(DefaultId)).Returns((Runway)null);
 
         var runwayService = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
@@ -156,16 +156,16 @@ public class RunwayServiceTests
     {
         var mockRunwayRepo = new Mock<IRunwayRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
-        var runway = new Runway { Name = "OldName", HandleTime = 5 };
+        var oldRunway = new Runway { Name = OldRunwayName, HandleTime = OldHandleTime };
 
-        mockRunwayRepo.Setup(repo => repo.GetRunwayById(DefaultId)).Returns(runway);
+        mockRunwayRepo.Setup(getOldRunway => getOldRunway.GetRunwayById(DefaultId)).Returns(oldRunway);
 
         var runwayService = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
         runwayService.UpdateRunway(DefaultId, UpdatedRunwayName, UpdatedHandleTime);
 
-        Assert.Equal(UpdatedRunwayName, runway.Name);
-        Assert.Equal(UpdatedHandleTime, runway.HandleTime);
-        mockRunwayRepo.Verify(r => r.UpdateRunway(runway), Times.Once);
+        Assert.Equal(UpdatedRunwayName, oldRunway.Name);
+        Assert.Equal(UpdatedHandleTime, oldRunway.HandleTime);
+        mockRunwayRepo.Verify(callsRepositoryToUpdateRunway => callsRepositoryToUpdateRunway.UpdateRunway(oldRunway), Times.Once);
     }
 
     [Fact]
@@ -173,12 +173,12 @@ public class RunwayServiceTests
     {
         var mockRunwayRepo = new Mock<IRunwayRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
-        mockRunwayRepo.Setup(repo => repo.GetRunwayById(DefaultId)).Returns(new Runway { Name = DefaultRunwayName });
+        mockRunwayRepo.Setup(getDefaultRunway => getDefaultRunway.GetRunwayById(DefaultId)).Returns(new Runway { Name = DefaultRunwayName });
 
         var runwayService = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
         runwayService.DeleteRunwayUsingId(DefaultId);
 
-        mockRunwayRepo.Verify(repo => repo.DeleteRunwayUsingId(DefaultId), Times.Once);
+        mockRunwayRepo.Verify(callsRepositoryToDeleteDefaultRunway => callsRepositoryToDeleteDefaultRunway.DeleteRunwayUsingId(DefaultId), Times.Once);
     }
 
     [Fact]
@@ -188,7 +188,7 @@ public class RunwayServiceTests
         var mockFlightRepo = new Mock<IFlightRepository>();
         var runwayService = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
 
-        const string nonNumericValue = "abc";
+        const string nonNumericValue = NonNumericHandleTimeText;
         Assert.Throws<ArgumentException>(() => runwayService.SaveRunway(0, DefaultRunwayName, nonNumericValue));
     }
 
@@ -197,13 +197,12 @@ public class RunwayServiceTests
     {
         var mockRunwayRepo = new Mock<IRunwayRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
-        const int newRunwayId = 0;
         string handleTimeStr = ValidHandleTime.ToString();
 
         var runwayService = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);
-        runwayService.SaveRunway(newRunwayId, DefaultRunwayName, handleTimeStr);
+        runwayService.SaveRunway(NewRunwayId, DefaultRunwayName, handleTimeStr);
 
-        mockRunwayRepo.Verify(repo => repo.AddRunway(It.IsAny<Runway>()), Times.Once);
+        mockRunwayRepo.Verify(callsRepositoryToAddRunway => callsRepositoryToAddRunway.AddRunway(It.IsAny<Runway>()), Times.Once);
     }
 
     [Fact]
@@ -212,7 +211,7 @@ public class RunwayServiceTests
         var mockRunwayRepo = new Mock<IRunwayRepository>();
         var mockFlightRepo = new Mock<IFlightRepository>();
 
-        mockFlightRepo.Setup(repo => repo.GetFlightsByRunwayId(DefaultId))
+        mockFlightRepo.Setup(getDefaultFlight => getDefaultFlight.GetFlightsByRunwayId(DefaultId))
                       .Returns(new List<Flight> { new Flight() });
 
         var runwayService = new RunwayService(mockRunwayRepo.Object, mockFlightRepo.Object);

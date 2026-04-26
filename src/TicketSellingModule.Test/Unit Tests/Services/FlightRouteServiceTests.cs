@@ -46,11 +46,6 @@ public class FlightRouteServiceTests
     private const string AirportNameJfk = "John F. Kennedy";
     private const string ExpectedDestinationTextJfk = "JFK - John F. Kennedy";
 
-    private const string AirportCodeLhr = "LHR";
-    private const string AirportNameLhr = "Heathrow";
-    private const string RunwayTwoName = "Runway 2";
-    private const string GateThreeName = "Gate 3";
-
     private static readonly DateTime TargetStartDate = new DateTime(2026, 6, 10);
     private static readonly DateTime TargetEndDate = new DateTime(2026, 6, 20);
     private static readonly DateTime InvalidPastDate = new DateTime(2026, 6, 1);
