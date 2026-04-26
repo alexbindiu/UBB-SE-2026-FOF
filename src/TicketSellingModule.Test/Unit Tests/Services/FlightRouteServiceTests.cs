@@ -36,6 +36,7 @@ public class FlightRouteServiceTests
     private const string InvalidCustomDaysInterval = "abc";
     private const string RouteTypeArrival = "ARR";
     private const int InvalidNegativeFlightId = -1;
+    private const string InvalidZeroDaysInterval = "0";
 
     private const int OtherCompanyId = 99;
     private const int EmptyForeignKeyId = 0;
@@ -773,5 +774,34 @@ public class FlightRouteServiceTests
         Assert.Equal(TargetRunwayName, resultList[0].Runway.Name);
         Assert.Equal(TargetGateName, resultList[0].Gate.Name);
         Assert.Equal(TargetAirportCode, resultList[0].Route.Airport.AirportCode);
+    }
+
+    [Fact]
+    public void CreateFlightWithSchedule_ThrowsInvalidOperationException_WhenCustomIntervalIsZero()
+    {
+        var flightRepository = new Mock<IFlightRepository>();
+        var routeRepository = new Mock<IRouteRepository>();
+
+        flightRepository.Setup(getNoFlights => getNoFlights.GetAllFlights()).Returns(new List<Flight>());
+
+        var flightRouteService = CreateTestService(flightRepository, routeRepository);
+
+        Assert.Throws<InvalidOperationException>(() =>
+            flightRouteService.CreateFlightWithSchedule(
+                TargetCompanyId,
+                RouteTypeDeparture,
+                TargetAirportId,
+                ValidCapacity,
+                TargetDepartureTime.ToTimeSpan(),
+                TargetArrivalTime.ToTimeSpan(),
+                isRecurrent: true,
+                TargetStartDate,
+                TargetStartDate,
+                null,
+                CustomRecurrenceType,
+                InvalidZeroDaysInterval,
+                TargetRunwayId,
+                TargetGateId,
+                _ => ValidFlightNumber));
     }
 }
