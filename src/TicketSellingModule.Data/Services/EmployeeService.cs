@@ -1,6 +1,3 @@
-using TicketSellingModule.Data.Repositories.Interfaces;
-using TicketSellingModule.Data.Services.Interfaces;
-
 namespace TicketSellingModule.Data.Services
 {
     public class EmployeeService(

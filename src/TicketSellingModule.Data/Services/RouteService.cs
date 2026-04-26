@@ -7,6 +7,11 @@
         IAirportRepository airportRepository) : IRouteService
     {
         private const int MinutesInADay = 1440;
+        private const string ArrivalShortenPrefix = "ARR";
+        private const string ArrivalFullPrefix = "ARR";
+        private const string DepartrureShortenPrefix = "DEP";
+        private const string DepartureFullPrefix = "ARR";
+        private const string TimeFormat = "HH:mm";
 
         private bool CheckOverlappingTimes(TimeOnly startTime1, TimeOnly endTime1, TimeOnly startTime2, TimeOnly endTime2)
         {
@@ -124,14 +129,14 @@
 
             string upperCaseType = routeType.Trim().ToUpperInvariant();
 
-            if (upperCaseType.StartsWith("ARR") || upperCaseType.StartsWith("ARRIVAL"))
+            if (upperCaseType.StartsWith(ArrivalShortenPrefix) || upperCaseType.StartsWith(ArrivalFullPrefix))
             {
-                return "ARR";
+                return ArrivalShortenPrefix;
             }
 
-            if (upperCaseType.StartsWith("DEP") || upperCaseType.StartsWith("DEPARTURE"))
+            if (upperCaseType.StartsWith(DepartrureShortenPrefix) || upperCaseType.StartsWith(DepartureFullPrefix))
             {
-                return "DEP";
+                return DepartrureShortenPrefix;
             }
 
             return upperCaseType;
@@ -146,12 +151,12 @@
 
             string normalizedType = this.NormalizeFlightType(route.RouteType);
 
-            if (normalizedType == "ARR")
+            if (normalizedType == ArrivalShortenPrefix)
             {
-                return route.ArrivalTime.ToString("HH:mm");
+                return route.ArrivalTime.ToString(TimeFormat);
             }
 
-            return route.DepartureTime.ToString("HH:mm");
+            return route.DepartureTime.ToString(TimeFormat);
         }
     }
 }

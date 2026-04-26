@@ -1,8 +1,5 @@
 using System.Text;
 
-using TicketSellingModule.Data.Repositories.Interfaces;
-using TicketSellingModule.Data.Services.Interfaces;
-
 namespace TicketSellingModule.Data.Services
 {
     public class EmployeeFlightService(
@@ -14,6 +11,9 @@ namespace TicketSellingModule.Data.Services
         IRunwayService runwayService,
         IRouteService routeService) : IEmployeeFlightService
     {
+        private const string UnassignedToAnyone = "Unassigned";
+        private const string DateFormatting = "dd MMM yyyy";
+
         public void AssignEmployeeToFlightUsingIds(int flightId, int employeeId)
         {
             if (flightId <= 0 || employeeId <= 0)
@@ -40,7 +40,7 @@ namespace TicketSellingModule.Data.Services
                 throw new InvalidOperationException($"Conflict: Employee {employee.Name} is already assigned to another flight during this time.");
             }
 
-            employeeFlightRepository.AssignFlightToEmployeesUsingIds(employeeId, flightId);
+            employeeFlightRepository.AssignFlightToEmployeeUsingIds(employeeId, flightId);
         }
 
         public void RemoveEmployeeFromFlightUsingIds(int flightId, int employeeId)
@@ -87,7 +87,7 @@ namespace TicketSellingModule.Data.Services
 
             if (crew.Count == 0)
             {
-                return "Unassigned";
+                return UnassignedToAnyone;
             }
 
             StringBuilder crewNames = new StringBuilder();
@@ -157,7 +157,7 @@ namespace TicketSellingModule.Data.Services
                     Id = flight.Id.ToString(),
                     FlightNumber = flight.FlightNumber,
                     FlightType = routeService.NormalizeFlightType(route?.RouteType),
-                    Date = flight.Date.ToString("dd MMM yyyy"),
+                    Date = flight.Date.ToString(DateFormatting),
                     GateName = gate?.Name ?? "-",
                     RunwayName = runway?.Name ?? "-",
                     FlightTime = routeService.GetRelevantTime(route)
@@ -256,7 +256,7 @@ namespace TicketSellingModule.Data.Services
                     Id = flight.Id.ToString(),
                     FlightNumber = flight.FlightNumber,
                     FlightType = routeService.NormalizeFlightType(route?.RouteType),
-                    Date = flight.Date.ToString("dd MMM yyyy"),
+                    Date = flight.Date.ToString(DateFormatting),
                     GateName = gate?.Name ?? "-",
                     RunwayName = runway?.Name ?? "-",
                     FlightTime = routeService.GetRelevantTime(route)

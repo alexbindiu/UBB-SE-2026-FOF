@@ -61,7 +61,7 @@ public class GateServiceTests
         var mockFlightRepo = new Mock<IFlightRepository>();
         var gateService = new GateService(mockGateRepo.Object, mockFlightRepo.Object);
 
-        Assert.Throws<ArgumentException>(() => gateService.Add(null));
+        Assert.Throws<ArgumentException>(() => gateService.AddGate(null));
     }
 
     [Fact]
@@ -71,7 +71,7 @@ public class GateServiceTests
         var mockFlightRepo = new Mock<IFlightRepository>();
         var gateService = new GateService(mockGateRepo.Object, mockFlightRepo.Object);
 
-        Assert.Throws<ArgumentException>(() => gateService.Add(string.Empty));
+        Assert.Throws<ArgumentException>(() => gateService.AddGate(string.Empty));
     }
 
     [Fact]
@@ -81,7 +81,7 @@ public class GateServiceTests
         var mockFlightRepo = new Mock<IFlightRepository>();
         var gateService = new GateService(mockGateRepo.Object, mockFlightRepo.Object);
 
-        Assert.Throws<ArgumentException>(() => gateService.Add(" "));
+        Assert.Throws<ArgumentException>(() => gateService.AddGate(" "));
     }
 
     [Fact]
@@ -92,7 +92,7 @@ public class GateServiceTests
         mockGateRepo.Setup(addGate => addGate.AddGate(It.IsAny<Gate>())).Returns(3);
 
         var service = new GateService(mockGateRepo.Object, mockFlightRepo.Object);
-        var result = service.Add("Gate A");
+        var result = service.AddGate("Gate A");
 
         Assert.Equal(3, result);
         mockGateRepo.Verify(addGate => addGate.AddGate(It.IsAny<Gate>()), Times.Once);
@@ -106,7 +106,7 @@ public class GateServiceTests
         mockGateRepo.Setup(getGate => getGate.GetGateById(1)).Returns((Gate)null);
 
         var gateService = new GateService(mockGateRepo.Object, mockFlightRepo.Object);
-        gateService.Update(1, "NewName");
+        gateService.UpdateGate(1, "NewName");
 
         mockGateRepo.Verify(updateGate => updateGate.UpdateGate(It.IsAny<Gate>()), Times.Never);
     }
@@ -120,7 +120,7 @@ public class GateServiceTests
 
         var gateService = new GateService(mockGateRepo.Object, mockFlightRepo.Object);
 
-        Assert.Throws<ArgumentException>(() => gateService.Update(1, " "));
+        Assert.Throws<ArgumentException>(() => gateService.UpdateGate(1, " "));
     }
 
     [Fact]
@@ -132,7 +132,7 @@ public class GateServiceTests
 
         var gateService = new GateService(mockGateRepo.Object, mockFlightRepo.Object);
 
-        Assert.Throws<ArgumentException>(() => gateService.Update(1, string.Empty));
+        Assert.Throws<ArgumentException>(() => gateService.UpdateGate(1, string.Empty));
     }
 
     [Fact]
@@ -144,7 +144,7 @@ public class GateServiceTests
         mockGateRepo.Setup(getGate => getGate.GetGateById(1)).Returns(gate);
 
         var gateService = new GateService(mockGateRepo.Object, mockFlightRepo.Object);
-        gateService.Update(1, "NewName");
+        gateService.UpdateGate(1, "NewName");
 
         Assert.Equal("NewName", gate.Name);
         mockGateRepo.Verify(updateGate => updateGate.UpdateGate(gate), Times.Once);
@@ -159,7 +159,7 @@ public class GateServiceTests
         mockGateRepo.Setup(getGate => getGate.GetGateById(1)).Returns(gate);
 
         var gateService = new GateService(mockGateRepo.Object, mockFlightRepo.Object);
-        gateService.Update(1);
+        gateService.UpdateGate(1);
 
         Assert.Equal("OldName", gate.Name);
         mockGateRepo.Verify(updateGate => updateGate.UpdateGate(gate), Times.Once);

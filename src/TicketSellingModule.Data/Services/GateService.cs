@@ -19,7 +19,7 @@ namespace TicketSellingModule.Data.Services
             return gateRepository.GetGateById(gateId);
         }
 
-        public int Add(string gateName)
+        public int AddGate(string gateName)
         {
             if (string.IsNullOrWhiteSpace(gateName))
             {
@@ -34,7 +34,7 @@ namespace TicketSellingModule.Data.Services
             return gateRepository.AddGate(newGate);
         }
 
-        public void Update(int gateId, string? updatedGateName = null)
+        public void UpdateGate(int gateId, string? updatedGateName = null)
         {
             Gate? existingGate = gateRepository.GetGateById(gateId);
 
@@ -68,11 +68,11 @@ namespace TicketSellingModule.Data.Services
         {
             if (gateId == 0)
             {
-                this.Add(gateName);
+                this.AddGate(gateName);
             }
             else
             {
-                this.Update(gateId, gateName);
+                this.UpdateGate(gateId, gateName);
             }
         }
 

@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-using TicketSellingModule.Data.Services.Interfaces;
 using TicketSellingModule.WinUI.Services;
 
 namespace TicketSellingModule.ViewModel

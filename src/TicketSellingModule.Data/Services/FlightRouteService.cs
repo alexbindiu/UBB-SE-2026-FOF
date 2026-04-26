@@ -10,6 +10,11 @@
         IAirportService airportService) : IFlightRouteService
     {
         private const int MinutesInADay = 1440;
+        private const string DailyReccurance = "Daily";
+        private const string WeeklyReccurance = "Weekly";
+        private const string MonthlyReccurance = "Monthly";
+        private const string CustomReccurance = "Custom";
+        private const string FullDateFormatting = "dd.MM.yyyy HH:mm";
 
         private bool CheckOverlappingTimes(TimeOnly startTime1, TimeOnly endTime1, TimeOnly startTime2, TimeOnly endTime2)
         {
@@ -152,10 +157,10 @@
             {
                 interval = recurrenceType switch
                 {
-                    "Daily" => 1,
-                    "Weekly" => 7,
-                    "Monthly" => 30,
-                    "Custom" => int.TryParse(customDaysText, out int custom) && custom > 0 ? custom : throw new InvalidOperationException("Invalid custom interval."),
+                    DailyReccurance => 1,
+                    WeeklyReccurance => 7,
+                    MonthlyReccurance => 30,
+                    CustomReccurance => int.TryParse(customDaysText, out int custom) && custom > 0 ? custom : throw new InvalidOperationException("Invalid custom interval."),
                     _ => throw new InvalidOperationException("A recurrence type is required for recurrent flights.")
                 };
             }
@@ -229,7 +234,7 @@
                 return true;
             }
 
-            if (flight.Date.ToString("dd.MM.yyyy HH:mm").ToLowerInvariant().Contains(query))
+            if (flight.Date.ToString(FullDateFormatting).ToLowerInvariant().Contains(query))
             {
                 return true;
             }
