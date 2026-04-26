@@ -1,10 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm;
 
 using Microsoft.UI.Xaml;
-
-using TicketSellingModule.Data.Services.Interfaces;
 
 namespace TicketSellingModule.ViewModel
 {
@@ -30,6 +27,7 @@ namespace TicketSellingModule.ViewModel
         private const string EditGateDialogTitle = "Edit Existing Gate";
         private const string NewAirportDialogTitle = "Register New Airport";
         private const string EditAirportDialogTitle = "Edit Existing Airport";
+        private const int DefaultEditingId = 0;
 
         [ObservableProperty] private ObservableCollection<Runway> runwaysList;
         [ObservableProperty] private ObservableCollection<Gate> gatesList;
@@ -99,7 +97,7 @@ namespace TicketSellingModule.ViewModel
         private void PrepareNewRunwayDialog()
         {
             currentActiveEntity = AirportDashboardEntity.Runway;
-            EditingId = 0;
+            EditingId = DefaultEditingId;
             EditingName = string.Empty;
             EditingHandleTimeText = string.Empty;
 
@@ -136,7 +134,7 @@ namespace TicketSellingModule.ViewModel
         private void PrepareNewGateDialog()
         {
             currentActiveEntity = AirportDashboardEntity.Gate;
-            EditingId = 0;
+            EditingId = DefaultEditingId;
             EditingName = string.Empty;
 
             HandleTimeVisibility = Visibility.Collapsed;
@@ -171,7 +169,7 @@ namespace TicketSellingModule.ViewModel
         private void PrepareNewAirportDialog()
         {
             currentActiveEntity = AirportDashboardEntity.Airport;
-            EditingId = 0;
+            EditingId = DefaultEditingId;
             EditingName = string.Empty;
             EditingCity = string.Empty;
             EditingCode = string.Empty;

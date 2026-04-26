@@ -6,6 +6,9 @@
         private const string SelectByIdQuery = "SELECT id, city, name, code FROM Airports WHERE id = @airportId";
         private const string InsertQuery = "INSERT INTO Airports (city, name, code) OUTPUT INSERTED.id VALUES (@city, @name, @code)";
         private const string UpdateQuery = "UPDATE Airports SET city = @city, name = @name, code = @code WHERE id = @airportId";
+        private const string DeleteFlightsQuery = "DELETE FROM Flights WHERE route_id IN (SELECT id FROM Routes WHERE airport_id = @airportId)";
+        private const string DeleteRoutesQuery = "DELETE FROM Routes WHERE airport_id = @airportId";
+        private const string DeleteAirportQuery = "DELETE FROM Airports WHERE id = @airportId";
 
         public List<Airport> GetAllAirports()
         {
@@ -76,18 +79,15 @@
             using SqlTransaction databaseTransaction = databaseConnection.BeginTransaction();
             try
             {
-                const string deleteFlightsQuery = "DELETE FROM Flights WHERE route_id IN (SELECT id FROM Routes WHERE airport_id = @airportId)";
-                using SqlCommand deleteFlightsCommand = new SqlCommand(deleteFlightsQuery, databaseConnection, databaseTransaction);
+                using SqlCommand deleteFlightsCommand = new SqlCommand(DeleteFlightsQuery, databaseConnection, databaseTransaction);
                 deleteFlightsCommand.Parameters.AddWithValue("@airportId", airportId);
                 deleteFlightsCommand.ExecuteNonQuery();
 
-                const string deleteRoutesQuery = "DELETE FROM Routes WHERE airport_id = @airportId";
-                using SqlCommand deleteRoutesCommand = new SqlCommand(deleteRoutesQuery, databaseConnection, databaseTransaction);
+                using SqlCommand deleteRoutesCommand = new SqlCommand(DeleteRoutesQuery, databaseConnection, databaseTransaction);
                 deleteRoutesCommand.Parameters.AddWithValue("@airportId", airportId);
                 deleteRoutesCommand.ExecuteNonQuery();
 
-                const string deleteAirportQuery = "DELETE FROM Airports WHERE id = @airportId";
-                using SqlCommand deleteAirportCommand = new SqlCommand(deleteAirportQuery, databaseConnection, databaseTransaction);
+                using SqlCommand deleteAirportCommand = new SqlCommand(DeleteAirportQuery, databaseConnection, databaseTransaction);
                 deleteAirportCommand.Parameters.AddWithValue("@airportId", airportId);
                 deleteAirportCommand.ExecuteNonQuery();
 

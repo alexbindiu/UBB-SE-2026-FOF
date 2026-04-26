@@ -3,8 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
 
-using TicketSellingModule.Data.Services.Interfaces;
-
 namespace TicketSellingModule.ViewModel
 {
     public partial class CompanyViewModel(
@@ -20,6 +18,7 @@ namespace TicketSellingModule.ViewModel
         private const int DefaultDepartureHour = 12;
         private const int DefaultArrivalHour = 13;
         private const int DefaultMinute = 0;
+        private const int DefaultIdInCaseOfNull = 0;
 
         private int currentCompanyId;
         private List<Flight> masterFlightsCollection = new();
@@ -158,7 +157,7 @@ namespace TicketSellingModule.ViewModel
             flightRouteService.CreateFlightWithSchedule(
                 this.currentCompanyId,
                 this.SelectedRouteType,
-                this.SelectedAirport?.Id ?? 0,
+                this.SelectedAirport?.Id ?? DefaultIdInCaseOfNull,
                 capacityValue,
                 this.DepartureTime,
                 this.ArrivalTime,
@@ -168,8 +167,8 @@ namespace TicketSellingModule.ViewModel
                 this.SingleDate?.DateTime,
                 this.RecurrenceType,
                 this.CustomDaysText,
-                this.SelectedRunway?.Id ?? 0,
-                this.SelectedGate?.Id ?? 0,
+                this.SelectedRunway?.Id ?? DefaultIdInCaseOfNull,
+                this.SelectedGate?.Id ?? DefaultIdInCaseOfNull,
                 companyService.GenerateFlightCodeUsingCompanyId);
 
             this.RefreshCompanyFlights(this.currentCompanyId);
