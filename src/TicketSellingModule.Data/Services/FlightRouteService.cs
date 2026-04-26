@@ -10,6 +10,11 @@
         IAirportService airportService) : IFlightRouteService
     {
         private const int MinutesInADay = 1440;
+        private const string DailyReccurance = "Daily";
+        private const string WeeklyReccurance = "Weekly";
+        private const string MonthlyReccurance = "Monthly";
+        private const string CustomReccurance = "Custom";
+        private const string FullDateFormatting = "dd.MM.yyyy HH:mm";
 
         private bool CheckOverlappingTimes(TimeOnly startTime1, TimeOnly endTime1, TimeOnly startTime2, TimeOnly endTime2)
         {
@@ -152,10 +157,10 @@
             {
                 interval = recurrenceType switch
                 {
-                    "Daily" => 1,
-                    "Weekly" => 7,
-                    "Monthly" => 30,
-                    "Custom" => int.TryParse(customDaysText, out int custom) && custom > 0 ? custom : throw new InvalidOperationException("Invalid custom interval."),
+                    DailyReccurance => 1,
+                    WeeklyReccurance => 7,
+                    MonthlyReccurance => 30,
+                    CustomReccurance => int.TryParse(customDaysText, out int custom) && custom > 0 ? custom : throw new InvalidOperationException("Invalid custom interval."),
                     _ => throw new InvalidOperationException("A recurrence type is required for recurrent flights.")
                 };
             }
@@ -201,6 +206,56 @@
             }
 
             return flights;
+        }
+
+        public List<Flight> SearchFlights(List<Flight> flights, string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return flights;
+            }
+
+            List<Flight> matchingFlights = new List<Flight>();
+            foreach (Flight flight in flights)
+            {
+                if (this.IsFlightMatch(flight, query))
+                {
+                    matchingFlights.Add(flight);
+                }
+            }
+
+            return matchingFlights;
+        }
+
+        private bool IsFlightMatch(Flight flight, string query)
+        {
+            if (flight.FlightNumber != null && flight.FlightNumber.ToLowerInvariant().Contains(query))
+            {
+                return true;
+            }
+
+            if (flight.Date.ToString(FullDateFormatting).ToLowerInvariant().Contains(query))
+            {
+                return true;
+            }
+
+            string destination = this.GetDestinationText(flight).ToLowerInvariant();
+            if (destination.Contains(query))
+            {
+                return true;
+            }
+
+            if (flight.Runway?.Name != null && flight.Runway.Name.ToLowerInvariant().Contains(query))
+            {
+                return true;
+            }
+
+            if (flight.Gate?.Name != null && flight.Gate.Name.ToLowerInvariant().Contains(query))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public Route? GetRouteById(int routeId)

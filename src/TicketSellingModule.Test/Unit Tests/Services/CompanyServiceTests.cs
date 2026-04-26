@@ -105,7 +105,7 @@ public class CompanyServiceTests
 
         var existingCompany = new Company { Name = DefaultCompanyTwoWordsName };
 
-        companyRepository.Setup(getTheCompanyCorrespondingToId => getTheCompanyCorrespondingToId.GetCompanyById(TargetCompanyId)).Returns(existingCompany);
+        companyRepository.Setup(getTargetCompany => getTargetCompany.GetCompanyById(TargetCompanyId)).Returns(existingCompany);
 
         var companyService = new CompanyService(companyRepository.Object, flightRouteRepository.Object);
 
@@ -198,7 +198,7 @@ public class CompanyServiceTests
         var companyRepository = new Mock<ICompanyRepository>();
         var flightRouteRepositoryWithFlights = new Mock<IFlightRouteService>();
 
-        companyRepository.Setup(getDefaultCompany => getDefaultCompany.GetCompanyById(TargetCompanyId))
+        companyRepository.Setup(getTargetCompany => getTargetCompany.GetCompanyById(TargetCompanyId))
             .Returns(new Company { Name = DefaultCompanyTwoWordsName });
 
         var existingFlightsList = new List<Flight>
@@ -350,7 +350,7 @@ public class CompanyServiceTests
         companyService.UpdateCompany(TargetCompanyId, UpdatedCompanyName);
 
         Assert.Equal(UpdatedCompanyName, companyToUpdate.Name);
-        companyRepository.Verify(repositoryIsCalled => repositoryIsCalled.UpdateCompany(companyToUpdate), Times.Once);
+        companyRepository.Verify(callsRepositoryToUpdatecompany => callsRepositoryToUpdatecompany.UpdateCompany(companyToUpdate), Times.Once);
     }
 
     [Fact]
@@ -376,6 +376,6 @@ public class CompanyServiceTests
 
         companyService.DeleteCompanyUsingId(TargetCompanyId);
 
-        companyRepository.Verify(repositoryIsCalled => repositoryIsCalled.DeleteCompanyUsingId(TargetCompanyId), Times.Once);
+        companyRepository.Verify(callsRepositoryToDeleteCompany => callsRepositoryToDeleteCompany.DeleteCompanyUsingId(TargetCompanyId), Times.Once);
     }
 }

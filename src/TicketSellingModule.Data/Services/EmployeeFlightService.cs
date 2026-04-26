@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace TicketSellingModule.Data.Services
 {
     public class EmployeeFlightService(
@@ -9,6 +11,9 @@ namespace TicketSellingModule.Data.Services
         IRunwayService runwayService,
         IRouteService routeService) : IEmployeeFlightService
     {
+        private const string UnassignedToAnyone = "Unassigned";
+        private const string DateFormatting = "dd MMM yyyy";
+
         public void AssignEmployeeToFlightUsingIds(int flightId, int employeeId)
         {
             if (flightId <= 0 || employeeId <= 0)
@@ -76,6 +81,28 @@ namespace TicketSellingModule.Data.Services
             return flightCrew;
         }
 
+        public string FormatCrewList(int flightId)
+        {
+            List<Employee> crew = this.GetEmployeesAssignedToFlight(flightId);
+
+            if (crew.Count == 0)
+            {
+                return UnassignedToAnyone;
+            }
+
+            StringBuilder crewNames = new StringBuilder();
+            for (int index = 0; index < crew.Count; index++)
+            {
+                crewNames.Append(crew[index].Name);
+                if (index < crew.Count - 1)
+                {
+                    crewNames.Append(", ");
+                }
+            }
+
+            return crewNames.ToString();
+        }
+
         public List<Flight> GetEmployeeSchedule(int employeeId)
         {
             if (employeeId <= 0)
@@ -130,7 +157,7 @@ namespace TicketSellingModule.Data.Services
                     Id = flight.Id.ToString(),
                     FlightNumber = flight.FlightNumber,
                     FlightType = routeService.NormalizeFlightType(route?.RouteType),
-                    Date = flight.Date.ToString("dd MMM yyyy"),
+                    Date = flight.Date.ToString(DateFormatting),
                     GateName = gate?.Name ?? "-",
                     RunwayName = runway?.Name ?? "-",
                     FlightTime = routeService.GetRelevantTime(route)
@@ -229,7 +256,7 @@ namespace TicketSellingModule.Data.Services
                     Id = flight.Id.ToString(),
                     FlightNumber = flight.FlightNumber,
                     FlightType = routeService.NormalizeFlightType(route?.RouteType),
-                    Date = flight.Date.ToString("dd MMM yyyy"),
+                    Date = flight.Date.ToString(DateFormatting),
                     GateName = gate?.Name ?? "-",
                     RunwayName = runway?.Name ?? "-",
                     FlightTime = routeService.GetRelevantTime(route)

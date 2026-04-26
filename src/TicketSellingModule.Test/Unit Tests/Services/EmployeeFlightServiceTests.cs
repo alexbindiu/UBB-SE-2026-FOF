@@ -161,7 +161,7 @@ public class EmployeeFlightServiceTests
 
         employeeFlightService.AssignEmployeeToFlightUsingIds(TargetFlightId, TargetEmployeeId);
 
-        employeeFlightRepository.Verify(repositoryIsCalled => repositoryIsCalled.AssignFlightToEmployeeUsingIds(TargetEmployeeId, TargetFlightId), Times.Once);
+        employeeFlightRepository.Verify(callsRepositoryToAssignFlightToEmployee => callsRepositoryToAssignFlightToEmployee.AssignFlightToEmployeeUsingIds(TargetEmployeeId, TargetFlightId), Times.Once);
     }
 
     [Fact]
@@ -172,7 +172,7 @@ public class EmployeeFlightServiceTests
 
         employeeFlightService.RemoveAllCrewAssignmentsForFlight(TargetFlightId);
 
-        employeeFlightRepository.Verify(repositoryIsCalled => repositoryIsCalled.RemoveAllByFlightId(TargetFlightId), Times.Once);
+        employeeFlightRepository.Verify(callsRepositoryToRemoveAllFlightById => callsRepositoryToRemoveAllFlightById.RemoveAllByFlightId(TargetFlightId), Times.Once);
     }
 
     [Fact]
@@ -183,7 +183,7 @@ public class EmployeeFlightServiceTests
 
         employeeFlightService.RemoveAllFlightsAssignmentsForEmployee(TargetEmployeeId);
 
-        employeeFlightRepository.Verify(repositoryIsCalled => repositoryIsCalled.RemoveAllByEmployeeId(TargetEmployeeId), Times.Once);
+        employeeFlightRepository.Verify(callsRepositoryToRemoveAllByEmployeeId => callsRepositoryToRemoveAllByEmployeeId.RemoveAllByEmployeeId(TargetEmployeeId), Times.Once);
     }
 
     [Fact]
@@ -205,7 +205,7 @@ public class EmployeeFlightServiceTests
 
         employeeFlightService.RemoveEmployeeFromFlightUsingIds(TargetFlightId, TargetEmployeeId);
 
-        employeeFlightRepository.Verify(repositoryIsCalled => repositoryIsCalled.RemoveFlightFromEmployeeUsingIds(TargetEmployeeId, TargetFlightId), Times.Once);
+        employeeFlightRepository.Verify(callsRepositoryToRemoveFlightFromEmployee => callsRepositoryToRemoveFlightFromEmployee.RemoveFlightFromEmployeeUsingIds(TargetEmployeeId, TargetFlightId), Times.Once);
     }
 
     [Fact]

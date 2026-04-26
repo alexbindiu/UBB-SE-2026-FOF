@@ -134,7 +134,7 @@ public class AirportServiceTests
             new Airport { AirportCode = SecondTestCode, AirportName = SecondTestName, City = SecondTestCity }
         };
 
-        airportRepository.Setup(getAllAirportsFromRepository => getAllAirportsFromRepository.GetAllAirports())
+        airportRepository.Setup(getAllAirports => getAllAirports.GetAllAirports())
             .Returns(existingAirportsList);
 
         var airportService = new AirportService(airportRepository.Object, flightRepository.Object);
@@ -164,7 +164,7 @@ public class AirportServiceTests
         var flightRepository = new Mock<IFlightRepository>();
         var existingAirport = new Airport { Id = TargetAirportId, AirportCode = DefaultTestCode };
 
-        airportRepository.Setup(getAirportCorrespondingToId => getAirportCorrespondingToId.GetAirportById(TargetAirportId))
+        airportRepository.Setup(getTargetAirport => getTargetAirport.GetAirportById(TargetAirportId))
             .Returns(existingAirport);
 
         var airportService = new AirportService(airportRepository.Object, flightRepository.Object);
@@ -180,7 +180,7 @@ public class AirportServiceTests
         var airportRepositoryThatReturnsNull = new Mock<IAirportRepository>();
         var flightRepository = new Mock<IFlightRepository>();
 
-        airportRepositoryThatReturnsNull.Setup(noAriportsWithProvidedId => noAriportsWithProvidedId.GetAirportById(TargetAirportId))
+        airportRepositoryThatReturnsNull.Setup(getNullsinteadOfAirport => getNullsinteadOfAirport.GetAirportById(TargetAirportId))
             .Returns((Airport?)null);
 
         var airportService = new AirportService(airportRepositoryThatReturnsNull.Object, flightRepository.Object);
@@ -208,7 +208,7 @@ public class AirportServiceTests
         Assert.Equal(UpdatedName, airportToUpdate.AirportName);
         Assert.Equal(DefaultTestCity, airportToUpdate.City);
 
-        airportRepository.Verify(ifChangesWereSentToRepository => ifChangesWereSentToRepository.UpdateAirport(airportToUpdate), Times.Once);
+        airportRepository.Verify(callsRepositoryToUpdateAirport => callsRepositoryToUpdateAirport.UpdateAirport(airportToUpdate), Times.Once);
     }
 
     [Fact]
@@ -229,7 +229,7 @@ public class AirportServiceTests
         Assert.Equal(DefaultTestName, airportToUpdate.AirportName);
         Assert.Equal(UpdatedCity, airportToUpdate.City);
 
-        airportRepository.Verify(ifChangesWereSentToRepository => ifChangesWereSentToRepository.UpdateAirport(airportToUpdate), Times.Once);
+        airportRepository.Verify(callsRepositorytoUpdateairport => callsRepositorytoUpdateairport.UpdateAirport(airportToUpdate), Times.Once);
     }
 
     [Fact]
@@ -250,7 +250,7 @@ public class AirportServiceTests
         Assert.Equal(DefaultTestName, airportToUpdate.AirportName);
         Assert.Equal(DefaultTestCity, airportToUpdate.City);
 
-        airportRepository.Verify(ifChangesWereSentToRepository => ifChangesWereSentToRepository.UpdateAirport(airportToUpdate), Times.Once);
+        airportRepository.Verify(callsRepositoryToUpdateAirport => callsRepositoryToUpdateAirport.UpdateAirport(airportToUpdate), Times.Once);
     }
 
     [Fact]
@@ -271,7 +271,7 @@ public class AirportServiceTests
         Assert.Equal(DefaultTestName, airportToUpdate.AirportName);
         Assert.Equal(DefaultTestCity, airportToUpdate.City);
 
-        airportRepository.Verify(ifChangesWereSentToRepository => ifChangesWereSentToRepository.UpdateAirport(airportToUpdate), Times.Once);
+        airportRepository.Verify(callsRepositoryToUpdateAirport => callsRepositoryToUpdateAirport.UpdateAirport(airportToUpdate), Times.Once);
     }
 
     [Fact]
@@ -292,7 +292,7 @@ public class AirportServiceTests
         Assert.Equal(UpdatedName, airportToUpdate.AirportName);
         Assert.Equal(UpdatedCity, airportToUpdate.City);
 
-        airportRepository.Verify(ifChangesWereSentToRepository => ifChangesWereSentToRepository.UpdateAirport(airportToUpdate), Times.Once);
+        airportRepository.Verify(callsRepositoryToUpdateAirport => callsRepositoryToUpdateAirport.UpdateAirport(airportToUpdate), Times.Once);
     }
 
     [Fact]
@@ -326,7 +326,7 @@ public class AirportServiceTests
         var flightRepositoryWithFlights = new Mock<IFlightRepository>();
         var associatedFlightsList = new List<Flight> { new Flight() };
 
-        flightRepositoryWithFlights.Setup(getFlights => getFlights.GetFlightsByAirportId(TargetAirportId))
+        flightRepositoryWithFlights.Setup(getTargetFlights => getTargetFlights.GetFlightsByAirportId(TargetAirportId))
             .Returns(associatedFlightsList);
 
         var airportService = new AirportService(airportRepository.Object, flightRepositoryWithFlights.Object);

@@ -1,7 +1,4 @@
-﻿using TicketSellingModule.Data.Repositories.Interfaces;
-using TicketSellingModule.Data.Services.Interfaces;
-
-namespace TicketSellingModule.Data.Services
+﻿namespace TicketSellingModule.Data.Services
 {
     public class AirportService(
        IAirportRepository airportRepository,
@@ -79,6 +76,17 @@ namespace TicketSellingModule.Data.Services
             airportRepository.UpdateAirport(existingAirport);
         }
 
+        public void SaveAirport(int airportId, string airportCode, string airportName, string city)
+        {
+            if (airportId == 0)
+            {
+                this.AddAirport(airportCode, airportName, city);
+            }
+            else
+            {
+                this.UpdateAirport(airportId, city, airportName, airportCode);
+            }
+        }
         public void DeleteAirportUsingId(int airportId)
         {
             if (airportId > 0)
@@ -91,6 +99,16 @@ namespace TicketSellingModule.Data.Services
         {
             List<Flight> associatedFlights = flightRepository.GetFlightsByAirportId(airportId);
             return associatedFlights.Count > 0;
+        }
+
+        public string GetDeleteWarningMessage(int id)
+        {
+            bool hasFlights = HasFlights(id);
+            if (hasFlights)
+            {
+                return $"CRITICAL: Airport '{GetAirportById(id).AirportName}' has flights assigned. Deleting it will remove ALL associated flights. Proceed?";
+            }
+            return $"Are you sure you want to delete airport '{GetAirportById(id).AirportName}'?";
         }
     }
 }
