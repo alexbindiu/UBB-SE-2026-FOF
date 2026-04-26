@@ -7,19 +7,25 @@
         IAirportRepository airportRepository) : IRouteService
     {
         private const int MinutesInADay = 1440;
-
+        private const int MinutesInAnHour = 60;
+        private const string ArrivalCode = "ARR";
+        private const string ArrivalFullName = "ARRIVAL";
+        private const string DepartureCode = "DEP";
+        private const string DepartureFullName = "DEPARTURE";
+        private const string EmptyFieldPlaceholder = "-";
+        private const string TimeFormat = "HH:mm";
         private bool CheckOverlappingTimes(TimeOnly startTime1, TimeOnly endTime1, TimeOnly startTime2, TimeOnly endTime2)
         {
-            int startMinutes1 = (startTime1.Hour * 60) + startTime1.Minute;
-            int endMinutes1 = (endTime1.Hour * 60) + endTime1.Minute;
+            int startMinutes1 = (startTime1.Hour * MinutesInAnHour) + startTime1.Minute;
+            int endMinutes1 = (endTime1.Hour * MinutesInAnHour) + endTime1.Minute;
 
             if (endMinutes1 <= startMinutes1)
             {
                 endMinutes1 += MinutesInADay;
             }
 
-            int startMinutes2 = (startTime2.Hour * 60) + startTime2.Minute;
-            int endMinutes2 = (endTime2.Hour * 60) + endTime2.Minute;
+            int startMinutes2 = (startTime2.Hour * MinutesInAnHour) + startTime2.Minute;
+            int endMinutes2 = (endTime2.Hour * MinutesInAnHour) + endTime2.Minute;
 
             if (endMinutes2 <= startMinutes2)
             {
@@ -119,19 +125,19 @@
         {
             if (string.IsNullOrWhiteSpace(routeType))
             {
-                return "-";
+                return EmptyFieldPlaceholder;
             }
 
             string upperCaseType = routeType.Trim().ToUpperInvariant();
 
-            if (upperCaseType.StartsWith("ARR") || upperCaseType.StartsWith("ARRIVAL"))
+            if (upperCaseType.StartsWith(ArrivalCode) || upperCaseType.StartsWith(ArrivalFullName))
             {
-                return "ARR";
+                return ArrivalCode;
             }
 
-            if (upperCaseType.StartsWith("DEP") || upperCaseType.StartsWith("DEPARTURE"))
+            if (upperCaseType.StartsWith(DepartureCode) || upperCaseType.StartsWith(DepartureFullName))
             {
-                return "DEP";
+                return DepartureCode;
             }
 
             return upperCaseType;
@@ -141,17 +147,17 @@
         {
             if (route == null)
             {
-                return "-";
+                return EmptyFieldPlaceholder;
             }
 
             string normalizedType = this.NormalizeFlightType(route.RouteType);
 
-            if (normalizedType == "ARR")
+            if (normalizedType == ArrivalCode)
             {
-                return route.ArrivalTime.ToString("HH:mm");
+                return route.ArrivalTime.ToString(TimeFormat);
             }
 
-            return route.DepartureTime.ToString("HH:mm");
+            return route.DepartureTime.ToString(TimeFormat);
         }
     }
 }

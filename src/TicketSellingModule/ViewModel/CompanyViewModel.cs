@@ -15,10 +15,11 @@ namespace TicketSellingModule.ViewModel
         IGateService gateService,
         IEmployeeFlightService employeeFlightService) : ObservableObject
     {
-        private const string ArrivalText = "Arrival";
-        private const string ArrivalCode = "ARR";
-        private const string DepartureCode = "DEP";
         private const string CustomRecurrenceType = "Custom";
+        private const int DefaultEndRecurrenceInterval = 7;
+        private const int DefaultDepartureHour = 12;
+        private const int DefaultArrivalHour = 13;
+        private const int DefaultMinute = 0;
 
         private int currentCompanyId;
         private List<Flight> masterFlightsCollection = new();
@@ -87,14 +88,6 @@ namespace TicketSellingModule.ViewModel
             }
         }
 
-        public int CurrentCompanyId
-        {
-            get
-            {
-                return this.currentCompanyId;
-            }
-        }
-
         partial void OnFlightNumberSearchQueryChanged(string value)
         {
             this.SearchFlightsByNumber(value);
@@ -117,18 +110,6 @@ namespace TicketSellingModule.ViewModel
         {
             List<Gate> allGates = gateService.GetAllGates();
             GatesList = new ObservableCollection<Gate>(allGates);
-        }
-
-        public List<Company> GetAvailableCompanies()
-        {
-            List<Company> companies = companyService.GetAllCompanies();
-            CompaniesList = new ObservableCollection<Company>(companies);
-            return companies;
-        }
-
-        public Company? GetCompanyById(int companyId)
-        {
-            return companyService.GetCompanyById(companyId);
         }
 
         public void RefreshAirportsList()
@@ -172,7 +153,6 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         public void AddFlightFromInputs()
         {
-            string flightTypeCode = this.SelectedRouteType == ArrivalText ? ArrivalCode : DepartureCode;
             int.TryParse(this.CapacityText, out int capacityValue);
 
             flightRouteService.CreateFlightWithSchedule(
@@ -207,10 +187,10 @@ namespace TicketSellingModule.ViewModel
 
             this.SingleDate = DateTimeOffset.Now;
             this.StartDate = DateTimeOffset.Now;
-            this.EndDate = DateTimeOffset.Now.AddDays(7);
+            this.EndDate = DateTimeOffset.Now.AddDays(DefaultEndRecurrenceInterval);
 
-            this.DepartureTime = new TimeSpan(12, 0, 0);
-            this.ArrivalTime = new TimeSpan(13, 0, 0);
+            this.DepartureTime = new TimeSpan(DefaultDepartureHour, DefaultMinute, 0);
+            this.ArrivalTime = new TimeSpan(DefaultArrivalHour, DefaultMinute, 0);
 
             this.CustomDaysText = string.Empty;
         }

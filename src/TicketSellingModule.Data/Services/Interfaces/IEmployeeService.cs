@@ -14,4 +14,5 @@ public interface IEmployeeService
     void UpdateEmployee(int id, string? name = null, EmployeeRole? role = null, int? salary = null, DateOnly? birthday = null, DateOnly? hiringDate = null);
     void DeleteEmployeeUsingId(int id);
     EmployeeRole ParseRole(string roleText);
+    int Login(string employeeIdText);
 }

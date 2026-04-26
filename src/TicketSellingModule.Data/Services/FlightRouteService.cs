@@ -1,5 +1,12 @@
 ﻿namespace TicketSellingModule.Data.Services
 {
+    public enum RecurrenceType
+    {
+        Daily,
+        Weekly,
+        Monthly,
+        Custom
+    }
     public class FlightRouteService(
         IFlightRepository flightRepository,
         IRouteRepository routeRepository,
@@ -10,22 +17,29 @@
         IAirportService airportService) : IFlightRouteService
     {
         private const int MinutesInADay = 1440;
+        private const int MinutesInAnHour = 60;
         private const string ArrivalText = "Arrival";
         private const string ArrivalCode = "ARR";
         private const string DepartureCode = "DEP";
+        private const string FlightDateTimeFormat = "dd.MM.yyyy HH:mm";
+        private const string EmptyFieldPlaceholder = "-";
+
+        private const int DailyIntervalDays = 1;
+        private const int WeeklyIntervalDays = 7;
+        private const int MonthlyIntervalDays = 30;
 
         private bool CheckOverlappingTimes(TimeOnly startTime1, TimeOnly endTime1, TimeOnly startTime2, TimeOnly endTime2)
         {
-            int startMinutes1 = (startTime1.Hour * 60) + startTime1.Minute;
-            int endMinutes1 = (endTime1.Hour * 60) + endTime1.Minute;
+            int startMinutes1 = (startTime1.Hour * MinutesInAnHour) + startTime1.Minute;
+            int endMinutes1 = (endTime1.Hour * MinutesInAnHour) + endTime1.Minute;
 
             if (endMinutes1 <= startMinutes1)
             {
                 endMinutes1 += MinutesInADay;
             }
 
-            int startMinutes2 = (startTime2.Hour * 60) + startTime2.Minute;
-            int endMinutes2 = (endTime2.Hour * 60) + endTime2.Minute;
+            int startMinutes2 = (startTime2.Hour * MinutesInAnHour) + startTime2.Minute;
+            int endMinutes2 = (endTime2.Hour * MinutesInAnHour) + endTime2.Minute;
 
             if (endMinutes2 <= startMinutes2)
             {
@@ -170,10 +184,12 @@
             {
                 interval = recurrenceType switch
                 {
-                    "Daily" => 1,
-                    "Weekly" => 7,
-                    "Monthly" => 30,
-                    "Custom" => int.TryParse(customDaysText, out int custom) && custom > 0 ? custom : throw new InvalidOperationException("Invalid custom interval."),
+                    nameof(RecurrenceType.Daily) => DailyIntervalDays,
+                    nameof(RecurrenceType.Weekly) => WeeklyIntervalDays,
+                    nameof(RecurrenceType.Monthly) => MonthlyIntervalDays,
+                    nameof(RecurrenceType.Custom) => int.TryParse(customDaysText, out int custom) && custom > 0
+                                                          ? custom
+                                                          : throw new InvalidOperationException("Invalid custom interval."),
                     _ => throw new InvalidOperationException("A recurrence type is required for recurrent flights.")
                 };
             }
@@ -265,7 +281,7 @@
                 return true;
             }
 
-            if (flight.Date.ToString("dd.MM.yyyy HH:mm").ToLowerInvariant().Contains(query))
+            if (flight.Date.ToString(FlightDateTimeFormat).ToLowerInvariant().Contains(query))
             {
                 return true;
             }
@@ -355,7 +371,7 @@
         {
             if (flight.Route == null || flight.Route.Airport == null)
             {
-                return "-";
+                return EmptyFieldPlaceholder;
             }
 
             return $"{flight.Route.Airport.AirportCode} - {flight.Route.Airport.AirportName}";
@@ -367,10 +383,10 @@
             {
                 Id = flight.Id,
                 FlightNumber = flight.FlightNumber ?? string.Empty,
-                DateText = flight.Date.ToString("dd.MM.yyyy HH:mm"),
+                DateText = flight.Date.ToString(FlightDateTimeFormat),
                 DestinationText = GetDestinationText(flight),
-                RunwayText = flight.Runway?.Name ?? "-",
-                GateText = flight.Gate?.Name ?? "-",
+                RunwayText = flight.Runway?.Name ?? EmptyFieldPlaceholder,
+                GateText = flight.Gate?.Name ?? EmptyFieldPlaceholder,
                 CrewText = crewText
             };
         }

@@ -6,8 +6,7 @@ using TicketSellingModule.Data.Services.Interfaces;
 namespace TicketSellingModule.Data.Services
 {
     /// <summary>
-    /// Flat DTO describing one row in the crew-selection dialog.
-    /// Contains no UI types — visibility mapping is the ViewModel's concern.
+    /// One row in the crew-selection dialog.
     /// </summary>
     public class CrewMemberSelectionData
     {
@@ -26,6 +25,9 @@ namespace TicketSellingModule.Data.Services
         IRunwayService runwayService,
         IRouteService routeService) : IEmployeeFlightService
     {
+        private const string UnnasignedCrew = "Unassigned";
+        private const string FlightDateFormat = "dd MMM yyyy";
+        private const string EmptyFieldPlaceholder = "-";
         public void AssignEmployeeToFlightUsingIds(int flightId, int employeeId)
         {
             if (flightId <= 0 || employeeId <= 0)
@@ -99,7 +101,7 @@ namespace TicketSellingModule.Data.Services
 
             if (crew.Count == 0)
             {
-                return "Unassigned";
+                return UnnasignedCrew;
             }
 
             StringBuilder crewNames = new StringBuilder();
@@ -169,9 +171,9 @@ namespace TicketSellingModule.Data.Services
                     Id = flight.Id.ToString(),
                     FlightNumber = flight.FlightNumber,
                     FlightType = routeService.NormalizeFlightType(route?.RouteType),
-                    Date = flight.Date.ToString("dd MMM yyyy"),
-                    GateName = gate?.Name ?? "-",
-                    RunwayName = runway?.Name ?? "-",
+                    Date = flight.Date.ToString(FlightDateFormat),
+                    GateName = gate?.Name ?? EmptyFieldPlaceholder,
+                    RunwayName = runway?.Name ?? EmptyFieldPlaceholder,
                     FlightTime = routeService.GetRelevantTime(route)
                 });
             }
@@ -268,9 +270,9 @@ namespace TicketSellingModule.Data.Services
                     Id = flight.Id.ToString(),
                     FlightNumber = flight.FlightNumber,
                     FlightType = routeService.NormalizeFlightType(route?.RouteType),
-                    Date = flight.Date.ToString("dd MMM yyyy"),
-                    GateName = gate?.Name ?? "-",
-                    RunwayName = runway?.Name ?? "-",
+                    Date = flight.Date.ToString(FlightDateFormat),
+                    GateName = gate?.Name ?? EmptyFieldPlaceholder,
+                    RunwayName = runway?.Name ?? EmptyFieldPlaceholder,
                     FlightTime = routeService.GetRelevantTime(route)
                 });
             }

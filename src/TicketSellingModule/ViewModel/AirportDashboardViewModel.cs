@@ -23,6 +23,14 @@ namespace TicketSellingModule.ViewModel
       IAirportService airportService, IRunwayService runwayService,
       IGateService gateService) : ObservableObject
     {
+        private const string WarningConfirmationMessage = "Are you sure you want to delete the selected item?";
+        private const string NewRunwayDialogTitle = "Register New Runway";
+        private const string EditRunwayDialogTitle = "Edit Existing Runway";
+        private const string NewGateDialogTitle = "Register New Gate";
+        private const string EditGateDialogTitle = "Edit Existing Gate";
+        private const string NewAirportDialogTitle = "Register New Airport";
+        private const string EditAirportDialogTitle = "Edit Existing Airport";
+
         [ObservableProperty] private ObservableCollection<Runway> runwaysList;
         [ObservableProperty] private ObservableCollection<Gate> gatesList;
         [ObservableProperty] private ObservableCollection<Airport> airportsList;
@@ -54,22 +62,22 @@ namespace TicketSellingModule.ViewModel
 
         private Dictionary<AirportDashboardEntity, Action<object>> DeleteRegistry => new()
         {
-            { AirportDashboardEntity.Runway, item => runwayService.DeleteRunwayUsingId(((Runway)item).Id) },
-            { AirportDashboardEntity.Gate, item => gateService.DeleteGateUsingId(((Gate)item).Id) },
-            { AirportDashboardEntity.Airport, item => airportService.DeleteAirportUsingId(((Airport)item).Id) }
+            { AirportDashboardEntity.Runway, itemToBeRemoved => runwayService.DeleteRunwayUsingId(((Runway)itemToBeRemoved).Id) },
+            { AirportDashboardEntity.Gate, itemToBeRemoved => gateService.DeleteGateUsingId(((Gate)itemToBeRemoved).Id) },
+            { AirportDashboardEntity.Airport, itemToBeRemoved => airportService.DeleteAirportUsingId(((Airport)itemToBeRemoved).Id) }
         };
 
         private Dictionary<AirportDashboardEntity, Func<object, string>> WarningRegistry => new()
         {
-            { AirportDashboardEntity.Runway,  item => runwayService.GetDeleteWarningMessage(((Runway)item).Id) },
-            { AirportDashboardEntity.Gate,    item => gateService.GetDeleteWarningMessage(((Gate)item).Id) },
-            { AirportDashboardEntity.Airport, item => airportService.GetDeleteWarningMessage(((Airport)item).Id) }
+            { AirportDashboardEntity.Runway,  itemToBeRemoved => runwayService.GetDeleteWarningMessage(((Runway)itemToBeRemoved).Id) },
+            { AirportDashboardEntity.Gate,    itemToBeRemoved => gateService.GetDeleteWarningMessage(((Gate)itemToBeRemoved).Id) },
+            { AirportDashboardEntity.Airport, itemToBeRemoved => airportService.GetDeleteWarningMessage(((Airport)itemToBeRemoved).Id) }
         };
 
         private string ConstructDeleteWarningMessage(object item) =>
-            WarningRegistry.TryGetValue(currentActiveEntity, out var fn)
-                ? fn(item)
-                : "Are you sure you want to delete the selected item?";
+            WarningRegistry.TryGetValue(currentActiveEntity, out var getWarningMessage)
+                ? getWarningMessage(item)
+                : WarningConfirmationMessage;
 
         private object? itemPendingDeletion;
         private AirportDashboardEntity currentActiveEntity = AirportDashboardEntity.None;
@@ -98,7 +106,7 @@ namespace TicketSellingModule.ViewModel
             HandleTimeVisibility = Visibility.Visible;
             CityCodeVisibility = Visibility.Collapsed;
 
-            DialogTitle = "Register New Runway";
+            DialogTitle = NewRunwayDialogTitle;
             DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
         }
@@ -119,7 +127,7 @@ namespace TicketSellingModule.ViewModel
             HandleTimeVisibility = Visibility.Visible;
             CityCodeVisibility = Visibility.Collapsed;
 
-            DialogTitle = "Edit Existing Runway";
+            DialogTitle = EditRunwayDialogTitle;
             DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
         }
@@ -134,7 +142,7 @@ namespace TicketSellingModule.ViewModel
             HandleTimeVisibility = Visibility.Collapsed;
             CityCodeVisibility = Visibility.Collapsed;
 
-            DialogTitle = "Register New Gate";
+            DialogTitle = NewGateDialogTitle;
             DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
         }
@@ -154,7 +162,7 @@ namespace TicketSellingModule.ViewModel
             HandleTimeVisibility = Visibility.Collapsed;
             CityCodeVisibility = Visibility.Collapsed;
 
-            DialogTitle = "Edit Existing Gate";
+            DialogTitle = EditGateDialogTitle;
             DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
         }
@@ -171,7 +179,7 @@ namespace TicketSellingModule.ViewModel
             HandleTimeVisibility = Visibility.Collapsed;
             CityCodeVisibility = Visibility.Visible;
 
-            DialogTitle = "Register New Airport";
+            DialogTitle = NewAirportDialogTitle;
             DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
         }
@@ -193,7 +201,7 @@ namespace TicketSellingModule.ViewModel
             HandleTimeVisibility = Visibility.Collapsed;
             CityCodeVisibility = Visibility.Visible;
 
-            DialogTitle = "Edit Existing Airport";
+            DialogTitle = EditAirportDialogTitle;
             DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
         }
@@ -253,13 +261,13 @@ namespace TicketSellingModule.ViewModel
             }
         }
 
-        private void RemoveEntityFromSystem(object item)
+        private void RemoveEntityFromSystem(object itemToBeRemoved)
         {
             DialogErrorMessage = string.Empty;
 
             if (DeleteRegistry.TryGetValue(currentActiveEntity, out var deleteAction))
             {
-                deleteAction(item);
+                deleteAction(itemToBeRemoved);
             }
 
             LoadDashboardData();

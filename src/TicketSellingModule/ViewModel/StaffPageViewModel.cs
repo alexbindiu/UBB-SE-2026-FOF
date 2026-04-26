@@ -13,7 +13,7 @@ namespace TicketSellingModule.ViewModel
         IEmployeeFlightService employeeFlightService) : ObservableObject
     {
         private const string PlaceholderValue = "-";
-        private const string DefaultZeroCount = "0";
+        private const string DefaultCount = "0";
 
         private int currentEmployeeId;
 
@@ -21,7 +21,7 @@ namespace TicketSellingModule.ViewModel
 
         [ObservableProperty] private string employeeIdText = PlaceholderValue;
         [ObservableProperty] private string roleText = PlaceholderValue;
-        [ObservableProperty] private string flightsCountText = DefaultZeroCount;
+        [ObservableProperty] private string flightsCountText = DefaultCount;
         [ObservableProperty] private Visibility emptyStateVisibility = Visibility.Collapsed;
 
         public void Initialize(int employeeId)
@@ -57,14 +57,6 @@ namespace TicketSellingModule.ViewModel
             {
                 this.EmptyStateVisibility = Visibility.Collapsed;
             }
-        }
-
-        private void ResetEmployeeInfo()
-        {
-            EmployeeIdText = PlaceholderValue;
-            RoleText = PlaceholderValue;
-            FlightsCountText = DefaultZeroCount;
-            EmptyStateVisibility = Visibility.Visible;
         }
     }
 }

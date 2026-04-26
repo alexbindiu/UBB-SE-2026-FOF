@@ -80,7 +80,7 @@ namespace TicketSellingModule.WinUI.AirportAdmin
                     HighlightSelectedButton(EmployeesButton);
                     break;
 
-                case AirportAdminSection.Airportonfiguration:
+                case AirportAdminSection.AirportConfiguration:
                     if (ContentFrame.CurrentSourcePageType != typeof(AirportDashboardPage))
                     {
                         ContentFrame.Navigate(typeof(AirportDashboardPage), airportViewModel);

@@ -11,6 +11,11 @@ namespace TicketSellingModule.ViewModel
     {
         private readonly IEmployeeService employeeService;
 
+        private const string ErrorMessageEmployeeNotSelected = "Please select an employee to delete.";
+        private const string ErrorMessageInvalidEmployeeSelected = "Invalid employee selected.";
+        private const string AddTitlePrefix = "Add New";
+        private const string EditTitlePrefix = "Edit";
+
         [ObservableProperty] private ObservableCollection<Employee> pilotEmployees = new();
         [ObservableProperty] private ObservableCollection<Employee> flightAttendantEmployees = new();
         [ObservableProperty] private ObservableCollection<Employee> coPilotEmployees = new();
@@ -51,7 +56,7 @@ namespace TicketSellingModule.ViewModel
             if (parameter is not Employee employee)
             {
                 EmployeeToDelete = null;
-                DeleteErrorMessage = "Please select an employee to delete.";
+                DeleteErrorMessage = ErrorMessageEmployeeNotSelected;
                 ConfirmDeleteDialogVisibility = Visibility.Visible;
                 OnPropertyChanged(nameof(IsConfirmationVisible));
                 OnPropertyChanged(nameof(IsErrorOnlyVisible));
@@ -70,7 +75,7 @@ namespace TicketSellingModule.ViewModel
         {
             if (EmployeeToDelete == null)
             {
-                DeleteErrorMessage = "Invalid employee selected.";
+                DeleteErrorMessage = ErrorMessageInvalidEmployeeSelected;
                 return;
             }
 
@@ -106,7 +111,7 @@ namespace TicketSellingModule.ViewModel
             EditingHiringDate = null;
             EditingSalaryText = string.Empty;
 
-            DialogTitle = $"Add New {targetRole}";
+            DialogTitle = $"{AddTitlePrefix} {targetRole}";
             DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
         }
@@ -133,7 +138,7 @@ namespace TicketSellingModule.ViewModel
             EditingBirthday = new DateTimeOffset(employee.Birthday.ToDateTime(TimeOnly.MinValue));
             EditingHiringDate = new DateTimeOffset(employee.HiringDate.ToDateTime(TimeOnly.MinValue));
 
-            DialogTitle = $"Edit {employee.Role}";
+            DialogTitle = $"{EditTitlePrefix} {employee.Role}";
             DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
         }
