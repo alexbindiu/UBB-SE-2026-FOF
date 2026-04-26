@@ -257,7 +257,7 @@ namespace TicketSellingModule.ViewModel
         {
             DialogErrorMessage = string.Empty;
 
-            if (item != null && DeleteRegistry.TryGetValue(currentActiveEntity, out var deleteAction))
+            if (DeleteRegistry.TryGetValue(currentActiveEntity, out var deleteAction))
             {
                 deleteAction(item);
             }
@@ -265,41 +265,6 @@ namespace TicketSellingModule.ViewModel
             LoadDashboardData();
             DialogVisibility = Visibility.Collapsed;
         }
-
-        /*private string ConstructDeleteWarningMessage(object item)
-        {
-            if (item is Runway runway)
-            {
-                bool hasFlights = runwayService.HasFlights(runway.Id);
-                if (hasFlights)
-                {
-                    return $"CRITICAL: Runway '{runway.Name}' has flights assigned. Deleting it will remove ALL associated flights. Proceed?";
-                }
-                return $"Are you sure you want to delete runway '{runway.Name}'?";
-            }
-
-            if (item is Gate gate)
-            {
-                bool hasFlights = gateService.HasFlights(gate.Id);
-                if (hasFlights)
-                {
-                    return $"CRITICAL: Gate '{gate.Name}' has flights assigned. Deleting it will remove ALL associated flights. Proceed?";
-                }
-                return $"Are you sure you want to delete gate '{gate.Name}'?";
-            }
-
-            if (item is Airport airport)
-            {
-                bool hasFlights = airportService.HasFlights(airport.Id);
-                if (hasFlights)
-                {
-                    return $"CRITICAL: Airport '{airport.AirportName}' has flights assigned. Deleting it will remove ALL associated flights. Proceed?";
-                }
-                return $"Are you sure you want to delete airport '{airport.AirportName}'?";
-            }
-
-            return "Are you sure you want to delete the selected item?";
-        }*/
 
         [RelayCommand]
         private void PromptDeleteRunway()

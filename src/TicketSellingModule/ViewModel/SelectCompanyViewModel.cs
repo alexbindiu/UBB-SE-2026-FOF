@@ -11,7 +11,7 @@ namespace TicketSellingModule.ViewModel
         private readonly ICompanyService companyService;
         private readonly INavigationService navigationService;
 
-        public ObservableCollection<Company> Companies { get; } = new();
+        [ObservableProperty] private ObservableCollection<Company> companies;
 
         public SelectCompanyViewModel(ICompanyService companyService, INavigationService navigationService)
         {
@@ -23,13 +23,8 @@ namespace TicketSellingModule.ViewModel
 
         private void LoadCompanies()
         {
-            Companies.Clear();
             List<Company> availableCompanies = companyService.GetAllCompanies();
-
-            foreach (Company company in availableCompanies)
-            {
-                this.Companies.Add(company);
-            }
+            Companies = new ObservableCollection<Company>(availableCompanies);
         }
 
         [RelayCommand]

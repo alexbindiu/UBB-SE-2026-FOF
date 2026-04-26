@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
 
+using TicketSellingModule.Data.Services;
 using TicketSellingModule.Data.Services.Interfaces;
 using TicketSellingModule.WinUI.AirportAdmin.Components;
 
@@ -15,13 +16,13 @@ namespace TicketSellingModule.ViewModel
         private List<Flight> allFlights = new();
 
         [ObservableProperty] private string searchText = string.Empty;
-        [ObservableProperty] private FlightRow? selectedFlight;
+        [ObservableProperty] private FlightDisplayRow? selectedFlight;
 
         [ObservableProperty] private Visibility crewDialogVisibility = Visibility.Collapsed;
         [ObservableProperty] private string dialogError = string.Empty;
 
         public ObservableCollection<CrewSelectionWrapper> AvailableCrew { get; } = new();
-        public ObservableCollection<FlightRow> FilteredFlights { get; } = new();
+        public ObservableCollection<FlightDisplayRow> FilteredFlights { get; } = new();
 
         [RelayCommand]
         public void LoadFlights()
@@ -44,40 +45,19 @@ namespace TicketSellingModule.ViewModel
             }
 
             Flight? flight = flightRouteService.GetFlightById(SelectedFlight.Id);
-            if (flight == null)
-            {
-                return;
-            }
 
-            List<Employee> currentCrewMembers = flightEmployeeService.GetEmployeesAssignedToFlight(flight.Id);
-            List<int> currentCrewIdentifiers = new List<int>();
-
-            foreach (Employee crewMember in currentCrewMembers)
-            {
-                currentCrewIdentifiers.Add(crewMember.Id);
-            }
-
-            List<Employee> availableEmployees = flightEmployeeService.GetAvailableEmployeesGroupedByRole(flight);
+            List<CrewMemberSelectionData> crewData = flightEmployeeService.GetCrewSelectionData(flight);
 
             AvailableCrew.Clear();
-
-            EmployeeRole? previousRole = null;
-
-            foreach (Employee candidateEmployee in availableEmployees)
+            foreach (CrewMemberSelectionData item in crewData)
             {
-                EmployeeRole currentRole = candidateEmployee.Role;
-
-                bool isFirstInGroup = currentRole != previousRole;
-
                 AvailableCrew.Add(new CrewSelectionWrapper
                 {
-                    Employee = candidateEmployee,
-                    IsSelected = currentCrewIdentifiers.Contains(candidateEmployee.Id),
-                    RoleHeader = currentRole.ToString(),
-                    RoleHeaderVisibility = isFirstInGroup ? Visibility.Visible : Visibility.Collapsed
+                    Employee = item.Employee,
+                    IsSelected = item.IsSelected,
+                    RoleHeader = item.RoleHeader,
+                    RoleHeaderVisibility = item.IsFirstInRoleGroup ? Visibility.Visible : Visibility.Collapsed
                 });
-
-                previousRole = currentRole;
             }
 
             DialogError = string.Empty;
@@ -114,22 +94,14 @@ namespace TicketSellingModule.ViewModel
 
         private void ApplyFilter()
         {
-            string query = this.SearchText?.Trim().ToLowerInvariant() ?? string.Empty;
-            List<Flight> matchingFlights = flightRouteService.SearchFlights(this.allFlights, query);
+            string query = SearchText?.Trim().ToLowerInvariant() ?? string.Empty;
+            List<Flight> matchingFlights = flightRouteService.SearchFlights(allFlights, query);
 
-            this.FilteredFlights.Clear();
+            FilteredFlights.Clear();
             foreach (Flight flight in matchingFlights)
             {
-                this.FilteredFlights.Add(new FlightRow
-                {
-                    Id = flight.Id,
-                    FlightNumber = flight.FlightNumber ?? string.Empty,
-                    DateText = flight.Date.ToString("dd.MM.yyyy HH:mm"),
-                    DestinationText = flightRouteService.GetDestinationText(flight),
-                    RunwayText = flight.Runway?.Name ?? "-",
-                    GateText = flight.Gate?.Name ?? "-",
-                    CrewText = flightEmployeeService.FormatCrewList(flight.Id)
-                });
+                string crewText = flightEmployeeService.FormatCrewList(flight.Id);
+                FilteredFlights.Add(new FlightDisplayRow(flightRouteService.BuildFlightSummary(flight, crewText)));
             }
         }
     }

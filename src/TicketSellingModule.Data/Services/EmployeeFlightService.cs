@@ -5,6 +5,18 @@ using TicketSellingModule.Data.Services.Interfaces;
 
 namespace TicketSellingModule.Data.Services
 {
+    /// <summary>
+    /// Flat DTO describing one row in the crew-selection dialog.
+    /// Contains no UI types — visibility mapping is the ViewModel's concern.
+    /// </summary>
+    public class CrewMemberSelectionData
+    {
+        public Employee Employee { get; set; } = new();
+        public bool IsSelected { get; set; }
+        public bool IsFirstInRoleGroup { get; set; }
+        public string RoleHeader { get; set; } = string.Empty;
+    }
+
     public class EmployeeFlightService(
         IEmployeeFlightRepository employeeFlightRepository,
         IEmployeeRepository employeeRepository,
@@ -266,17 +278,31 @@ namespace TicketSellingModule.Data.Services
             return formattedItems;
         }
 
-        private class FlightDateComparer : IComparer<Flight>
+        public List<CrewMemberSelectionData> GetCrewSelectionData(Flight flight)
         {
-            public int Compare(Flight? firstFlight, Flight? secondFlight)
-            {
-                if (firstFlight == null || secondFlight == null)
-                {
-                    return 0;
-                }
+            List<int> assignedEmployeeIds = employeeFlightRepository.GetEmployeesByFlightId(flight.Id);
+            List<Employee> availableEmployees = this.GetAvailableEmployeesGroupedByRole(flight);
 
-                return firstFlight.Date.CompareTo(secondFlight.Date);
+            List<CrewMemberSelectionData> result = new List<CrewMemberSelectionData>();
+            EmployeeRole? previousRole = null;
+
+            foreach (Employee candidate in availableEmployees)
+            {
+                EmployeeRole currentRole = candidate.Role;
+                bool isFirstInGroup = currentRole != previousRole;
+
+                result.Add(new CrewMemberSelectionData
+                {
+                    Employee = candidate,
+                    IsSelected = assignedEmployeeIds.Contains(candidate.Id),
+                    IsFirstInRoleGroup = isFirstInGroup,
+                    RoleHeader = currentRole.ToString()
+                });
+
+                previousRole = currentRole;
             }
+
+            return result;
         }
 
         public List<Employee> GetAvailableEmployeesGroupedByRole(Flight flight)
@@ -294,6 +320,19 @@ namespace TicketSellingModule.Data.Services
 
             availableEmployees.Sort(new EmployeeRoleAndNameComparer());
             return availableEmployees;
+        }
+
+        private class FlightDateComparer : IComparer<Flight>
+        {
+            public int Compare(Flight? firstFlight, Flight? secondFlight)
+            {
+                if (firstFlight == null || secondFlight == null)
+                {
+                    return 0;
+                }
+
+                return firstFlight.Date.CompareTo(secondFlight.Date);
+            }
         }
 
         private class EmployeeRoleAndNameComparer : IComparer<Employee>

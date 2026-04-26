@@ -23,11 +23,11 @@ namespace TicketSellingModule.ViewModel
         private int currentCompanyId;
         private List<Flight> masterFlightsCollection = new();
 
-        public ObservableCollection<Company> CompaniesList { get; } = new();
-        public ObservableCollection<Airport> AirportsList { get; } = new();
-        public ObservableCollection<Flight> CompanyFlightsList { get; } = new();
-        public ObservableCollection<Runway> RunwaysList { get; } = new();
-        public ObservableCollection<Gate> GatesList { get; } = new();
+        [ObservableProperty] private ObservableCollection<Company> companiesList;
+        [ObservableProperty] private ObservableCollection<Airport> airportsList;
+        [ObservableProperty] private ObservableCollection<Flight> companyFlightsList;
+        [ObservableProperty] private ObservableCollection<Runway> runwaysList;
+        [ObservableProperty] private ObservableCollection<Gate> gatesList;
 
         [ObservableProperty] private string flightNumberSearchQuery = string.Empty;
         [ObservableProperty] private string? selectedRouteType;
@@ -110,32 +110,19 @@ namespace TicketSellingModule.ViewModel
         public void RefreshRunwaysList()
         {
             List<Runway> allRunways = runwayService.GetAllRunways();
-            this.RunwaysList.Clear();
-            foreach (Runway runway in allRunways)
-            {
-                this.RunwaysList.Add(runway);
-            }
+            RunwaysList = new ObservableCollection<Runway>(allRunways);
         }
 
         public void RefreshGatesList()
         {
             List<Gate> allGates = gateService.GetAllGates();
-            this.GatesList.Clear();
-            foreach (Gate gate in allGates)
-            {
-                this.GatesList.Add(gate);
-            }
+            GatesList = new ObservableCollection<Gate>(allGates);
         }
 
         public List<Company> GetAvailableCompanies()
         {
             List<Company> companies = companyService.GetAllCompanies();
-            this.CompaniesList.Clear();
-            foreach (Company company in companies)
-            {
-                this.CompaniesList.Add(company);
-            }
-
+            CompaniesList = new ObservableCollection<Company>(companies);
             return companies;
         }
 
@@ -147,73 +134,33 @@ namespace TicketSellingModule.ViewModel
         public void RefreshAirportsList()
         {
             List<Airport> airports = airportService.GetAllAirports();
-            this.AirportsList.Clear();
-            foreach (Airport airport in airports)
-            {
-                this.AirportsList.Add(airport);
-            }
+            AirportsList = new ObservableCollection<Airport>(airports);
         }
 
         public void RefreshCompanyFlights(int companyId)
         {
-            List<Flight> companyFlights = flightRouteService.GetFlightsByCompanyId(companyId);
-            this.masterFlightsCollection.Clear();
-
-            foreach (Flight flight in companyFlights)
-            {
-                this.masterFlightsCollection.Add(flight);
-            }
-
-            this.UpdateVisibleFlights(this.masterFlightsCollection);
+            this.masterFlightsCollection = flightRouteService.GetFlightsByCompanyId(companyId);
+            this.CompanyFlightsList = new ObservableCollection<Flight>(this.masterFlightsCollection);
         }
 
         public void SearchFlightsByNumber(string searchQuery)
         {
-            if (string.IsNullOrWhiteSpace(searchQuery))
-            {
-                this.UpdateVisibleFlights(this.masterFlightsCollection);
-                return;
-            }
-
-            List<Flight> filteredResults = new List<Flight>();
-            string lowerSearchQuery = searchQuery.ToLower();
-
-            foreach (Flight flight in this.masterFlightsCollection)
-            {
-                if (!string.IsNullOrEmpty(flight.FlightNumber))
-                {
-                    if (flight.FlightNumber.ToLower().Contains(lowerSearchQuery))
-                    {
-                        filteredResults.Add(flight);
-                    }
-                }
-            }
-
+            List<Flight> filteredResults = flightRouteService.SearchFlightsByNumber(this.masterFlightsCollection, searchQuery);
             this.UpdateVisibleFlights(filteredResults);
         }
 
         private void UpdateVisibleFlights(List<Flight> flightsToDisplay)
         {
-            this.CompanyFlightsList.Clear();
-            foreach (Flight flight in flightsToDisplay)
-            {
-                this.CompanyFlightsList.Add(flight);
-            }
+            CompanyFlightsList = new ObservableCollection<Flight>(flightsToDisplay);
         }
 
         [RelayCommand]
         private void ExecuteFlightDeletion(int flightId)
         {
-            if (this.currentCompanyId == 0)
-            {
-                return;
-            }
-
             try
             {
                 employeeFlightService.RemoveAllCrewAssignmentsForFlight(flightId);
                 flightRouteService.DeleteFlightUsingId(flightId);
-
                 this.RefreshCompanyFlights(this.currentCompanyId);
             }
             catch (Exception exception)
@@ -225,20 +172,14 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         public void AddFlightFromInputs()
         {
-            int parsedCapacity = companyService.ValidateFlightCreationInputs(
-                this.currentCompanyId,
-                this.SelectedAirport?.Id ?? 0,
-                this.CapacityText,
-                this.SelectedRunway?.Id ?? 0,
-                this.SelectedGate?.Id ?? 0);
-
             string flightTypeCode = this.SelectedRouteType == ArrivalText ? ArrivalCode : DepartureCode;
+            int.TryParse(this.CapacityText, out int capacityValue);
 
             flightRouteService.CreateFlightWithSchedule(
                 this.currentCompanyId,
-                flightTypeCode,
-                this.SelectedAirport!.Id,
-                parsedCapacity,
+                this.SelectedRouteType,
+                this.SelectedAirport?.Id ?? 0,
+                capacityValue,
                 this.DepartureTime,
                 this.ArrivalTime,
                 this.IsRecurrent,
@@ -247,8 +188,8 @@ namespace TicketSellingModule.ViewModel
                 this.SingleDate?.DateTime,
                 this.RecurrenceType,
                 this.CustomDaysText,
-                this.SelectedRunway.Id,
-                this.SelectedGate.Id,
+                this.SelectedRunway?.Id ?? 0,
+                this.SelectedGate?.Id ?? 0,
                 companyService.GenerateFlightCodeUsingCompanyId);
 
             this.RefreshCompanyFlights(this.currentCompanyId);

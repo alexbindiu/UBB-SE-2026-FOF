@@ -17,7 +17,7 @@ namespace TicketSellingModule.ViewModel
 
         private int currentEmployeeId;
 
-        public ObservableCollection<EmployeeScheduleItem> ScheduledFlights { get; } = new();
+        [ObservableProperty] private ObservableCollection<EmployeeScheduleItem> scheduledFlights;
 
         [ObservableProperty] private string employeeIdText = PlaceholderValue;
         [ObservableProperty] private string roleText = PlaceholderValue;
@@ -37,31 +37,15 @@ namespace TicketSellingModule.ViewModel
 
         private void LoadEmployeeSchedule(int employeeId)
         {
-            ScheduledFlights.Clear();
-
-            if (employeeId <= 0)
-            {
-                ResetEmployeeInfo();
-                return;
-            }
-
             currentEmployeeId = employeeId;
 
             Employee? employee = employeeService.GetEmployeeById(employeeId);
-            if (employee == null)
-            {
-                ResetEmployeeInfo();
-                return;
-            }
 
             EmployeeIdText = employee.Id.ToString();
             RoleText = employee.Role.ToString();
 
             List<EmployeeScheduleItem> scheduleItems = employeeFlightService.GetFormattedEmployeeSchedule(employeeId);
-            foreach (EmployeeScheduleItem item in scheduleItems)
-            {
-                ScheduledFlights.Add(item);
-            }
+            ScheduledFlights = new ObservableCollection<EmployeeScheduleItem>(scheduleItems);
 
             FlightsCountText = ScheduledFlights.Count.ToString();
 

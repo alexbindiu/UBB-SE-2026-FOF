@@ -48,7 +48,7 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void DeleteEmployee(object parameter)
         {
-            if (parameter is not Employee employee || employee.Id == 0)
+            if (parameter is not Employee employee)
             {
                 EmployeeToDelete = null;
                 DeleteErrorMessage = "Please select an employee to delete.";
@@ -68,7 +68,7 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void ConfirmDelete()
         {
-            if (EmployeeToDelete == null || EmployeeToDelete.Id == 0)
+            if (EmployeeToDelete == null)
             {
                 DeleteErrorMessage = "Invalid employee selected.";
                 return;
