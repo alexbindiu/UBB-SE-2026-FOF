@@ -14,4 +14,5 @@ public interface IEmployeeFlightService
     List<EmployeeScheduleItem> GetFormattedEmployeeSchedule(int employeeId);
     List<Employee> GetAvailableEmployeesGroupedByRole(Flight flight);
     string FormatCrewList(int flightId);
+    public List<CrewMemberSelectionData> GetCrewSelectionData(Flight flight);
 }

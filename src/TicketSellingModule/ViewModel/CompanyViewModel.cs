@@ -15,19 +15,20 @@ namespace TicketSellingModule.ViewModel
         IGateService gateService,
         IEmployeeFlightService employeeFlightService) : ObservableObject
     {
-        private const string ArrivalText = "Arrival";
-        private const string ArrivalCode = "ARR";
-        private const string DepartureCode = "DEP";
         private const string CustomRecurrenceType = "Custom";
+        private const int DefaultEndRecurrenceInterval = 7;
+        private const int DefaultDepartureHour = 12;
+        private const int DefaultArrivalHour = 13;
+        private const int DefaultMinute = 0;
 
         private int currentCompanyId;
         private List<Flight> masterFlightsCollection = new();
 
-        public ObservableCollection<Company> CompaniesList { get; } = new();
-        public ObservableCollection<Airport> AirportsList { get; } = new();
-        public ObservableCollection<Flight> CompanyFlightsList { get; } = new();
-        public ObservableCollection<Runway> RunwaysList { get; } = new();
-        public ObservableCollection<Gate> GatesList { get; } = new();
+        [ObservableProperty] private ObservableCollection<Company> companiesList;
+        [ObservableProperty] private ObservableCollection<Airport> airportsList;
+        [ObservableProperty] private ObservableCollection<Flight> companyFlightsList;
+        [ObservableProperty] private ObservableCollection<Runway> runwaysList;
+        [ObservableProperty] private ObservableCollection<Gate> gatesList;
 
         [ObservableProperty] private string flightNumberSearchQuery = string.Empty;
         [ObservableProperty] private string? selectedRouteType;
@@ -87,14 +88,6 @@ namespace TicketSellingModule.ViewModel
             }
         }
 
-        public int CurrentCompanyId
-        {
-            get
-            {
-                return this.currentCompanyId;
-            }
-        }
-
         partial void OnFlightNumberSearchQueryChanged(string value)
         {
             this.SearchFlightsByNumber(value);
@@ -110,110 +103,45 @@ namespace TicketSellingModule.ViewModel
         public void RefreshRunwaysList()
         {
             List<Runway> allRunways = runwayService.GetAllRunways();
-            this.RunwaysList.Clear();
-            foreach (Runway runway in allRunways)
-            {
-                this.RunwaysList.Add(runway);
-            }
+            RunwaysList = new ObservableCollection<Runway>(allRunways);
         }
 
         public void RefreshGatesList()
         {
             List<Gate> allGates = gateService.GetAllGates();
-            this.GatesList.Clear();
-            foreach (Gate gate in allGates)
-            {
-                this.GatesList.Add(gate);
-            }
-        }
-
-        public List<Company> GetAvailableCompanies()
-        {
-            List<Company> companies = companyService.GetAllCompanies();
-            this.CompaniesList.Clear();
-            foreach (Company company in companies)
-            {
-                this.CompaniesList.Add(company);
-            }
-
-            return companies;
-        }
-
-        public Company? GetCompanyById(int companyId)
-        {
-            return companyService.GetCompanyById(companyId);
+            GatesList = new ObservableCollection<Gate>(allGates);
         }
 
         public void RefreshAirportsList()
         {
             List<Airport> airports = airportService.GetAllAirports();
-            this.AirportsList.Clear();
-            foreach (Airport airport in airports)
-            {
-                this.AirportsList.Add(airport);
-            }
+            AirportsList = new ObservableCollection<Airport>(airports);
         }
 
         public void RefreshCompanyFlights(int companyId)
         {
-            List<Flight> companyFlights = flightRouteService.GetFlightsByCompanyId(companyId);
-            this.masterFlightsCollection.Clear();
-
-            foreach (Flight flight in companyFlights)
-            {
-                this.masterFlightsCollection.Add(flight);
-            }
-
-            this.UpdateVisibleFlights(this.masterFlightsCollection);
+            this.masterFlightsCollection = flightRouteService.GetFlightsByCompanyId(companyId);
+            this.CompanyFlightsList = new ObservableCollection<Flight>(this.masterFlightsCollection);
         }
 
         public void SearchFlightsByNumber(string searchQuery)
         {
-            if (string.IsNullOrWhiteSpace(searchQuery))
-            {
-                this.UpdateVisibleFlights(this.masterFlightsCollection);
-                return;
-            }
-
-            List<Flight> filteredResults = new List<Flight>();
-            string lowerSearchQuery = searchQuery.ToLower();
-
-            foreach (Flight flight in this.masterFlightsCollection)
-            {
-                if (!string.IsNullOrEmpty(flight.FlightNumber))
-                {
-                    if (flight.FlightNumber.ToLower().Contains(lowerSearchQuery))
-                    {
-                        filteredResults.Add(flight);
-                    }
-                }
-            }
-
+            List<Flight> filteredResults = flightRouteService.SearchFlightsByNumber(this.masterFlightsCollection, searchQuery);
             this.UpdateVisibleFlights(filteredResults);
         }
 
         private void UpdateVisibleFlights(List<Flight> flightsToDisplay)
         {
-            this.CompanyFlightsList.Clear();
-            foreach (Flight flight in flightsToDisplay)
-            {
-                this.CompanyFlightsList.Add(flight);
-            }
+            CompanyFlightsList = new ObservableCollection<Flight>(flightsToDisplay);
         }
 
         [RelayCommand]
         private void ExecuteFlightDeletion(int flightId)
         {
-            if (this.currentCompanyId == 0)
-            {
-                return;
-            }
-
             try
             {
                 employeeFlightService.RemoveAllCrewAssignmentsForFlight(flightId);
                 flightRouteService.DeleteFlightUsingId(flightId);
-
                 this.RefreshCompanyFlights(this.currentCompanyId);
             }
             catch (Exception exception)
@@ -225,20 +153,13 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         public void AddFlightFromInputs()
         {
-            int parsedCapacity = companyService.ValidateFlightCreationInputs(
-                this.currentCompanyId,
-                this.SelectedAirport?.Id ?? 0,
-                this.CapacityText,
-                this.SelectedRunway?.Id ?? 0,
-                this.SelectedGate?.Id ?? 0);
-
-            string flightTypeCode = this.SelectedRouteType == ArrivalText ? ArrivalCode : DepartureCode;
+            int.TryParse(this.CapacityText, out int capacityValue);
 
             flightRouteService.CreateFlightWithSchedule(
                 this.currentCompanyId,
-                flightTypeCode,
-                this.SelectedAirport!.Id,
-                parsedCapacity,
+                this.SelectedRouteType,
+                this.SelectedAirport?.Id ?? 0,
+                capacityValue,
                 this.DepartureTime,
                 this.ArrivalTime,
                 this.IsRecurrent,
@@ -247,8 +168,8 @@ namespace TicketSellingModule.ViewModel
                 this.SingleDate?.DateTime,
                 this.RecurrenceType,
                 this.CustomDaysText,
-                this.SelectedRunway.Id,
-                this.SelectedGate.Id,
+                this.SelectedRunway?.Id ?? 0,
+                this.SelectedGate?.Id ?? 0,
                 companyService.GenerateFlightCodeUsingCompanyId);
 
             this.RefreshCompanyFlights(this.currentCompanyId);
@@ -266,10 +187,10 @@ namespace TicketSellingModule.ViewModel
 
             this.SingleDate = DateTimeOffset.Now;
             this.StartDate = DateTimeOffset.Now;
-            this.EndDate = DateTimeOffset.Now.AddDays(7);
+            this.EndDate = DateTimeOffset.Now.AddDays(DefaultEndRecurrenceInterval);
 
-            this.DepartureTime = new TimeSpan(12, 0, 0);
-            this.ArrivalTime = new TimeSpan(13, 0, 0);
+            this.DepartureTime = new TimeSpan(DefaultDepartureHour, DefaultMinute, 0);
+            this.ArrivalTime = new TimeSpan(DefaultArrivalHour, DefaultMinute, 0);
 
             this.CustomDaysText = string.Empty;
         }

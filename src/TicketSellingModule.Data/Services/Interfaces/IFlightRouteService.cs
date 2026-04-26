@@ -8,7 +8,7 @@ public interface IFlightRouteService
     void CreateFlightWithSchedule(
             int companyId, string routeType, int airportId, int capacity, TimeSpan departureOffset, TimeSpan arrivalOffset,
             bool isRecurrent, DateTime? startDate, DateTime? endDate, DateTime? singleDate, string recurrenceType, string customDaysText,
-            int runwayId, int gateId, Func<int, string> flightCodeGenerator);
+            int runwayId, int gateId, Func<int, string> flightNumber);
     List<Flight> GetAllFlightsWithDetails();
     Route? GetRouteById(int routeId);
 
@@ -21,4 +21,6 @@ public interface IFlightRouteService
     List<Flight> GetFlightsByCompanyId(int companyId);
     string GetDestinationText(Flight flight);
     List<Flight> SearchFlights(List<Flight> flights, string query);
+    List<Flight> SearchFlightsByNumber(List<Flight> flights, string query);
+    public FlightSummary BuildFlightSummary(Flight flight, string crewText);
 }

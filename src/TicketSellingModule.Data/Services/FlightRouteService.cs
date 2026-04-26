@@ -1,5 +1,12 @@
 ﻿namespace TicketSellingModule.Data.Services
 {
+    public enum RecurrenceType
+    {
+        Daily,
+        Weekly,
+        Monthly,
+        Custom
+    }
     public class FlightRouteService(
         IFlightRepository flightRepository,
         IRouteRepository routeRepository,
@@ -10,24 +17,29 @@
         IAirportService airportService) : IFlightRouteService
     {
         private const int MinutesInADay = 1440;
-        private const string DailyReccurance = "Daily";
-        private const string WeeklyReccurance = "Weekly";
-        private const string MonthlyReccurance = "Monthly";
-        private const string CustomReccurance = "Custom";
-        private const string FullDateFormatting = "dd.MM.yyyy HH:mm";
+        private const int MinutesInAnHour = 60;
+        private const string ArrivalText = "Arrival";
+        private const string ArrivalCode = "ARR";
+        private const string DepartureCode = "DEP";
+        private const string FlightDateTimeFormat = "dd.MM.yyyy HH:mm";
+        private const string EmptyFieldPlaceholder = "-";
+
+        private const int DailyIntervalDays = 1;
+        private const int WeeklyIntervalDays = 7;
+        private const int MonthlyIntervalDays = 30;
 
         private bool CheckOverlappingTimes(TimeOnly startTime1, TimeOnly endTime1, TimeOnly startTime2, TimeOnly endTime2)
         {
-            int startMinutes1 = (startTime1.Hour * 60) + startTime1.Minute;
-            int endMinutes1 = (endTime1.Hour * 60) + endTime1.Minute;
+            int startMinutes1 = (startTime1.Hour * MinutesInAnHour) + startTime1.Minute;
+            int endMinutes1 = (endTime1.Hour * MinutesInAnHour) + endTime1.Minute;
 
             if (endMinutes1 <= startMinutes1)
             {
                 endMinutes1 += MinutesInADay;
             }
 
-            int startMinutes2 = (startTime2.Hour * 60) + startTime2.Minute;
-            int endMinutes2 = (endTime2.Hour * 60) + endTime2.Minute;
+            int startMinutes2 = (startTime2.Hour * MinutesInAnHour) + startTime2.Minute;
+            int endMinutes2 = (endTime2.Hour * MinutesInAnHour) + endTime2.Minute;
 
             if (endMinutes2 <= startMinutes2)
             {
@@ -129,7 +141,7 @@
 
         public void CreateFlightWithSchedule(
             int companyId,
-            string routeType,
+            string? routeTypeDisplayName,
             int airportId,
             int capacity,
             TimeSpan departureOffset,
@@ -144,6 +156,21 @@
             int gateId,
             Func<int, string> flightCodeGenerator)
         {
+            if (companyId <= 0)
+            {
+                throw new InvalidOperationException("A company must be selected before adding a flight.");
+            }
+            if (airportId <= 0 || runwayId <= 0 || gateId <= 0)
+            {
+                throw new InvalidOperationException("Please ensure all required fields are populated.");
+            }
+            if (capacity <= 0)
+            {
+                throw new InvalidOperationException("The provided capacity value is invalid.");
+            }
+
+            string routeType = routeTypeDisplayName == ArrivalText ? ArrivalCode : DepartureCode;
+
             DateTime start = isRecurrent ? startDate?.Date ?? DateTime.Today : singleDate?.Date ?? DateTime.Today;
             DateTime end = isRecurrent ? endDate?.Date ?? start : start;
 
@@ -157,10 +184,12 @@
             {
                 interval = recurrenceType switch
                 {
-                    DailyReccurance => 1,
-                    WeeklyReccurance => 7,
-                    MonthlyReccurance => 30,
-                    CustomReccurance => int.TryParse(customDaysText, out int custom) && custom > 0 ? custom : throw new InvalidOperationException("Invalid custom interval."),
+                    nameof(RecurrenceType.Daily) => DailyIntervalDays,
+                    nameof(RecurrenceType.Weekly) => WeeklyIntervalDays,
+                    nameof(RecurrenceType.Monthly) => MonthlyIntervalDays,
+                    nameof(RecurrenceType.Custom) => int.TryParse(customDaysText, out int custom) && custom > 0
+                                                          ? custom
+                                                          : throw new InvalidOperationException("Invalid custom interval."),
                     _ => throw new InvalidOperationException("A recurrence type is required for recurrent flights.")
                 };
             }
@@ -173,9 +202,8 @@
                 throw new InvalidOperationException("Arrival time cannot be identical to departure time.");
             }
 
-            string flightNum = flightCodeGenerator(companyId);
-
-            this.AddFlightToRoute(companyId, airportId, routeType, interval, start, end, depTime, arrTime, capacity, flightNum, runwayId, gateId);
+            string flightNumber = flightCodeGenerator(companyId);
+            this.AddFlightToRoute(companyId, airportId, routeType, interval, start, end, depTime, arrTime, capacity, flightNumber, runwayId, gateId);
         }
 
         public List<Flight> GetAllFlightsWithDetails()
@@ -227,6 +255,25 @@
             return matchingFlights;
         }
 
+        public List<Flight> SearchFlightsByNumber(List<Flight> flights, string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return flights;
+            }
+
+            List<Flight> matchingFlights = new List<Flight>();
+            foreach (Flight flight in flights)
+            {
+                if (flight.FlightNumber != null && flight.FlightNumber.ToLowerInvariant().Contains(query))
+                {
+                    matchingFlights.Add(flight);
+                }
+            }
+
+            return matchingFlights;
+        }
+
         private bool IsFlightMatch(Flight flight, string query)
         {
             if (flight.FlightNumber != null && flight.FlightNumber.ToLowerInvariant().Contains(query))
@@ -234,7 +281,7 @@
                 return true;
             }
 
-            if (flight.Date.ToString(FullDateFormatting).ToLowerInvariant().Contains(query))
+            if (flight.Date.ToString(FlightDateTimeFormat).ToLowerInvariant().Contains(query))
             {
                 return true;
             }
@@ -324,10 +371,35 @@
         {
             if (flight.Route == null || flight.Route.Airport == null)
             {
-                return "-";
+                return EmptyFieldPlaceholder;
             }
 
             return $"{flight.Route.Airport.AirportCode} - {flight.Route.Airport.AirportName}";
         }
+
+        public FlightSummary BuildFlightSummary(Flight flight, string crewText)
+        {
+            return new FlightSummary
+            {
+                Id = flight.Id,
+                FlightNumber = flight.FlightNumber ?? string.Empty,
+                DateText = flight.Date.ToString(FlightDateTimeFormat),
+                DestinationText = GetDestinationText(flight),
+                RunwayText = flight.Runway?.Name ?? EmptyFieldPlaceholder,
+                GateText = flight.Gate?.Name ?? EmptyFieldPlaceholder,
+                CrewText = crewText
+            };
+        }
+    }
+
+    public class FlightSummary
+    {
+        public int Id { get; set; }
+        public string FlightNumber { get; set; } = string.Empty;
+        public string DateText { get; set; } = string.Empty;
+        public string DestinationText { get; set; } = string.Empty;
+        public string RunwayText { get; set; } = string.Empty;
+        public string GateText { get; set; } = string.Empty;
+        public string CrewText { get; set; } = string.Empty;
     }
 }

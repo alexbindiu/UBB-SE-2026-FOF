@@ -2,6 +2,17 @@ using System.Text;
 
 namespace TicketSellingModule.Data.Services
 {
+    /// <summary>
+    /// One row in the crew-selection dialog.
+    /// </summary>
+    public class CrewMemberSelectionData
+    {
+        public Employee Employee { get; set; } = new();
+        public bool IsSelected { get; set; }
+        public bool IsFirstInRoleGroup { get; set; }
+        public string RoleHeader { get; set; } = string.Empty;
+    }
+
     public class EmployeeFlightService(
         IEmployeeFlightRepository employeeFlightRepository,
         IEmployeeRepository employeeRepository,
@@ -11,9 +22,9 @@ namespace TicketSellingModule.Data.Services
         IRunwayService runwayService,
         IRouteService routeService) : IEmployeeFlightService
     {
-        private const string UnassignedToAnyone = "Unassigned";
-        private const string DateFormatting = "dd MMM yyyy";
-
+        private const string UnnasignedCrew = "Unassigned";
+        private const string FlightDateFormat = "dd MMM yyyy";
+        private const string EmptyFieldPlaceholder = "-";
         public void AssignEmployeeToFlightUsingIds(int flightId, int employeeId)
         {
             if (flightId <= 0 || employeeId <= 0)
@@ -87,7 +98,7 @@ namespace TicketSellingModule.Data.Services
 
             if (crew.Count == 0)
             {
-                return UnassignedToAnyone;
+                return UnnasignedCrew;
             }
 
             StringBuilder crewNames = new StringBuilder();
@@ -157,9 +168,9 @@ namespace TicketSellingModule.Data.Services
                     Id = flight.Id.ToString(),
                     FlightNumber = flight.FlightNumber,
                     FlightType = routeService.NormalizeFlightType(route?.RouteType),
-                    Date = flight.Date.ToString(DateFormatting),
-                    GateName = gate?.Name ?? "-",
-                    RunwayName = runway?.Name ?? "-",
+                    Date = flight.Date.ToString(FlightDateFormat),
+                    GateName = gate?.Name ?? EmptyFieldPlaceholder,
+                    RunwayName = runway?.Name ?? EmptyFieldPlaceholder,
                     FlightTime = routeService.GetRelevantTime(route)
                 });
             }
@@ -256,9 +267,9 @@ namespace TicketSellingModule.Data.Services
                     Id = flight.Id.ToString(),
                     FlightNumber = flight.FlightNumber,
                     FlightType = routeService.NormalizeFlightType(route?.RouteType),
-                    Date = flight.Date.ToString(DateFormatting),
-                    GateName = gate?.Name ?? "-",
-                    RunwayName = runway?.Name ?? "-",
+                    Date = flight.Date.ToString(FlightDateFormat),
+                    GateName = gate?.Name ?? EmptyFieldPlaceholder,
+                    RunwayName = runway?.Name ?? EmptyFieldPlaceholder,
                     FlightTime = routeService.GetRelevantTime(route)
                 });
             }
@@ -266,17 +277,31 @@ namespace TicketSellingModule.Data.Services
             return formattedItems;
         }
 
-        private class FlightDateComparer : IComparer<Flight>
+        public List<CrewMemberSelectionData> GetCrewSelectionData(Flight flight)
         {
-            public int Compare(Flight? firstFlight, Flight? secondFlight)
-            {
-                if (firstFlight == null || secondFlight == null)
-                {
-                    return 0;
-                }
+            List<int> assignedEmployeeIds = employeeFlightRepository.GetEmployeesByFlightId(flight.Id);
+            List<Employee> availableEmployees = this.GetAvailableEmployeesGroupedByRole(flight);
 
-                return firstFlight.Date.CompareTo(secondFlight.Date);
+            List<CrewMemberSelectionData> result = new List<CrewMemberSelectionData>();
+            EmployeeRole? previousRole = null;
+
+            foreach (Employee candidate in availableEmployees)
+            {
+                EmployeeRole currentRole = candidate.Role;
+                bool isFirstInGroup = currentRole != previousRole;
+
+                result.Add(new CrewMemberSelectionData
+                {
+                    Employee = candidate,
+                    IsSelected = assignedEmployeeIds.Contains(candidate.Id),
+                    IsFirstInRoleGroup = isFirstInGroup,
+                    RoleHeader = currentRole.ToString()
+                });
+
+                previousRole = currentRole;
             }
+
+            return result;
         }
 
         public List<Employee> GetAvailableEmployeesGroupedByRole(Flight flight)
@@ -294,6 +319,19 @@ namespace TicketSellingModule.Data.Services
 
             availableEmployees.Sort(new EmployeeRoleAndNameComparer());
             return availableEmployees;
+        }
+
+        private class FlightDateComparer : IComparer<Flight>
+        {
+            public int Compare(Flight? firstFlight, Flight? secondFlight)
+            {
+                if (firstFlight == null || secondFlight == null)
+                {
+                    return 0;
+                }
+
+                return firstFlight.Date.CompareTo(secondFlight.Date);
+            }
         }
 
         private class EmployeeRoleAndNameComparer : IComparer<Employee>

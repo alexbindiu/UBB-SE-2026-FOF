@@ -13,15 +13,15 @@ namespace TicketSellingModule.ViewModel
         IEmployeeFlightService employeeFlightService) : ObservableObject
     {
         private const string PlaceholderValue = "-";
-        private const string DefaultZeroCount = "0";
+        private const string DefaultCount = "0";
 
         private int currentEmployeeId;
 
-        public ObservableCollection<EmployeeScheduleItem> ScheduledFlights { get; } = new();
+        [ObservableProperty] private ObservableCollection<EmployeeScheduleItem> scheduledFlights;
 
         [ObservableProperty] private string employeeIdText = PlaceholderValue;
         [ObservableProperty] private string roleText = PlaceholderValue;
-        [ObservableProperty] private string flightsCountText = DefaultZeroCount;
+        [ObservableProperty] private string flightsCountText = DefaultCount;
         [ObservableProperty] private Visibility emptyStateVisibility = Visibility.Collapsed;
 
         public void Initialize(int employeeId)
@@ -37,31 +37,15 @@ namespace TicketSellingModule.ViewModel
 
         private void LoadEmployeeSchedule(int employeeId)
         {
-            ScheduledFlights.Clear();
-
-            if (employeeId <= 0)
-            {
-                ResetEmployeeInfo();
-                return;
-            }
-
             currentEmployeeId = employeeId;
 
             Employee? employee = employeeService.GetEmployeeById(employeeId);
-            if (employee == null)
-            {
-                ResetEmployeeInfo();
-                return;
-            }
 
             EmployeeIdText = employee.Id.ToString();
             RoleText = employee.Role.ToString();
 
             List<EmployeeScheduleItem> scheduleItems = employeeFlightService.GetFormattedEmployeeSchedule(employeeId);
-            foreach (EmployeeScheduleItem item in scheduleItems)
-            {
-                ScheduledFlights.Add(item);
-            }
+            ScheduledFlights = new ObservableCollection<EmployeeScheduleItem>(scheduleItems);
 
             FlightsCountText = ScheduledFlights.Count.ToString();
 
@@ -73,14 +57,6 @@ namespace TicketSellingModule.ViewModel
             {
                 this.EmptyStateVisibility = Visibility.Collapsed;
             }
-        }
-
-        private void ResetEmployeeInfo()
-        {
-            EmployeeIdText = PlaceholderValue;
-            RoleText = PlaceholderValue;
-            FlightsCountText = DefaultZeroCount;
-            EmptyStateVisibility = Visibility.Visible;
         }
     }
 }

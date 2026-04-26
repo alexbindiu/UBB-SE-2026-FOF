@@ -11,6 +11,8 @@ namespace TicketSellingModule.ViewModel
         IEmployeeService employeeService,
         INavigationService navigationService) : ObservableObject
     {
+        private const string ErrorMessageFailedLogin = "Failed Login";
+
         [ObservableProperty] private string employeeIdText;
         [ObservableProperty] private string errorMessage;
         [ObservableProperty] private Visibility errorVisibility = Visibility.Collapsed;
@@ -18,23 +20,19 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void Login()
         {
-            if (!int.TryParse(EmployeeIdText, out int employeeId))
+            try
             {
-                ShowError("Invalid ID.");
-                return;
-            }
+                int employeeId = employeeService.Login(EmployeeIdText);
 
-            Employee? employee = employeeService.GetEmployeeById(employeeId);
-            if (employee == null)
+                ErrorVisibility = Visibility.Collapsed;
+                ErrorMessage = string.Empty;
+
+                navigationService.NavigateToStaffDashboard(employeeId);
+            }
+            catch (Exception exception)
             {
-                ShowError("ID was not found!");
-                return;
+                ShowError(ErrorMessageFailedLogin + ": " + exception.Message);
             }
-
-            ErrorVisibility = Visibility.Collapsed;
-            ErrorMessage = string.Empty;
-
-            navigationService.NavigateToStaffDashboard(employeeId);
         }
 
         private void ShowError(string message)

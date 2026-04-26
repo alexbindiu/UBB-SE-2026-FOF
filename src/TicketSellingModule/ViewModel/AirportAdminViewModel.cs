@@ -7,7 +7,7 @@ namespace TicketSellingModule.ViewModel
     {
         Flights,
         Employees,
-        Airportonfiguration
+        AirportConfiguration
     }
 
     public partial class AirportAdminViewModel : ObservableObject
@@ -39,7 +39,7 @@ namespace TicketSellingModule.ViewModel
         [RelayCommand]
         private void ShowAirport()
         {
-            SelectedSection = AirportAdminSection.Airportonfiguration;
+            SelectedSection = AirportAdminSection.AirportConfiguration;
         }
     }
 }

@@ -216,5 +216,19 @@ namespace TicketSellingModule.Data.Services
                 ? result
                 : EmployeeRole.Other;
         }
+
+        public int Login(string employeeIdText)
+        {
+            if (!int.TryParse(employeeIdText, out int employeeId))
+            {
+                throw new ArgumentException("Invalid employee ID format.");
+            }
+            Employee? employee = GetEmployeeById(employeeId);
+            if (employee == null)
+            {
+                throw new ArgumentException("Employee not found.");
+            }
+            return employee.Id;
+        }
     }
 }
