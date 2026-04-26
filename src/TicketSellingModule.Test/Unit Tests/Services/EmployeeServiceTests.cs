@@ -1,368 +1,410 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using Moq;
-
-using TicketSellingModule.Data.Repositories.Interfaces;
-using TicketSellingModule.Data.Services.Interfaces;
+﻿using Moq;
 
 namespace TicketSellingModule.Test.Unit_Tests.Services;
 
 public class EmployeeServiceTests
 {
-    [Fact]
-    public void GetAll_Should_Return_All_Employees()
+    private const int TargetEmployeeId = 1;
+    private const int InvalidEmployeeId = 0;
+    private const int InvalidNegativeEmployeeId = -1;
+    private const int GeneratedEmployeeId = 10;
+
+    private const string DefaultName = "Test Employee";
+    private const string UpdatedName = "Updated Name";
+
+    private const int ValidSalary = 1000;
+    private const int UpdatedSalary = 2000;
+    private const int NegativeSalary = -1;
+    private const string ValidSalaryText = "1000";
+    private const string InvalidSalaryText = "abc";
+
+    private static readonly DateOnly ValidBirthday = DateOnly.FromDateTime(DateTime.Today.AddYears(-30));
+    private static readonly DateOnly ValidHiringDate = DateOnly.FromDateTime(DateTime.Today.AddYears(-1));
+    private static readonly DateOnly FutureDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
+    private static readonly DateTimeOffset ValidBirthdayOffset = DateTimeOffset.Now.AddYears(-30);
+    private static readonly DateTimeOffset ValidHiringDateOffset = DateTimeOffset.Now.AddYears(-1);
+    private static readonly DateTimeOffset FutureDateOffset = DateTimeOffset.Now.AddDays(1);
+
+    private static EmployeeService CreateTestService(
+        Mock<IEmployeeRepository>? employeeDataSource = null,
+        Mock<IEmployeeFlightService>? employeeFlightServiceMock = null)
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
-
-        var employees = new List<Employee> { new Employee(), new Employee() };
-        mockEmployeeRepo.Setup(r => r.GetAllEmployees()).Returns(employees);
-
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
-
-        var result = service.GetAllEmployees();
-
-        Assert.Equal(2, result.Count);
+        return new EmployeeService(
+            (employeeDataSource ?? new Mock<IEmployeeRepository>()).Object,
+            (employeeFlightServiceMock ?? new Mock<IEmployeeFlightService>()).Object);
     }
 
     [Fact]
-    public void GetById_Should_Return_Null_For_Invalid_Id()
+    public void GetAllEmployees_ReturnsAllEmployees_WhenEmployeesExist()
     {
-        var service = new EmployeeService(
-            new Mock<IEmployeeRepository>().Object,
-            new Mock<IEmployeeFlightService>().Object);
+        var employeeDataSource = new Mock<IEmployeeRepository>();
+        var existingEmployeesList = new List<Employee> { new Employee(), new Employee() };
 
-        Assert.Null(service.GetEmployeeById(0));
+        employeeDataSource.Setup(getExistingEmployees => getExistingEmployees.GetAllEmployees()).Returns(existingEmployeesList);
+
+        var employeeService = CreateTestService(employeeDataSource: employeeDataSource);
+
+        List<Employee> resultList = employeeService.GetAllEmployees();
+
+        Assert.Equal(2, resultList.Count);
     }
 
     [Fact]
-    public void GetById_Should_Return_Employee_For_Valid_Id()
+    public void GetEmployeeById_ReturnsNull_WhenIdIsInvalid()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
-        var employee = new Employee { Id = 1 };
-        mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Returns(employee);
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
-        var result = service.GetEmployeeById(1);
+        var employeeService = CreateTestService();
+
+        Employee? result = employeeService.GetEmployeeById(InvalidEmployeeId);
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void GetEmployeeById_ReturnsEmployee_WhenIdIsValid()
+    {
+        var employeeDataSource = new Mock<IEmployeeRepository>();
+        var targetEmployee = new Employee { Id = TargetEmployeeId };
+
+        employeeDataSource.Setup(getTargetEmployee => getTargetEmployee.GetEmployeeById(TargetEmployeeId)).Returns(targetEmployee);
+
+        var employeeService = CreateTestService(employeeDataSource: employeeDataSource);
+
+        Employee? result = employeeService.GetEmployeeById(TargetEmployeeId);
+
         Assert.NotNull(result);
-        Assert.Equal(1, result.Id);
+        Assert.Equal(TargetEmployeeId, result.Id);
     }
 
     [Fact]
-    public void GetPilots_Should_Filter_Correctly()
+    public void GetPilots_ReturnsOnlyPilots_WhenMixedRolesExist()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
-
-        var employees = new List<Employee>
+        var employeeDataSource = new Mock<IEmployeeRepository>();
+        var mixedEmployeesList = new List<Employee>
         {
             new Employee { Role = EmployeeRole.Pilot },
             new Employee { Role = EmployeeRole.CoPilot }
         };
 
-        mockEmployeeRepo.Setup(r => r.GetAllEmployees()).Returns(employees);
+        employeeDataSource.Setup(getAllEmplyees => getAllEmplyees.GetAllEmployees()).Returns(mixedEmployeesList);
 
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
+        var employeeService = CreateTestService(employeeDataSource: employeeDataSource);
 
-        var result = service.GetPilots();
+        List<Employee> resultList = employeeService.GetPilots();
 
-        Assert.Single(result);
-        Assert.Equal(EmployeeRole.Pilot, result[0].Role);
+        Assert.Single(resultList);
+        Assert.Equal(EmployeeRole.Pilot, resultList[0].Role);
     }
 
     [Fact]
-    public void GetCoPilots_Should_Filter_Correctly()
+    public void GetCoPilots_ReturnsOnlyCoPilots_WhenMixedRolesExist()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
-
-        var employees = new List<Employee>
+        var employeeDataSource = new Mock<IEmployeeRepository>();
+        var mixedEmployeesList = new List<Employee>
         {
             new Employee { Role = EmployeeRole.Pilot },
             new Employee { Role = EmployeeRole.CoPilot }
         };
 
-        mockEmployeeRepo.Setup(r => r.GetAllEmployees()).Returns(employees);
+        employeeDataSource.Setup(getAllEmployees => getAllEmployees.GetAllEmployees()).Returns(mixedEmployeesList);
 
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
+        var employeeService = CreateTestService(employeeDataSource: employeeDataSource);
 
-        var result = service.GetCoPilots();
+        List<Employee> resultList = employeeService.GetCoPilots();
 
-        Assert.Single(result);
-        Assert.Equal(EmployeeRole.CoPilot, result[0].Role);
+        Assert.Single(resultList);
+        Assert.Equal(EmployeeRole.CoPilot, resultList[0].Role);
     }
 
     [Fact]
-    public void GetFlightAttendants_Should_Filter_Correctly()
+    public void GetFlightAttendants_ReturnsOnlyFlightAttendants_WhenMixedRolesExist()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
-
-        var employees = new List<Employee>
+        var employeeDataSource = new Mock<IEmployeeRepository>();
+        var mixedEmployeesList = new List<Employee>
         {
             new Employee { Role = EmployeeRole.Pilot },
             new Employee { Role = EmployeeRole.FlightAttendant }
         };
 
-        mockEmployeeRepo.Setup(r => r.GetAllEmployees()).Returns(employees);
+        employeeDataSource.Setup(getAllEmployees => getAllEmployees.GetAllEmployees()).Returns(mixedEmployeesList);
 
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
+        var employeeService = CreateTestService(employeeDataSource: employeeDataSource);
 
-        var result = service.GetFlightAttendants();
+        List<Employee> resultList = employeeService.GetFlightAttendants();
 
-        Assert.Single(result);
-        Assert.Equal(EmployeeRole.FlightAttendant, result[0].Role);
+        Assert.Single(resultList);
+        Assert.Equal(EmployeeRole.FlightAttendant, resultList[0].Role);
     }
 
     [Fact]
-    public void GetFlightDispatchers_Should_Filter_Correctly()
+    public void GetFlightDispatchers_ReturnsOnlyDispatchers_WhenMixedRolesExist()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
-
-        var employees = new List<Employee>
+        var employeeDataSource = new Mock<IEmployeeRepository>();
+        var mixedEmployeesList = new List<Employee>
         {
             new Employee { Role = EmployeeRole.Pilot },
             new Employee { Role = EmployeeRole.FlightDispatcher }
         };
 
-        mockEmployeeRepo.Setup(r => r.GetAllEmployees()).Returns(employees);
+        employeeDataSource.Setup(getAllEmployees => getAllEmployees.GetAllEmployees()).Returns(mixedEmployeesList);
 
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
+        var employeeService = CreateTestService(employeeDataSource: employeeDataSource);
 
-        var result = service.GetFlightDispatchers();
+        List<Employee> resultList = employeeService.GetFlightDispatchers();
 
-        Assert.Single(result);
-        Assert.Equal(EmployeeRole.FlightDispatcher, result[0].Role);
+        Assert.Single(resultList);
+        Assert.Equal(EmployeeRole.FlightDispatcher, resultList[0].Role);
     }
 
     [Fact]
-    public void Add_Should_Throw_For_Invalid_Inputs()
+    public void AddEmployee_ThrowsArgumentException_WhenNameIsNull()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
-
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
+        var employeeService = CreateTestService();
 
         Assert.Throws<ArgumentException>(() =>
-            service.AddEmployee(null, EmployeeRole.Pilot, DateOnly.FromDateTime(DateTime.Now), 100, DateOnly.FromDateTime(DateTime.Now)));
+            employeeService.AddEmployee(null!, EmployeeRole.Pilot, ValidBirthday, ValidSalary, ValidHiringDate));
+    }
+
+    [Fact]
+    public void AddEmployee_ThrowsArgumentException_WhenNameIsEmpty()
+    {
+        var employeeService = CreateTestService();
 
         Assert.Throws<ArgumentException>(() =>
-            service.AddEmployee("Test", EmployeeRole.Pilot, DateOnly.FromDateTime(DateTime.Now), -1, DateOnly.FromDateTime(DateTime.Now)));
+            employeeService.AddEmployee(string.Empty, EmployeeRole.Pilot, ValidBirthday, ValidSalary, ValidHiringDate));
     }
 
     [Fact]
-    public void Add_Should_Work()
+    public void AddEmployee_ThrowsArgumentException_WhenNameIsWhitespace()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
+        var employeeService = CreateTestService();
 
-        mockEmployeeRepo.Setup(r => r.AddEmployee(It.IsAny<Employee>())).Returns(10);
-
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
-
-        var result = service.AddEmployee(
-            "Test",
-            EmployeeRole.Pilot,
-            DateOnly.FromDateTime(DateTime.Now.AddYears(-20)),
-            1000,
-            DateOnly.FromDateTime(DateTime.Now.AddYears(-1)));
-
-        Assert.Equal(10, result);
+        Assert.Throws<ArgumentException>(() =>
+            employeeService.AddEmployee("   ", EmployeeRole.Pilot, ValidBirthday, ValidSalary, ValidHiringDate));
     }
 
     [Fact]
-    public void Update_Should_Do_Nothing_If_Not_Found()
+    public void AddEmployee_ThrowsArgumentException_WhenSalaryIsNegative()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
+        var employeeService = CreateTestService();
 
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
-
-        mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Returns((Employee)null);
-
-        service.UpdateEmployee(1, name: "New");
-
-        mockEmployeeRepo.Verify(r => r.UpdateEmployee(It.IsAny<Employee>()), Times.Never);
+        Assert.Throws<ArgumentException>(() =>
+            employeeService.AddEmployee(DefaultName, EmployeeRole.Pilot, ValidBirthday, NegativeSalary, ValidHiringDate));
     }
 
     [Fact]
-    public void Update_Should_Update_All_Fields()
+    public void AddEmployee_ThrowsArgumentException_WhenBirthdayIsInFuture()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
+        var employeeService = CreateTestService();
 
-        var employee = new Employee { Id = 1, Name = "Old" };
+        Assert.Throws<ArgumentException>(() =>
+            employeeService.AddEmployee(DefaultName, EmployeeRole.Pilot, FutureDate, ValidSalary, ValidHiringDate));
+    }
 
-        mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Returns(employee);
+    [Fact]
+    public void AddEmployee_ThrowsArgumentException_WhenHiringDateIsInFuture()
+    {
+        var employeeService = CreateTestService();
 
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
-        service.UpdateEmployee(1,
-            name: "New",
+        Assert.Throws<ArgumentException>(() =>
+            employeeService.AddEmployee(DefaultName, EmployeeRole.Pilot, ValidBirthday, ValidSalary, FutureDate));
+    }
+
+    [Fact]
+    public void AddEmployee_ReturnsGeneratedId_WhenArgumentsAreValid()
+    {
+        var employeeDataSource = new Mock<IEmployeeRepository>();
+
+        employeeDataSource.Setup(addEmployeeToRepo => addEmployeeToRepo.AddEmployee(It.IsAny<Employee>())).Returns(GeneratedEmployeeId);
+
+        var employeeService = CreateTestService(employeeDataSource: employeeDataSource);
+
+        int resultId = employeeService.AddEmployee(DefaultName, EmployeeRole.Pilot, ValidBirthday, ValidSalary, ValidHiringDate);
+
+        Assert.Equal(GeneratedEmployeeId, resultId);
+    }
+
+    [Fact]
+    public void UpdateEmployee_DoesNotCallRepository_WhenEmployeeNotFound()
+    {
+        var employeeDataSourceThatReturnsNull = new Mock<IEmployeeRepository>();
+        employeeDataSourceThatReturnsNull.Setup(getNullInsteadOfEmployee => getNullInsteadOfEmployee.GetEmployeeById(TargetEmployeeId)).Returns((Employee?)null);
+
+        var employeeService = CreateTestService(employeeDataSource: employeeDataSourceThatReturnsNull);
+
+        employeeService.UpdateEmployee(TargetEmployeeId, name: UpdatedName);
+
+        employeeDataSourceThatReturnsNull.Verify(doesNotCallRepository => doesNotCallRepository.UpdateEmployee(It.IsAny<Employee>()), Times.Never);
+    }
+
+    [Fact]
+    public void UpdateEmployee_UpdatesProvidedFields_WhenEmployeeIsFound()
+    {
+        var employeeDataSource = new Mock<IEmployeeRepository>();
+        var targetEmployee = new Employee { Id = TargetEmployeeId, Name = DefaultName };
+
+        employeeDataSource.Setup(getTargetEmployee => getTargetEmployee.GetEmployeeById(TargetEmployeeId)).Returns(targetEmployee);
+
+        var employeeService = CreateTestService(employeeDataSource: employeeDataSource);
+
+        employeeService.UpdateEmployee(
+            TargetEmployeeId,
+            name: UpdatedName,
             role: EmployeeRole.CoPilot,
-            salary: 2000,
-            birthday: DateOnly.FromDateTime(DateTime.Now.AddYears(-30)),
-            hiringDate: DateOnly.FromDateTime(DateTime.Now.AddYears(-1)));
+            salary: UpdatedSalary,
+            birthday: ValidBirthday,
+            hiringDate: ValidHiringDate);
 
-        Assert.Equal("New", employee.Name);
-        Assert.Equal(2000, employee.Salary);
+        Assert.Equal(UpdatedName, targetEmployee.Name);
+        Assert.Equal(UpdatedSalary, targetEmployee.Salary);
+        Assert.Equal(EmployeeRole.CoPilot, targetEmployee.Role);
 
-        mockEmployeeRepo.Verify(r => r.UpdateEmployee(employee), Times.Once);
+        employeeDataSource.Verify(repositoryGetsCalledToUpdateTheEmployee => repositoryGetsCalledToUpdateTheEmployee.UpdateEmployee(targetEmployee), Times.Once);
     }
 
     [Fact]
-    public void Delete_Should_Not_Call_Repo_For_Invalid_Id()
+    public void DeleteEmployeeUsingId_DoesNotCallRepository_WhenIdIsInvalid()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
+        var employeeDataSource = new Mock<IEmployeeRepository>();
+        var employeeService = CreateTestService(employeeDataSource: employeeDataSource);
 
-        service.DeleteEmployeeUsingId(0);
+        employeeService.DeleteEmployeeUsingId(InvalidEmployeeId);
 
-        mockEmployeeRepo.Verify(r => r.DeleteEmployee(It.IsAny<int>()), Times.Never);
+        employeeDataSource.Verify(doesNotCallRepository => doesNotCallRepository.DeleteEmployee(It.IsAny<int>()), Times.Never);
     }
 
     [Fact]
-    public void DeleteWithAssignments_Should_Call_Cleanup_And_Delete()
+    public void DeleteWithAssignments_ThrowsArgumentException_WhenIdIsInvalid()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
+        var employeeService = CreateTestService();
 
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
-
-        service.DeleteWithAssignments(1);
-
-        mockEmployeeFlightService.Verify(r => r.RemoveAllFlightsAssignmentsForEmployee(1), Times.Once);
-        mockEmployeeRepo.Verify(r => r.DeleteEmployee(1), Times.Once);
+        Assert.Throws<ArgumentException>(() => employeeService.DeleteWithAssignments(InvalidEmployeeId));
+        Assert.Throws<ArgumentException>(() => employeeService.DeleteWithAssignments(InvalidNegativeEmployeeId));
     }
 
     [Fact]
-    public void SaveEmployee_Should_Throw_For_Null_Employee()
+    public void DeleteWithAssignments_CallsCleanupAndDelete_WhenIdIsValid()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
+        var employeeDataSource = new Mock<IEmployeeRepository>();
+        var employeeFlightServiceMock = new Mock<IEmployeeFlightService>();
 
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
+        var employeeService = CreateTestService(
+            employeeDataSource: employeeDataSource,
+            employeeFlightServiceMock: employeeFlightServiceMock);
+
+        employeeService.DeleteWithAssignments(TargetEmployeeId);
+
+        employeeFlightServiceMock.Verify(repoGetsCalledToRemoveAllFlightsAssignedToEmployee => repoGetsCalledToRemoveAllFlightsAssignedToEmployee.RemoveAllFlightsAssignmentsForEmployee(TargetEmployeeId), Times.Once);
+        employeeDataSource.Verify(repoGetsCalledToDeleteEmployee => repoGetsCalledToDeleteEmployee.DeleteEmployee(TargetEmployeeId), Times.Once);
+    }
+
+    [Fact]
+    public void SaveEmployee_ThrowsArgumentException_WhenEmployeeIsNull()
+    {
+        var employeeService = CreateTestService();
 
         Assert.Throws<ArgumentException>(() =>
-            service.SaveEmployee(null, DateTimeOffset.Now, DateTimeOffset.Now, "100"));
+            employeeService.SaveEmployee(null!, ValidBirthdayOffset, ValidHiringDateOffset, ValidSalaryText));
     }
 
     [Fact]
-    public void SaveEmployee_Should_Throw_For_Invalid_Salary()
+    public void SaveEmployee_ThrowsArgumentException_WhenSalaryIsInvalidFormat()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
-
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
-
-        var employee = new Employee();
+        var employeeService = CreateTestService();
+        var targetEmployee = new Employee();
 
         Assert.Throws<ArgumentException>(() =>
-            service.SaveEmployee(employee, DateTimeOffset.Now, DateTimeOffset.Now, "abc"));
+            employeeService.SaveEmployee(targetEmployee, ValidBirthdayOffset, ValidHiringDateOffset, InvalidSalaryText));
     }
 
     [Fact]
-    public void SaveEmployee_Should_Call_Add_For_New_Employee()
+    public void SaveEmployee_ThrowsArgumentException_WhenBirthdayIsNull()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
+        var employeeService = CreateTestService();
+        var targetEmployee = new Employee { Id = TargetEmployeeId, Name = DefaultName };
 
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
+        Assert.Throws<ArgumentException>(() =>
+            employeeService.SaveEmployee(targetEmployee, null, ValidHiringDateOffset, ValidSalaryText));
+    }
+    [Fact]
+    public void SaveEmployee_ThrowsArgumentException_WhenHiringDateIsNull()
+    {
+        var employeeService = CreateTestService();
+        var targetEmployee = new Employee { Id = TargetEmployeeId, Name = DefaultName };
 
-        var employee = new Employee
+        Assert.Throws<ArgumentException>(() =>
+            employeeService.SaveEmployee(targetEmployee, ValidBirthdayOffset, null, ValidSalaryText));
+    }
+
+    [Fact]
+    public void SaveEmployee_ThrowsArgumentException_WhenBirthdayIsInFuture()
+    {
+        var employeeService = CreateTestService();
+        var targetEmployee = new Employee { Id = TargetEmployeeId, Name = DefaultName };
+
+        Assert.Throws<ArgumentException>(() =>
+            employeeService.SaveEmployee(targetEmployee, FutureDateOffset, ValidHiringDateOffset, ValidSalaryText));
+    }
+
+    [Fact]
+    public void SaveEmployee_CallsAddEmployee_WhenEmployeeIdIsZero()
+    {
+        var employeeDataSource = new Mock<IEmployeeRepository>();
+        var employeeService = CreateTestService(employeeDataSource: employeeDataSource);
+
+        var newEmployee = new Employee
         {
             Id = 0,
-            Name = "Test",
+            Name = DefaultName,
             Role = EmployeeRole.Pilot
         };
 
-        mockEmployeeRepo.Setup(r => r.AddEmployee(It.IsAny<Employee>())).Returns(1);
+        employeeDataSource.Setup(employeeSource => employeeSource.AddEmployee(It.IsAny<Employee>())).Returns(TargetEmployeeId);
 
-        service.SaveEmployee(employee,
-            DateTimeOffset.Now.AddYears(-20),
-            DateTimeOffset.Now.AddYears(-1),
-            "1000");
+        employeeService.SaveEmployee(
+            newEmployee,
+            ValidBirthdayOffset,
+            ValidHiringDateOffset,
+            ValidSalaryText);
 
-        mockEmployeeRepo.Verify(r => r.AddEmployee(It.IsAny<Employee>()), Times.Once);
+        employeeDataSource.Verify(employeeSource => employeeSource.AddEmployee(It.IsAny<Employee>()), Times.Once);
     }
 
     [Fact]
-    public void SaveEmployee_Should_Call_Update_For_Existing_Employee()
+    public void SaveEmployee_CallsUpdateEmployee_WhenEmployeeIdIsNotZero()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
+        var employeeDataSource = new Mock<IEmployeeRepository>();
 
-        var emp = new Employee
+        var existingEmployee = new Employee
         {
-            Id = 1,
-            Name = "Test",
+            Id = TargetEmployeeId,
+            Name = DefaultName,
             Role = EmployeeRole.Pilot
         };
 
-        mockEmployeeRepo.Setup(r => r.GetEmployeeById(1)).Returns(emp);
+        employeeDataSource.Setup(employeeSource => employeeSource.GetEmployeeById(TargetEmployeeId)).Returns(existingEmployee);
 
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
+        var employeeService = CreateTestService(employeeDataSource: employeeDataSource);
 
-        service.SaveEmployee(emp,
-            DateTimeOffset.Now.AddYears(-20),
-            DateTimeOffset.Now.AddYears(-1),
-            "1000");
+        employeeService.SaveEmployee(
+            existingEmployee,
+            ValidBirthdayOffset,
+            ValidHiringDateOffset,
+            ValidSalaryText);
 
-        mockEmployeeRepo.Verify(r => r.UpdateEmployee(It.IsAny<Employee>()), Times.Once);
+        employeeDataSource.Verify(employeeSource => employeeSource.UpdateEmployee(It.IsAny<Employee>()), Times.Once);
     }
 
     [Fact]
-    public void SaveEmployee_Should_Throw_For_Missing_Dates_And_Future_Birthday()
+    public void DeleteWithAssignments_ThrowsArgumentException_WhenIdIsZero()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
-        var employee = new Employee { Id = 1, Name = "Test" };
-
-        Assert.Throws<ArgumentException>(() =>
-            service.SaveEmployee(employee, null, DateTimeOffset.Now, "1000"));
-        Assert.Throws<ArgumentException>(() =>
-            service.SaveEmployee(employee, DateTimeOffset.Now, null, "1000"));
-
-        var futureDate = DateTimeOffset.Now.AddDays(1);
-        Assert.Throws<ArgumentException>(() =>
-            service.SaveEmployee(employee, futureDate, DateTimeOffset.Now, "1000"));
+        var employeeService = CreateTestService();
+        Assert.Throws<ArgumentException>(() => employeeService.DeleteWithAssignments(InvalidEmployeeId));
     }
 
     [Fact]
-    public void DeleteWithAssignments_Should_Throw_For_Invalid_Id()
+    public void DeleteWithAssignments_ThrowsArgumentException_WhenIdIsNegative()
     {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
-
-        Assert.Throws<ArgumentException>(() => service.DeleteWithAssignments(0));
-        Assert.Throws<ArgumentException>(() => service.DeleteWithAssignments(-1));
-    }
-
-    [Fact]
-    public void AddEmployee_Should_Throw_For_Empty_Name_And_Future_Dates()
-    {
-        var mockEmployeeRepo = new Mock<IEmployeeRepository>();
-        var mockEmployeeFlightService = new Mock<IEmployeeFlightService>();
-        var service = new EmployeeService(mockEmployeeRepo.Object, mockEmployeeFlightService.Object);
-
-        var today = DateOnly.FromDateTime(DateTime.Now);
-        var future = today.AddDays(1);
-        var past = today.AddDays(-1);
-
-        Assert.Throws<ArgumentException>(() =>
-            service.AddEmployee(string.Empty, EmployeeRole.Pilot, past, 1000, past));
-        Assert.Throws<ArgumentException>(() =>
-            service.AddEmployee("   ", EmployeeRole.Pilot, past, 1000, past));
-
-        Assert.Throws<ArgumentException>(() =>
-            service.AddEmployee("Name", EmployeeRole.Pilot, future, 1000, past));
-
-        Assert.Throws<ArgumentException>(() =>
-            service.AddEmployee("Name", EmployeeRole.Pilot, past, 1000, future));
+        var employeeService = CreateTestService();
+        Assert.Throws<ArgumentException>(() => employeeService.DeleteWithAssignments(-1));
     }
 }

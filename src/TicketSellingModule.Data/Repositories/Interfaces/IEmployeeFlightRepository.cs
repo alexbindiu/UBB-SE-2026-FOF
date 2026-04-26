@@ -2,7 +2,7 @@
 
 public interface IEmployeeFlightRepository
 {
-    void AssignFlightToEmployeesUsingIds(int employeeId, int flightId);
+    void AssignFlightToEmployeeUsingIds(int employeeId, int flightId);
     void RemoveFlightFromEmployeeUsingIds(int employeeId, int flightId);
     List<int> GetFlightsByEmployeeId(int employeeId);
     List<int> GetEmployeesByFlightId(int flightId);
