@@ -1,4 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
@@ -18,7 +21,7 @@ namespace TicketSellingModule.ViewModel
 
     public partial class AirportDashboardViewModel(
       IAirportService airportService, IRunwayService runwayService,
-      IGateService gateService) : ObservableObject
+      IGateService gateService) : INotifyPropertyChanged
     {
         private const string WarningConfirmationMessage = "Are you sure you want to delete the selected item?";
         private const string NewRunwayDialogTitle = "Register New Runway";
@@ -29,27 +32,276 @@ namespace TicketSellingModule.ViewModel
         private const string EditAirportDialogTitle = "Edit Existing Airport";
         private const int DefaultEditingId = 0;
 
-        [ObservableProperty] private ObservableCollection<Runway> runwaysList;
-        [ObservableProperty] private ObservableCollection<Gate> gatesList;
-        [ObservableProperty] private ObservableCollection<Airport> airportsList;
-        [ObservableProperty] private Runway? selectedRunway;
-        [ObservableProperty] private Gate? selectedGate;
-        [ObservableProperty] private Airport? selectedAirport;
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        [ObservableProperty] private Visibility dialogVisibility = Visibility.Collapsed;
-        [ObservableProperty] private string dialogTitle = string.Empty;
-        [ObservableProperty] private string dialogErrorMessage = string.Empty;
-        [ObservableProperty] private Visibility handleTimeVisibility = Visibility.Collapsed;
-        [ObservableProperty] private Visibility cityCodeVisibility = Visibility.Collapsed;
+        private ObservableCollection<Runway> runwaysList;
 
-        [ObservableProperty] private int editingId;
-        [ObservableProperty] private string editingName = string.Empty;
-        [ObservableProperty] private string editingHandleTimeText = string.Empty;
-        [ObservableProperty] private string editingCity = string.Empty;
-        [ObservableProperty] private string editingCode = string.Empty;
+        public ObservableCollection<Runway> RunwaysList
+        {
+            get => runwaysList;
+            set
+            {
+                if (runwaysList != value)
+                {
+                    runwaysList = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
-        [ObservableProperty] private Visibility deleteConfirmationVisibility = Visibility.Collapsed;
-        [ObservableProperty] private string deleteWarningMessage = string.Empty;
+        private ObservableCollection<Gate> gatesList;
+
+        public ObservableCollection<Gate> GatesList
+        {
+            get => gatesList;
+            set
+            {
+                if (gatesList != value)
+                {
+                    gatesList = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private ObservableCollection<Airport> airportsList;
+
+        public ObservableCollection<Airport> AirportsList
+        {
+            get => airportsList;
+            set
+            {
+                if (airportsList != value)
+                {
+                    airportsList = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Runway? selectedRunway;
+
+        public Runway? SelectedRunway
+        {
+            get => selectedRunway;
+            set
+            {
+                if (selectedRunway != value)
+                {
+                    selectedRunway = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Gate? selectedGate;
+
+        public Gate? SelectedGate
+        {
+            get => selectedGate;
+            set
+            {
+                if (selectedGate != value)
+                {
+                    selectedGate = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Airport? selectedAirport;
+
+        public Airport? SelectedAirport
+        {
+            get => selectedAirport;
+            set
+            {
+                if (selectedAirport != value)
+                {
+                    selectedAirport = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Visibility dialogVisibility = Visibility.Collapsed;
+
+        public Visibility DialogVisibility
+        {
+            get => dialogVisibility;
+            set
+            {
+                if (dialogVisibility != value)
+                {
+                    dialogVisibility = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string dialogTitle = string.Empty;
+
+        public string DialogTitle
+        {
+            get => dialogTitle;
+            set
+            {
+                if (dialogTitle != value)
+                {
+                    dialogTitle = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string dialogErrorMessage = string.Empty;
+
+        public string DialogErrorMessage
+        {
+            get => dialogErrorMessage;
+            set
+            {
+                if (dialogErrorMessage != value)
+                {
+                    dialogErrorMessage = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Visibility handleTimeVisibility = Visibility.Collapsed;
+
+        public Visibility HandleTimeVisibility
+        {
+            get => handleTimeVisibility;
+            set
+            {
+                if (handleTimeVisibility != value)
+                {
+                    handleTimeVisibility = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Visibility cityCodeVisibility = Visibility.Collapsed;
+
+        public Visibility CityCodeVisibility
+        {
+            get => cityCodeVisibility;
+            set
+            {
+                if (cityCodeVisibility != value)
+                {
+                    cityCodeVisibility = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int editingId;
+
+        public int EditingId
+        {
+            get => editingId;
+            set
+            {
+                if (editingId != value)
+                {
+                    editingId = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string editingName = string.Empty;
+
+        public string EditingName
+        {
+            get => editingName;
+            set
+            {
+                if (editingName != value)
+                {
+                    editingName = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string editingHandleTimeText = string.Empty;
+
+        public string EditingHandleTimeText
+        {
+            get => editingHandleTimeText;
+            set
+            {
+                if (editingHandleTimeText != value)
+                {
+                    editingHandleTimeText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string editingCity = string.Empty;
+
+        public string EditingCity
+        {
+            get => editingCity;
+            set
+            {
+                if (editingCity != value)
+                {
+                    editingCity = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string editingCode = string.Empty;
+
+        public string EditingCode
+        {
+            get => editingCode;
+            set
+            {
+                if (editingCode != value)
+                {
+                    editingCode = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Visibility deleteConfirmationVisibility = Visibility.Collapsed;
+
+        public Visibility DeleteConfirmationVisibility
+        {
+            get => deleteConfirmationVisibility;
+            set
+            {
+                if (deleteConfirmationVisibility != value)
+                {
+                    deleteConfirmationVisibility = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        private string deleteWarningMessage = string.Empty;
+
+        public string DeleteWarningMessage
+        {
+            get => deleteWarningMessage;
+            set
+            {
+                if (deleteWarningMessage != value)
+                {
+                    deleteWarningMessage = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         private Dictionary<AirportDashboardEntity, Action> SaveRegistry => new()
         {
@@ -309,6 +561,11 @@ namespace TicketSellingModule.ViewModel
             itemPendingDeletion = SelectedAirport;
             DeleteWarningMessage = this.ConstructDeleteWarningMessage(itemPendingDeletion);
             DeleteConfirmationVisibility = Visibility.Visible;
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

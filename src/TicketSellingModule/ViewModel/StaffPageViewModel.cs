@@ -1,6 +1,10 @@
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
+using Microsoft.Extensions.Primitives;
 using Microsoft.UI.Xaml;
 
 using TicketSellingModule.Data;
@@ -10,19 +14,89 @@ namespace TicketSellingModule.ViewModel
 {
     public partial class StaffPageViewModel(
         IEmployeeService employeeService,
-        IEmployeeFlightService employeeFlightService) : ObservableObject
+        IEmployeeFlightService employeeFlightService) : INotifyPropertyChanged
     {
         private const string PlaceholderValue = "-";
         private const string DefaultCount = "0";
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private int currentEmployeeId;
 
-        [ObservableProperty] private ObservableCollection<EmployeeScheduleItem> scheduledFlights;
+        private ObservableCollection<EmployeeScheduleItem> scheduledFlights;
 
-        [ObservableProperty] private string employeeIdText = PlaceholderValue;
-        [ObservableProperty] private string roleText = PlaceholderValue;
-        [ObservableProperty] private string flightsCountText = DefaultCount;
-        [ObservableProperty] private Visibility emptyStateVisibility = Visibility.Collapsed;
+        public ObservableCollection<EmployeeScheduleItem> ScheduledFlights
+        {
+            get => scheduledFlights;
+            set
+            {
+                if (scheduledFlights != value)
+                {
+                    scheduledFlights = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string employeeIdText = PlaceholderValue;
+
+        public string EmployeeIdText
+        {
+            get => employeeIdText;
+            set
+            {
+                if (employeeIdText != value)
+                {
+                    employeeIdText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string roleText = PlaceholderValue;
+
+        public string RoleText
+        {
+            get => roleText;
+            set
+            {
+                if (roleText != value)
+                {
+                    roleText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string flightsCountText = DefaultCount;
+
+        public string FlightsCountText
+        {
+            get => flightsCountText;
+            set
+            {
+                if (flightsCountText != value)
+                {
+                    flightsCountText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Visibility emptyStateVisibility = Visibility.Collapsed;
+
+        public Visibility EmptyStateVisibility
+        {
+            get => emptyStateVisibility;
+            set
+            {
+                if (emptyStateVisibility != value)
+                {
+                    emptyStateVisibility = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public void Initialize(int employeeId)
         {
@@ -57,6 +131,11 @@ namespace TicketSellingModule.ViewModel
             {
                 this.EmptyStateVisibility = Visibility.Collapsed;
             }
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
