@@ -1,3 +1,6 @@
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -9,13 +12,56 @@ namespace TicketSellingModule.ViewModel
 {
     public partial class StaffLoginViewModel(
         IEmployeeService employeeService,
-        INavigationService navigationService) : ObservableObject
+        INavigationService navigationService) : INotifyPropertyChanged
     {
         private const string ErrorMessageFailedLogin = "Failed Login";
 
-        [ObservableProperty] private string employeeIdText;
-        [ObservableProperty] private string errorMessage;
-        [ObservableProperty] private Visibility errorVisibility = Visibility.Collapsed;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private string employeeIdText;
+
+        public string EmployeeIdText
+        {
+            get => employeeIdText;
+            set
+            {
+                if (employeeIdText != value)
+                {
+                    employeeIdText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string errorMessage;
+
+        public string ErrorMessage
+        {
+            get => errorMessage;
+            set
+            {
+                if (errorMessage != value)
+                {
+                    errorMessage = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Visibility errorVisibility = Visibility.Collapsed;
+
+        public Visibility ErrorVisibility
+        {
+            get => errorVisibility;
+            set
+            {
+                if (errorVisibility != value)
+                {
+                    errorVisibility = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         [RelayCommand]
         private void Login()
@@ -39,6 +85,11 @@ namespace TicketSellingModule.ViewModel
         {
             ErrorMessage = message;
             ErrorVisibility = Visibility.Visible;
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
