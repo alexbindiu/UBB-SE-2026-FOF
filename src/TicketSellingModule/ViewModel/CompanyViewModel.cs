@@ -322,6 +322,7 @@ namespace TicketSellingModule.ViewModel
             catch (Exception exception)
             {
                 //--intent: silent catch for bulk operations.
+                // test comment
             }
         }
         public void AddFlightFromInputs()
