@@ -9,4 +9,5 @@ public interface IRunwayService
     void DeleteRunwayUsingId(int runwayId);
     void SaveRunway(int runwayId, string name, string handleTimeText);
     bool HasFlights(int runwayId);
+    string GetDeleteWarningMessage(int runwayId);
 }

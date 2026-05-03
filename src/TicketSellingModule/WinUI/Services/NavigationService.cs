@@ -22,19 +22,28 @@ namespace TicketSellingModule.WinUI.Services
             this.frame = frame;
         }
 
-        public void NavigateToHome() =>
+        public void NavigateToHome()
+        {
             frame.Navigate(typeof(HomePage), services.GetRequiredService<HomeViewModel>());
+        }
 
-        public void NavigateToSelectCompany() =>
+        public void NavigateToSelectCompany()
+        {
             frame.Navigate(typeof(SelectCompanyPage), services.GetRequiredService<SelectCompanyViewModel>());
+        }
 
-        public void NavigateToCompanyDashboard(int companyId) =>
+        public void NavigateToCompanyDashboard(int companyId)
+        {
             frame.Navigate(typeof(CompanyPage), (services.GetRequiredService<CompanyViewModel>(), companyId));
+        }
 
-        public void NavigateToStaffLogin() =>
+        public void NavigateToStaffLogin()
+        {
             frame.Navigate(typeof(StaffLoginPage), services.GetRequiredService<StaffLoginViewModel>());
+        }
 
-        public void NavigateToAirportAdmin() =>
+        public void NavigateToAirportAdmin()
+        {
             frame.Navigate(
                 typeof(AirportAdminPage),
                 (
@@ -42,8 +51,11 @@ namespace TicketSellingModule.WinUI.Services
                     services.GetRequiredService<FlightsDashboardViewModel>(),
                     services.GetRequiredService<EmployeesDashboardViewModel>(),
                     services.GetRequiredService<AirportDashboardViewModel>()));
+        }
 
-        public void NavigateToStaffDashboard(int employeeId) =>
+        public void NavigateToStaffDashboard(int employeeId)
+        {
             frame.Navigate(typeof(StaffPage), (services.GetRequiredService<StaffPageViewModel>(), employeeId));
+        }
     }
 }

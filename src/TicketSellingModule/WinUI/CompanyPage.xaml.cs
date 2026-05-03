@@ -8,6 +8,10 @@ namespace TicketSellingModule.WinUI
 {
     public sealed partial class CompanyPage : Page
     {
+        private const string DefaultErrorTitle = "Error Saving Flight";
+        private const string DefaultErrorContent = "Please ensure all fields are filled correctly: ";
+        private const string DefaultErrorCloseButtonText = "Ok";
+
         public CompanyViewModel ViewModel { get; private set; } = null!;
 
         public CompanyPage()
@@ -23,15 +27,15 @@ namespace TicketSellingModule.WinUI
             {
                 ViewModel = context.Item1;
                 DataContext = ViewModel;
-                ViewModel.LoadGates();
-                ViewModel.LoadRunways();
-                ViewModel.InitializeCompany(context.Item2);
+                ViewModel.RefreshGatesList();
+                ViewModel.RefreshRunwaysList();
+                ViewModel.InitializeCompanyDashboard(context.Item2);
             }
         }
 
         private async void AddFlightButton_Click(object sender, RoutedEventArgs e)
         {
-            ViewModel.ClearInputs();
+            ViewModel.ResetInputFields();
             await AddFlightDialog.ShowAsync();
         }
 
@@ -47,9 +51,9 @@ namespace TicketSellingModule.WinUI
                 sender.Hide();
                 var errorDialog = new ContentDialog
                 {
-                    Title = "Error Saving Flight",
-                    Content = "Please ensure all fields are filled correctly: " + ex.Message,
-                    CloseButtonText = "Ok",
+                    Title = DefaultErrorTitle,
+                    Content = DefaultErrorContent + ex.Message,
+                    CloseButtonText = DefaultErrorCloseButtonText,
                     XamlRoot = XamlRoot
                 };
                 await errorDialog.ShowAsync();

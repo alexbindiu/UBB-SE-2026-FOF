@@ -1,104 +1,375 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
 
-using TicketSellingModule.Data.Services.Interfaces;
-
 namespace TicketSellingModule.ViewModel
 {
-    public partial class AirportDashboardViewModel : ObservableObject
+    /// <summary>
+    /// Represents the types of entities manageable within the airport dashboard.
+    /// </summary>
+    public enum AirportDashboardEntity
     {
-        private readonly IAirportService airportService;
-        private readonly IRunwayService runwayService;
-        private readonly IGateService gateService;
+        None,
+        Runway,
+        Gate,
+        Airport
+    }
 
-        public ObservableCollection<Runway> RunwaysList { get; } = new();
-        public ObservableCollection<Gate> GatesList { get; } = new();
-        public ObservableCollection<Airport> AirportsList { get; } = new();
+    public partial class AirportDashboardViewModel(
+      IAirportService airportService, IRunwayService runwayService,
+      IGateService gateService) : INotifyPropertyChanged
+    {
+        private const string WarningConfirmationMessage = "Are you sure you want to delete the selected item?";
+        private const string NewRunwayDialogTitle = "Register New Runway";
+        private const string EditRunwayDialogTitle = "Edit Existing Runway";
+        private const string NewGateDialogTitle = "Register New Gate";
+        private const string EditGateDialogTitle = "Edit Existing Gate";
+        private const string NewAirportDialogTitle = "Register New Airport";
+        private const string EditAirportDialogTitle = "Edit Existing Airport";
+        private const int DefaultEditingId = 0;
 
-        [ObservableProperty] private Runway? selectedRunway;
-        [ObservableProperty] private Gate? selectedGate;
-        [ObservableProperty] private Airport? selectedAirport;
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        [ObservableProperty] private Visibility dialogVisibility = Visibility.Collapsed;
-        [ObservableProperty] private string dialogTitle = string.Empty;
-        [ObservableProperty] private string dialogErrorMessage = string.Empty;
-        [ObservableProperty] private Visibility handleTimeVisibility = Visibility.Collapsed;
-        [ObservableProperty] private Visibility cityCodeVisibility = Visibility.Collapsed;
+        private ObservableCollection<Runway> runwaysList;
 
-        [ObservableProperty] private int editingId;
-        [ObservableProperty] private string editingName = string.Empty;
-        [ObservableProperty] private string editingHandleTimeText = string.Empty;
-        [ObservableProperty] private string editingCity = string.Empty;
-        [ObservableProperty] private string editingCode = string.Empty;
-
-        [ObservableProperty] private Visibility deleteConfirmationVisibility = Visibility.Collapsed;
-        [ObservableProperty] private string deleteWarningMessage;
-        private object itemToDelete;
-
-        private string currentEntity = string.Empty;
-
-        public AirportDashboardViewModel(
-            IAirportService airportService,
-            IRunwayService runwayService,
-            IGateService gateService)
+        public ObservableCollection<Runway> RunwaysList
         {
-            this.airportService = airportService;
-            this.runwayService = runwayService;
-            this.gateService = gateService;
-        }
-
-        [RelayCommand]
-        public void LoadData()
-        {
-            var runways = runwayService.GetAllRunways();
-            RunwaysList.Clear();
-            foreach (var r in runways)
+            get => runwaysList;
+            set
             {
-                RunwaysList.Add(r);
-            }
-
-            var gates = gateService.GetAllGates();
-            GatesList.Clear();
-            foreach (var g in gates)
-            {
-                GatesList.Add(g);
-            }
-
-            var airports = airportService.GetAllAirports();
-            AirportsList.Clear();
-            foreach (var a in airports)
-            {
-                AirportsList.Add(a);
+                if (runwaysList != value)
+                {
+                    runwaysList = value;
+                    OnPropertyChanged();
+                }
             }
         }
 
-        [RelayCommand]
-        private void OpenAddRunway()
+        private ObservableCollection<Gate> gatesList;
+
+        public ObservableCollection<Gate> GatesList
         {
-            currentEntity = "Runway";
-            EditingId = 0;
+            get => gatesList;
+            set
+            {
+                if (gatesList != value)
+                {
+                    gatesList = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private ObservableCollection<Airport> airportsList;
+
+        public ObservableCollection<Airport> AirportsList
+        {
+            get => airportsList;
+            set
+            {
+                if (airportsList != value)
+                {
+                    airportsList = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Runway? selectedRunway;
+
+        public Runway? SelectedRunway
+        {
+            get => selectedRunway;
+            set
+            {
+                if (selectedRunway != value)
+                {
+                    selectedRunway = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Gate? selectedGate;
+
+        public Gate? SelectedGate
+        {
+            get => selectedGate;
+            set
+            {
+                if (selectedGate != value)
+                {
+                    selectedGate = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Airport? selectedAirport;
+
+        public Airport? SelectedAirport
+        {
+            get => selectedAirport;
+            set
+            {
+                if (selectedAirport != value)
+                {
+                    selectedAirport = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Visibility dialogVisibility = Visibility.Collapsed;
+
+        public Visibility DialogVisibility
+        {
+            get => dialogVisibility;
+            set
+            {
+                if (dialogVisibility != value)
+                {
+                    dialogVisibility = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string dialogTitle = string.Empty;
+
+        public string DialogTitle
+        {
+            get => dialogTitle;
+            set
+            {
+                if (dialogTitle != value)
+                {
+                    dialogTitle = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string dialogErrorMessage = string.Empty;
+
+        public string DialogErrorMessage
+        {
+            get => dialogErrorMessage;
+            set
+            {
+                if (dialogErrorMessage != value)
+                {
+                    dialogErrorMessage = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Visibility handleTimeVisibility = Visibility.Collapsed;
+
+        public Visibility HandleTimeVisibility
+        {
+            get => handleTimeVisibility;
+            set
+            {
+                if (handleTimeVisibility != value)
+                {
+                    handleTimeVisibility = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Visibility cityCodeVisibility = Visibility.Collapsed;
+
+        public Visibility CityCodeVisibility
+        {
+            get => cityCodeVisibility;
+            set
+            {
+                if (cityCodeVisibility != value)
+                {
+                    cityCodeVisibility = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int editingId;
+
+        public int EditingId
+        {
+            get => editingId;
+            set
+            {
+                if (editingId != value)
+                {
+                    editingId = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string editingName = string.Empty;
+
+        public string EditingName
+        {
+            get => editingName;
+            set
+            {
+                if (editingName != value)
+                {
+                    editingName = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string editingHandleTimeText = string.Empty;
+
+        public string EditingHandleTimeText
+        {
+            get => editingHandleTimeText;
+            set
+            {
+                if (editingHandleTimeText != value)
+                {
+                    editingHandleTimeText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string editingCity = string.Empty;
+
+        public string EditingCity
+        {
+            get => editingCity;
+            set
+            {
+                if (editingCity != value)
+                {
+                    editingCity = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string editingCode = string.Empty;
+
+        public string EditingCode
+        {
+            get => editingCode;
+            set
+            {
+                if (editingCode != value)
+                {
+                    editingCode = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Visibility deleteConfirmationVisibility = Visibility.Collapsed;
+
+        public Visibility DeleteConfirmationVisibility
+        {
+            get => deleteConfirmationVisibility;
+            set
+            {
+                if (deleteConfirmationVisibility != value)
+                {
+                    deleteConfirmationVisibility = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        private string deleteWarningMessage = string.Empty;
+
+        public string DeleteWarningMessage
+        {
+            get => deleteWarningMessage;
+            set
+            {
+                if (deleteWarningMessage != value)
+                {
+                    deleteWarningMessage = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Dictionary<AirportDashboardEntity, Action> SaveRegistry => new()
+        {
+            { AirportDashboardEntity.Runway, () => runwayService.SaveRunway(EditingId, EditingName, EditingHandleTimeText) },
+            { AirportDashboardEntity.Gate, () => gateService.SaveGate(EditingId, EditingName) },
+            { AirportDashboardEntity.Airport, () => airportService.SaveAirport(EditingId, EditingCity, EditingName, EditingCode) }
+        };
+
+        private Dictionary<AirportDashboardEntity, Action<object>> DeleteRegistry => new()
+        {
+            { AirportDashboardEntity.Runway, itemToBeRemoved => runwayService.DeleteRunwayUsingId(((Runway)itemToBeRemoved).Id) },
+            { AirportDashboardEntity.Gate, itemToBeRemoved => gateService.DeleteGateUsingId(((Gate)itemToBeRemoved).Id) },
+            { AirportDashboardEntity.Airport, itemToBeRemoved => airportService.DeleteAirportUsingId(((Airport)itemToBeRemoved).Id) }
+        };
+
+        private Dictionary<AirportDashboardEntity, Func<object, string>> WarningRegistry => new()
+        {
+            { AirportDashboardEntity.Runway,  itemToBeRemoved => runwayService.GetDeleteWarningMessage(((Runway)itemToBeRemoved).Id) },
+            { AirportDashboardEntity.Gate,    itemToBeRemoved => gateService.GetDeleteWarningMessage(((Gate)itemToBeRemoved).Id) },
+            { AirportDashboardEntity.Airport, itemToBeRemoved => airportService.GetDeleteWarningMessage(((Airport)itemToBeRemoved).Id) }
+        };
+
+        private string ConstructDeleteWarningMessage(object item) =>
+            WarningRegistry.TryGetValue(currentActiveEntity, out var getWarningMessage)
+                ? getWarningMessage(item)
+                : WarningConfirmationMessage;
+
+        private object? itemPendingDeletion;
+        private AirportDashboardEntity currentActiveEntity = AirportDashboardEntity.None;
+
+        [RelayCommand]
+        public void LoadDashboardData()
+        {
+            var allRunways = runwayService.GetAllRunways();
+            RunwaysList = new ObservableCollection<Runway>(allRunways);
+
+            var allGates = gateService.GetAllGates();
+            GatesList = new ObservableCollection<Gate>(allGates);
+
+            var allAirports = airportService.GetAllAirports();
+            AirportsList = new ObservableCollection<Airport>(allAirports);
+        }
+
+        [RelayCommand]
+        private void PrepareNewRunwayDialog()
+        {
+            currentActiveEntity = AirportDashboardEntity.Runway;
+            EditingId = DefaultEditingId;
             EditingName = string.Empty;
             EditingHandleTimeText = string.Empty;
 
             HandleTimeVisibility = Visibility.Visible;
             CityCodeVisibility = Visibility.Collapsed;
 
-            DialogTitle = "Add New Runway";
+            DialogTitle = NewRunwayDialogTitle;
             DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
         }
 
         [RelayCommand]
-        private void OpenEditRunway()
+        private void PrepareEditRunwayDialog()
         {
             if (SelectedRunway == null)
             {
                 return;
             }
 
-            currentEntity = "Runway";
+            currentActiveEntity = AirportDashboardEntity.Runway;
             EditingId = SelectedRunway.Id;
             EditingName = SelectedRunway.Name;
             EditingHandleTimeText = SelectedRunway.HandleTime.ToString();
@@ -106,51 +377,51 @@ namespace TicketSellingModule.ViewModel
             HandleTimeVisibility = Visibility.Visible;
             CityCodeVisibility = Visibility.Collapsed;
 
-            DialogTitle = "Edit Runway";
+            DialogTitle = EditRunwayDialogTitle;
             DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
         }
 
         [RelayCommand]
-        private void OpenAddGate()
+        private void PrepareNewGateDialog()
         {
-            currentEntity = "Gate";
-            EditingId = 0;
+            currentActiveEntity = AirportDashboardEntity.Gate;
+            EditingId = DefaultEditingId;
             EditingName = string.Empty;
 
             HandleTimeVisibility = Visibility.Collapsed;
             CityCodeVisibility = Visibility.Collapsed;
 
-            DialogTitle = "Add New Gate";
+            DialogTitle = NewGateDialogTitle;
             DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
         }
 
         [RelayCommand]
-        private void OpenEditGate()
+        private void PrepareEditGateDialog()
         {
             if (SelectedGate == null)
             {
                 return;
             }
 
-            currentEntity = "Gate";
+            currentActiveEntity = AirportDashboardEntity.Gate;
             EditingId = SelectedGate.Id;
             EditingName = SelectedGate.Name;
 
             HandleTimeVisibility = Visibility.Collapsed;
             CityCodeVisibility = Visibility.Collapsed;
 
-            DialogTitle = "Edit Gate";
+            DialogTitle = EditGateDialogTitle;
             DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
         }
 
         [RelayCommand]
-        private void OpenAddAirport()
+        private void PrepareNewAirportDialog()
         {
-            currentEntity = "Airport";
-            EditingId = 0;
+            currentActiveEntity = AirportDashboardEntity.Airport;
+            EditingId = DefaultEditingId;
             EditingName = string.Empty;
             EditingCity = string.Empty;
             EditingCode = string.Empty;
@@ -158,20 +429,20 @@ namespace TicketSellingModule.ViewModel
             HandleTimeVisibility = Visibility.Collapsed;
             CityCodeVisibility = Visibility.Visible;
 
-            DialogTitle = "Add New Airport";
+            DialogTitle = NewAirportDialogTitle;
             DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
         }
 
         [RelayCommand]
-        private void OpenEditAirport()
+        private void PrepareEditAirportDialog()
         {
             if (SelectedAirport == null)
             {
                 return;
             }
 
-            currentEntity = "Airport";
+            currentActiveEntity = AirportDashboardEntity.Airport;
             EditingId = SelectedAirport.Id;
             EditingName = SelectedAirport.AirportName;
             EditingCity = SelectedAirport.City;
@@ -180,184 +451,121 @@ namespace TicketSellingModule.ViewModel
             HandleTimeVisibility = Visibility.Collapsed;
             CityCodeVisibility = Visibility.Visible;
 
-            DialogTitle = "Edit Airport";
+            DialogTitle = EditAirportDialogTitle;
             DialogErrorMessage = string.Empty;
             DialogVisibility = Visibility.Visible;
         }
 
         [RelayCommand]
-        private void CloseDialog()
+        private void CloseConfigurationDialog()
         {
             DialogVisibility = Visibility.Collapsed;
         }
 
         [RelayCommand]
-        private void SaveDialog()
+        private void SaveDialogChanges()
         {
             try
             {
                 DialogErrorMessage = string.Empty;
-                SaveDashboardEntity(
-                    currentEntity,
-                    EditingId,
-                    EditingName,
-                    EditingHandleTimeText,
-                    EditingCity,
-                    EditingCode);
 
-                LoadData();
+                if (SaveRegistry.TryGetValue(currentActiveEntity, out var saveAction))
+                {
+                    saveAction();
+                }
+
+                this.LoadDashboardData();
                 DialogVisibility = Visibility.Collapsed;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                DialogErrorMessage = ex.Message;
+                DialogErrorMessage = exception.Message;
             }
-        }
-
-        private void SaveDashboardEntity(string entityType, int editingId, string name, string handleTimeText, string city, string code)
-        {
-            if (entityType == "Runway")
-            {
-                runwayService.SaveRunway(editingId, name, handleTimeText);
-                return;
-            }
-
-            if (entityType == "Gate")
-            {
-                gateService.SaveGate(editingId, name);
-                return;
-            }
-
-            if (entityType == "Airport")
-            {
-                if (editingId == 0)
-                {
-                    airportService.AddAirport(code, name, city);
-                }
-                else
-                {
-                    airportService.UpdateAirport(editingId, city, name, code);
-                }
-
-                return;
-            }
-
-            throw new ArgumentException("Unsupported entity type.");
         }
 
         [RelayCommand]
-        private void CloseDeleteDialog()
+        private void CloseDeleteConfirmation()
         {
             DeleteConfirmationVisibility = Visibility.Collapsed;
-            itemToDelete = null;
+            itemPendingDeletion = null;
         }
 
         [RelayCommand]
-        private void ConfirmDelete()
+        private void ExecuteDeletion()
         {
             try
             {
-                DeleteDashboardEntity(itemToDelete);
-                LoadData();
+                if (itemPendingDeletion != null)
+                {
+                    this.RemoveEntityFromSystem(itemPendingDeletion);
+                    this.LoadDashboardData();
+                }
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                DialogErrorMessage = $"Delete failed: {ex.Message}";
+                DialogErrorMessage = $"The deletion operation failed: {exception.Message}";
             }
             finally
             {
-                CloseDeleteDialog();
+                this.CloseDeleteConfirmation();
             }
         }
 
-        private void DeleteDashboardEntity(object itemToDelete)
+        private void RemoveEntityFromSystem(object itemToBeRemoved)
         {
-            if (itemToDelete is Runway runway)
+            DialogErrorMessage = string.Empty;
+
+            if (DeleteRegistry.TryGetValue(currentActiveEntity, out var deleteAction))
             {
-                runwayService.DeleteRunwayUsingId(runway.Id);
-                return;
+                deleteAction(itemToBeRemoved);
             }
 
-            if (itemToDelete is Gate gate)
-            {
-                gateService.DeleteGateUsingId(gate.Id);
-                return;
-            }
-
-            if (itemToDelete is Airport airport)
-            {
-                airportService.DeleteAirportUsingId(airport.Id);
-                return;
-            }
-
-            throw new ArgumentException("Invalid item selected for delete.");
-        }
-
-        private string BuildDeleteWarning(object itemToDelete)
-        {
-            if (itemToDelete is Runway runway)
-            {
-                bool hasFlights = runwayService.HasFlights(runway.Id);
-                return hasFlights
-                    ? $"Warning: Runway '{runway.Name}' has flights assigned. Deleting it will remove ALL associated flights. Continue?"
-                    : $"Are you sure you want to delete runway '{runway.Name}'?";
-            }
-
-            if (itemToDelete is Gate gate)
-            {
-                bool hasFlights = gateService.HasFlights(gate.Id);
-                return hasFlights
-                    ? $"Warning: Gate '{gate.Name}' has flights assigned. Deleting it will remove ALL associated flights. Continue?"
-                    : $"Are you sure you want to delete gate '{gate.Name}'?";
-            }
-
-            if (itemToDelete is Airport airport)
-            {
-                bool hasFlights = airportService.CheckIfAirportHasFlightsUsingId(airport.Id);
-                return hasFlights
-                    ? $"Warning: Airport '{airport.AirportName}' has flights assigned. Deleting it will remove ALL associated flights. Continue?"
-                    : $"Are you sure you want to delete airport '{airport.AirportName}'?";
-            }
-
-            throw new ArgumentException("Invalid item selected for delete.");
+            LoadDashboardData();
+            DialogVisibility = Visibility.Collapsed;
         }
 
         [RelayCommand]
-        private void DeleteRunway()
+        private void PromptDeleteRunway()
         {
             if (SelectedRunway == null)
             {
                 return;
             }
-
-            itemToDelete = SelectedRunway;
-            DeleteWarningMessage = BuildDeleteWarning(itemToDelete);
+            currentActiveEntity = AirportDashboardEntity.Runway;
+            itemPendingDeletion = SelectedRunway;
+            DeleteWarningMessage = this.ConstructDeleteWarningMessage(itemPendingDeletion);
             DeleteConfirmationVisibility = Visibility.Visible;
         }
 
         [RelayCommand]
-        private void DeleteGate()
+        private void PromptDeleteGate()
         {
             if (SelectedGate == null)
             {
                 return;
             }
-            itemToDelete = SelectedGate;
-            DeleteWarningMessage = BuildDeleteWarning(itemToDelete);
+            currentActiveEntity = AirportDashboardEntity.Gate;
+            itemPendingDeletion = SelectedGate;
+            DeleteWarningMessage = this.ConstructDeleteWarningMessage(itemPendingDeletion);
             DeleteConfirmationVisibility = Visibility.Visible;
         }
 
         [RelayCommand]
-        private void DeleteAirport()
+        private void PromptDeleteAirport()
         {
             if (SelectedAirport == null)
             {
                 return;
             }
-
-            itemToDelete = SelectedAirport;
-            DeleteWarningMessage = BuildDeleteWarning(itemToDelete);
+            currentActiveEntity = AirportDashboardEntity.Airport;
+            itemPendingDeletion = SelectedAirport;
+            DeleteWarningMessage = this.ConstructDeleteWarningMessage(itemPendingDeletion);
             DeleteConfirmationVisibility = Visibility.Visible;
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

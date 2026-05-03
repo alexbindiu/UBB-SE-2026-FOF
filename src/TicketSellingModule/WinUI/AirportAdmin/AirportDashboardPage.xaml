@@ -22,27 +22,27 @@
                                              Items="{x:Bind ViewModel.RunwaysList, Mode=OneWay}"
                                              SelectedItem="{x:Bind ViewModel.SelectedRunway, Mode=TwoWay}"
                                              DisplayMemberPath="Name"
-                                             AddCommand="{x:Bind ViewModel.OpenAddRunwayCommand}"
-                                             EditCommand="{x:Bind ViewModel.OpenEditRunwayCommand}"
-                                             DeleteCommand="{x:Bind ViewModel.DeleteRunwayCommand}" />
+                                             AddCommand="{x:Bind ViewModel.PrepareNewRunwayDialogCommand}"
+                                             EditCommand="{x:Bind ViewModel.PrepareEditRunwayDialogCommand}"
+                                             DeleteCommand="{x:Bind ViewModel.PromptDeleteRunwayCommand}" />
 
                 <local:AirportSectionControl Grid.Column="2"
                                              Title="Gates"
                                              Items="{x:Bind ViewModel.GatesList, Mode=OneWay}"
                                              SelectedItem="{x:Bind ViewModel.SelectedGate, Mode=TwoWay}"
                                              DisplayMemberPath="Name"
-                                             AddCommand="{x:Bind ViewModel.OpenAddGateCommand}"
-                                             EditCommand="{x:Bind ViewModel.OpenEditGateCommand}"
-                                             DeleteCommand="{x:Bind ViewModel.DeleteGateCommand}" />
+                                             AddCommand="{x:Bind ViewModel.PrepareNewGateDialogCommand}"
+                                             EditCommand="{x:Bind ViewModel.PrepareEditGateDialogCommand}"
+                                             DeleteCommand="{x:Bind ViewModel.PromptDeleteGateCommand}" />
 
                 <local:AirportSectionControl Grid.Column="4"
                                              Title="Destination Airports"
                                              Items="{x:Bind ViewModel.AirportsList, Mode=OneWay}"
                                              SelectedItem="{x:Bind ViewModel.SelectedAirport, Mode=TwoWay}"
                                              DisplayMemberPath="AirportName"
-                                             AddCommand="{x:Bind ViewModel.OpenAddAirportCommand}"
-                                             EditCommand="{x:Bind ViewModel.OpenEditAirportCommand}"
-                                             DeleteCommand="{x:Bind ViewModel.DeleteAirportCommand}" />
+                                             AddCommand="{x:Bind ViewModel.PrepareNewAirportDialogCommand}"
+                                             EditCommand="{x:Bind ViewModel.PrepareEditAirportDialogCommand}"
+                                             DeleteCommand="{x:Bind ViewModel.PromptDeleteAirportCommand}" />
             </Grid>
         </ScrollViewer>
 
@@ -97,13 +97,13 @@
                         
                         <Button Content="Cancel" 
                                 HorizontalAlignment="Stretch"
-                                Command="{x:Bind ViewModel.CloseDialogCommand}"/>
+                                Command="{x:Bind ViewModel.CloseConfigurationDialogCommand}"/>
                                 
                         <Button Grid.Column="2" 
                                 Content="Save" 
                                 Style="{StaticResource AccentButtonStyle}"
                                 HorizontalAlignment="Stretch"
-                                Command="{x:Bind ViewModel.SaveDialogCommand}"/>
+                                Command="{x:Bind ViewModel.SaveDialogChangesCommand}"/>
                     </Grid>
                 </StackPanel>
             </Border>
@@ -126,9 +126,9 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Button Content="No, Keep it" HorizontalAlignment="Stretch"
-                                Command="{x:Bind ViewModel.CloseDeleteDialogCommand}"/>
+                                Command="{x:Bind ViewModel.CloseDeleteConfirmationCommand}"/>
                         <Button Grid.Column="2" Content="Yes, Delete" Background="#FF6B6B" Foreground="White"
-                                HorizontalAlignment="Stretch" Command="{x:Bind ViewModel.ConfirmDeleteCommand}"/>
+                                HorizontalAlignment="Stretch" Command="{x:Bind ViewModel.ExecuteDeletionCommand}"/>
                     </Grid>
                 </StackPanel>
             </Border>

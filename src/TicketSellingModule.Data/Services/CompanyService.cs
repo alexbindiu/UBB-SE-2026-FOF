@@ -43,6 +43,26 @@ namespace TicketSellingModule.Data.Services
             return companyRepository.AddCompany(newCompany);
         }
 
+        public int ValidateFlightCreationInputs(int companyId, int airportId, string capacityText, int runwayId, int gateId)
+        {
+            if (companyId <= 0)
+            {
+                throw new InvalidOperationException("A company must be selected before adding a flight.");
+            }
+
+            if (airportId <= 0 || runwayId <= 0 || gateId <= 0)
+            {
+                throw new InvalidOperationException("Please ensure all required fields are populated.");
+            }
+
+            if (!int.TryParse(capacityText, out int parsedCapacity))
+            {
+                throw new InvalidOperationException("The provided capacity value is invalid.");
+            }
+
+            return parsedCapacity;
+        }
+
         public string GenerateFlightCodeUsingCompanyId(int companyId)
         {
             Company? company = companyRepository.GetCompanyById(companyId);

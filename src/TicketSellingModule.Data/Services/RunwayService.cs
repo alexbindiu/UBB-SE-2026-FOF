@@ -106,5 +106,15 @@ namespace TicketSellingModule.Data.Services
 
             return associatedFlights.Count > 0;
         }
+
+        public string GetDeleteWarningMessage(int id)
+        {
+            bool hasFlights = HasFlights(id);
+            if (hasFlights)
+            {
+                return $"CRITICAL: Runway '{GetRunwayById(id).Name}' has flights assigned. Deleting it will remove ALL associated flights. Proceed?";
+            }
+            return $"Are you sure you want to delete runway '{GetRunwayById(id).Name}'?";
+        }
     }
 }

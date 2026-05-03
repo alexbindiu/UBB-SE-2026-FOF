@@ -1,12 +1,12 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+
 using TicketSellingModule.ViewModel;
 
 namespace TicketSellingModule.WinUI
 {
     public sealed partial class HomePage : Page
     {
-        // Expunem proprietatea ViewModel pentru x:Bind
         public HomeViewModel ViewModel { get; private set; } = null!;
 
         public HomePage()

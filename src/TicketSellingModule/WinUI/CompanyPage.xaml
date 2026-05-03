@@ -3,7 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:TicketSellingModule.WinUI"
-    xmlns:domain="using:TicketSellingModule.Domain"
+    xmlns:domain="using:TicketSellingModule.Data.Domain"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:components="using:TicketSellingModule.WinUI.Components"
@@ -133,7 +133,7 @@
                          Foreground="White"
                          BorderThickness="1"
                          BorderBrush="#3F3F46"
-                         Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                         Text="{Binding FlightNumberSearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 <Grid Grid.Row="2" Background="{StaticResource CustomAccentBrush}" Padding="15,10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.5*"/>
@@ -181,7 +181,7 @@
                                         Foreground="#FF5555"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
-                                        Command="{Binding DataContext.DeleteFlightCommand, ElementName=FlightsListView}"
+                                        Command="{Binding DataContext.ExecuteFlightDeletionCommand, ElementName=FlightsListView}"
                                         CommandParameter="{Binding Id}" />
                             </Grid>
                         </DataTemplate>

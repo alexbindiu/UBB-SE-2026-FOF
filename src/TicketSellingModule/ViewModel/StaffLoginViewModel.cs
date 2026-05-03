@@ -1,54 +1,95 @@
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
 
-using TicketSellingModule.Data.Services.Interfaces;
 using TicketSellingModule.WinUI.Services;
 
 namespace TicketSellingModule.ViewModel
 {
-    public partial class StaffLoginViewModel : ObservableObject
+    public partial class StaffLoginViewModel(
+        IEmployeeService employeeService,
+        INavigationService navigationService) : INotifyPropertyChanged
     {
-        private readonly IEmployeeService employeeService;
-        private readonly INavigationService navigationService;
+        private const string ErrorMessageFailedLogin = "Failed Login";
 
-        [ObservableProperty] private string employeeIdText;
-        [ObservableProperty] private string errorMessage;
-        [ObservableProperty] private Visibility errorVisibility = Visibility.Collapsed;
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        public StaffLoginViewModel(IEmployeeService employeeService, INavigationService navigationService)
+        private string employeeIdText;
+
+        public string EmployeeIdText
         {
-            this.employeeService = employeeService;
-            this.navigationService = navigationService;
+            get => employeeIdText;
+            set
+            {
+                if (employeeIdText != value)
+                {
+                    employeeIdText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string errorMessage;
+
+        public string ErrorMessage
+        {
+            get => errorMessage;
+            set
+            {
+                if (errorMessage != value)
+                {
+                    errorMessage = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Visibility errorVisibility = Visibility.Collapsed;
+
+        public Visibility ErrorVisibility
+        {
+            get => errorVisibility;
+            set
+            {
+                if (errorVisibility != value)
+                {
+                    errorVisibility = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         [RelayCommand]
         private void Login()
         {
-            if (!int.TryParse(EmployeeIdText, out int id))
+            try
             {
-                ShowError("Invalid ID.");
-                return;
-            }
+                int employeeId = employeeService.Login(EmployeeIdText);
 
-            var emp = employeeService.GetEmployeeById(id);
-            if (emp == null)
+                ErrorVisibility = Visibility.Collapsed;
+                ErrorMessage = string.Empty;
+
+                navigationService.NavigateToStaffDashboard(employeeId);
+            }
+            catch (Exception exception)
             {
-                ShowError("ID was not found!");
-                return;
+                ShowError(ErrorMessageFailedLogin + ": " + exception.Message);
             }
-
-            ErrorVisibility = Visibility.Collapsed;
-            ErrorMessage = string.Empty;
-
-            navigationService.NavigateToStaffDashboard(id);
         }
 
         private void ShowError(string message)
         {
             ErrorMessage = message;
             ErrorVisibility = Visibility.Visible;
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

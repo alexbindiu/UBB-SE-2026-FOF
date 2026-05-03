@@ -1,4 +1,4 @@
-﻿namespace Boards_WP.Tests;
+﻿namespace Ci.Tests;
 
 public class SanityCheck
 {

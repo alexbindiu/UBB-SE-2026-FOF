@@ -9,7 +9,7 @@
         private const string DeleteAllByFlightQuery = "DELETE FROM Flight_employees WHERE id_flight = @flightId";
         private const string DeleteAllByEmployeeQuery = "DELETE FROM Flight_employees WHERE id_employee = @employeeId";
 
-        public void AssignFlightToEmployeesUsingIds(int employeeId, int flightId)
+        public void AssignFlightToEmployeeUsingIds(int employeeId, int flightId)
         {
             using SqlConnection databaseConnection = databaseConnectionFactory.GetConnection();
             databaseConnection.Open();
