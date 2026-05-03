@@ -153,7 +153,7 @@ namespace TicketSellingModule.ViewModel
             }
         }
 
-        public TimeSpan arrivalTime = TimeSpan.Zero;
+        private TimeSpan arrivalTime = TimeSpan.Zero;
         public TimeSpan ArrivalTime
         {
             get => arrivalTime;
@@ -164,7 +164,7 @@ namespace TicketSellingModule.ViewModel
             }
         }
 
-        public DateTimeOffset? singleDate;
+        private DateTimeOffset? singleDate;
         public DateTimeOffset? SingleDate
         {
             get => singleDate;
