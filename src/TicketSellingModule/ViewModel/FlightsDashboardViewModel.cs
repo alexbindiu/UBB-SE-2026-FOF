@@ -1,4 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Collections.ObjectModel;
+
 using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
@@ -9,17 +12,80 @@ using TicketSellingModule.WinUI.AirportAdmin.Components;
 
 namespace TicketSellingModule.ViewModel
 {
-    public partial class FlightsDashboardViewModel(
-       IFlightRouteService flightRouteService,
-       IEmployeeFlightService flightEmployeeService) : ObservableObject
+    public partial class FlightsDashboardViewModel : INotifyPropertyChanged
     {
+        private readonly IFlightRouteService flightRouteService;
+        private readonly IEmployeeFlightService flightEmployeeService;
+
         private List<Flight> allFlights = new();
 
-        [ObservableProperty] private string searchText = string.Empty;
-        [ObservableProperty] private FlightDisplayRow? selectedFlight;
+        private string searchText = string.Empty;
+        private FlightDisplayRow? selectedFlight;
+        private Visibility crewDialogVisibility = Visibility.Collapsed;
+        private string dialogError = string.Empty;
 
-        [ObservableProperty] private Visibility crewDialogVisibility = Visibility.Collapsed;
-        [ObservableProperty] private string dialogError = string.Empty;
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public FlightsDashboardViewModel(
+           IFlightRouteService flightRouteService,
+           IEmployeeFlightService flightEmployeeService)
+        {
+            this.flightRouteService = flightRouteService;
+            this.flightEmployeeService = flightEmployeeService;
+        }
+
+        public string SearchText
+        {
+            get => searchText;
+            set
+            {
+                if (searchText != value)
+                {
+                    searchText = value;
+                    OnPropertyChanged();
+                    ApplyFilter();
+                }
+            }
+        }
+
+        public FlightDisplayRow? SelectedFlight
+        {
+            get => selectedFlight;
+            set
+            {
+                if (selectedFlight != value)
+                {
+                    selectedFlight = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public Visibility CrewDialogVisibility
+        {
+            get => crewDialogVisibility;
+            set
+            {
+                if (crewDialogVisibility != value)
+                {
+                    crewDialogVisibility = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public string DialogError
+        {
+            get => dialogError;
+            set
+            {
+                if (dialogError != value)
+                {
+                    dialogError = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public ObservableCollection<CrewSelectionWrapper> AvailableCrew { get; } = new();
         public ObservableCollection<FlightDisplayRow> FilteredFlights { get; } = new();
@@ -28,11 +94,6 @@ namespace TicketSellingModule.ViewModel
         public void LoadFlights()
         {
             allFlights = flightRouteService.GetAllFlightsWithDetails();
-            ApplyFilter();
-        }
-
-        partial void OnSearchTextChanged(string value)
-        {
             ApplyFilter();
         }
 
@@ -103,6 +164,11 @@ namespace TicketSellingModule.ViewModel
                 string crewText = flightEmployeeService.FormatCrewList(flight.Id);
                 FilteredFlights.Add(new FlightDisplayRow(flightRouteService.BuildFlightSummary(flight, crewText)));
             }
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 
