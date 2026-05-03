@@ -1,14 +1,17 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
 using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.UI.Xaml;
 
-using TicketSellingModule.Data.Services.Interfaces;
-
 namespace TicketSellingModule.ViewModel
 {
-    public partial class EmployeesDashboardViewModel : ObservableObject
+    public partial class EmployeesDashboardViewModel : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler? PropertyChanged;
         private readonly IEmployeeService employeeService;
 
         private const string ErrorMessageEmployeeNotSelected = "Please select an employee to delete.";
@@ -16,30 +19,226 @@ namespace TicketSellingModule.ViewModel
         private const string AddTitlePrefix = "Add New";
         private const string EditTitlePrefix = "Edit";
 
-        [ObservableProperty] private ObservableCollection<Employee> pilotEmployees = new();
-        [ObservableProperty] private ObservableCollection<Employee> flightAttendantEmployees = new();
-        [ObservableProperty] private ObservableCollection<Employee> coPilotEmployees = new();
-        [ObservableProperty] private ObservableCollection<Employee> flightDispatcherEmployees = new();
-
-        [ObservableProperty] private Employee? selectedEmployee;
-        [ObservableProperty] private Visibility dialogVisibility = Visibility.Collapsed;
-        [ObservableProperty] private string dialogTitle = string.Empty;
-        [ObservableProperty] private Employee editingEmployee = new();
-        [ObservableProperty] private string dialogErrorMessage = string.Empty;
-        [ObservableProperty] private DateTimeOffset? editingBirthday;
-        [ObservableProperty] private DateTimeOffset? editingHiringDate;
-        [ObservableProperty] private string editingSalaryText = string.Empty;
-        [ObservableProperty] private Visibility confirmDeleteDialogVisibility = Visibility.Collapsed;
-        [ObservableProperty] private Employee? employeeToDelete;
-        [ObservableProperty] private string deleteErrorMessage = string.Empty;
-
-        public bool IsConfirmationVisible => EmployeeToDelete != null;
-        public bool IsErrorOnlyVisible => EmployeeToDelete == null && !string.IsNullOrEmpty(DeleteErrorMessage);
-
         public EmployeesDashboardViewModel(IEmployeeService employeeService)
         {
             this.employeeService = employeeService;
         }
+
+        private ObservableCollection<Employee> pilotEmployees = new();
+        public ObservableCollection<Employee> PilotEmployees
+        {
+            get => pilotEmployees;
+            set
+            {
+                if (pilotEmployees != value)
+                {
+                    pilotEmployees = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private ObservableCollection<Employee> flightAttendantEmployees = new();
+        public ObservableCollection<Employee> FlightAttendantEmployees
+        {
+            get => flightAttendantEmployees;
+            set
+            {
+                if (flightAttendantEmployees != value)
+                {
+                    flightAttendantEmployees = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private ObservableCollection<Employee> coPilotEmployees = new();
+        public ObservableCollection<Employee> CoPilotEmployees
+        {
+            get => coPilotEmployees;
+            set
+            {
+                if (coPilotEmployees != value)
+                {
+                    coPilotEmployees = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private ObservableCollection<Employee> flightDispatcherEmployees = new();
+        public ObservableCollection<Employee> FlightDispatcherEmployees
+        {
+            get => flightDispatcherEmployees;
+            set
+            {
+                if (flightDispatcherEmployees != value)
+                {
+                    flightDispatcherEmployees = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Employee? selectedEmployee;
+        public Employee? SelectedEmployee
+        {
+            get => selectedEmployee;
+            set
+            {
+                if (selectedEmployee != value)
+                {
+                    selectedEmployee = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Visibility dialogVisibility = Visibility.Collapsed;
+        public Visibility DialogVisibility
+        {
+            get => dialogVisibility;
+            set
+            {
+                if (dialogVisibility != value)
+                {
+                    dialogVisibility = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string dialogTitle = string.Empty;
+        public string DialogTitle
+        {
+            get => dialogTitle;
+            set
+            {
+                if (dialogTitle != value)
+                {
+                    dialogTitle = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Employee editingEmployee = new();
+        public Employee EditingEmployee
+        {
+            get => editingEmployee;
+            set
+            {
+                if (editingEmployee != value)
+                {
+                    editingEmployee = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string dialogErrorMessage = string.Empty;
+        public string DialogErrorMessage
+        {
+            get => dialogErrorMessage;
+            set
+            {
+                if (dialogErrorMessage != value)
+                {
+                    dialogErrorMessage = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private DateTimeOffset? editingBirthday;
+        public DateTimeOffset? EditingBirthday
+        {
+            get => editingBirthday;
+            set
+            {
+                if (editingBirthday != value)
+                {
+                    editingBirthday = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private DateTimeOffset? editingHiringDate;
+        public DateTimeOffset? EditingHiringDate
+        {
+            get => editingHiringDate;
+            set
+            {
+                if (editingHiringDate != value)
+                {
+                    editingHiringDate = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string editingSalaryText = string.Empty;
+        public string EditingSalaryText
+        {
+            get => editingSalaryText;
+            set
+            {
+                if (editingSalaryText != value)
+                {
+                    editingSalaryText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Visibility confirmDeleteDialogVisibility = Visibility.Collapsed;
+        public Visibility ConfirmDeleteDialogVisibility
+        {
+            get => confirmDeleteDialogVisibility;
+            set
+            {
+                if (confirmDeleteDialogVisibility != value)
+                {
+                    confirmDeleteDialogVisibility = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Employee? employeeToDelete;
+        public Employee? EmployeeToDelete
+        {
+            get => employeeToDelete;
+            set
+            {
+                if (employeeToDelete != value)
+                {
+                    employeeToDelete = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsConfirmationVisible));
+                    OnPropertyChanged(nameof(IsErrorOnlyVisible));
+                }
+            }
+        }
+
+        private string deleteErrorMessage = string.Empty;
+        public string DeleteErrorMessage
+        {
+            get => deleteErrorMessage;
+            set
+            {
+                if (deleteErrorMessage != value)
+                {
+                    deleteErrorMessage = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsErrorOnlyVisible));
+                }
+            }
+        }
+
+        public bool IsConfirmationVisible => EmployeeToDelete != null;
+        public bool IsErrorOnlyVisible => EmployeeToDelete == null && !string.IsNullOrEmpty(DeleteErrorMessage);
 
         [RelayCommand]
         public void LoadData()
@@ -58,16 +257,12 @@ namespace TicketSellingModule.ViewModel
                 EmployeeToDelete = null;
                 DeleteErrorMessage = ErrorMessageEmployeeNotSelected;
                 ConfirmDeleteDialogVisibility = Visibility.Visible;
-                OnPropertyChanged(nameof(IsConfirmationVisible));
-                OnPropertyChanged(nameof(IsErrorOnlyVisible));
                 return;
             }
 
             EmployeeToDelete = employee;
             DeleteErrorMessage = string.Empty;
             ConfirmDeleteDialogVisibility = Visibility.Visible;
-            OnPropertyChanged(nameof(IsConfirmationVisible));
-            OnPropertyChanged(nameof(IsErrorOnlyVisible));
         }
 
         [RelayCommand]
@@ -99,8 +294,6 @@ namespace TicketSellingModule.ViewModel
             ConfirmDeleteDialogVisibility = Visibility.Collapsed;
             DeleteErrorMessage = string.Empty;
             EmployeeToDelete = null;
-            OnPropertyChanged(nameof(IsConfirmationVisible));
-            OnPropertyChanged(nameof(IsErrorOnlyVisible));
         }
 
         [RelayCommand]
@@ -144,10 +337,7 @@ namespace TicketSellingModule.ViewModel
         }
 
         [RelayCommand]
-        private void CloseDialog()
-        {
-            DialogVisibility = Visibility.Collapsed;
-        }
+        private void CloseDialog() => DialogVisibility = Visibility.Collapsed;
 
         [RelayCommand]
         private void SaveEmployee()
@@ -162,6 +352,11 @@ namespace TicketSellingModule.ViewModel
             {
                 DialogErrorMessage = exception.Message;
             }
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
