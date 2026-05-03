@@ -1,16 +1,34 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
 using CommunityToolkit.Mvvm.Input;
 
+using TicketSellingModule.Data.Domain;
 using TicketSellingModule.WinUI.Services;
 
 namespace TicketSellingModule.ViewModel
 {
-    public partial class SelectCompanyViewModel : ObservableObject
+    public partial class SelectCompanyViewModel : INotifyPropertyChanged
     {
         private readonly ICompanyService companyService;
         private readonly INavigationService navigationService;
 
-        [ObservableProperty] private ObservableCollection<Company> companies;
+        private ObservableCollection<Company> companies;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public ObservableCollection<Company> Companies
+        {
+            get => companies;
+            set
+            {
+                if (companies != value)
+                {
+                    companies = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public SelectCompanyViewModel(ICompanyService companyService, INavigationService navigationService)
         {
@@ -26,13 +44,18 @@ namespace TicketSellingModule.ViewModel
             Companies = new ObservableCollection<Company>(availableCompanies);
         }
 
-        [RelayCommand]
+        public IRelayCommand SelectCompanyCommand => new RelayCommand<Company>(SelectCompany);
         private void SelectCompany(Company company)
         {
             if (company != null)
             {
                 navigationService.NavigateToCompanyDashboard(company.Id);
             }
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
