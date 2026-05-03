@@ -1,18 +1,24 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Microsoft.UI.Xaml;
+using CommunityToolkit.Mvvm.Input;
+using TicketSellingModule.Data.Domain;
+using TicketSellingModule.WinUI.Services;
 
 namespace TicketSellingModule.ViewModel
 {
-    public partial class CompanyViewModel(
-        ICompanyService companyService,
-        IAirportService airportService,
-        IFlightRouteService flightRouteService,
-        IRunwayService runwayService,
-        IGateService gateService,
-        IEmployeeFlightService employeeFlightService) : ObservableObject
+    public partial class CompanyViewModel : INotifyPropertyChanged
     {
+        private readonly ICompanyService companyService;
+        private readonly IAirportService airportService;
+        private readonly IFlightRouteService flightRouteService;
+        private readonly IEmployeeFlightService employeeFlightService;
+        private readonly IRunwayService runwayService;
+        private readonly IGateService gateService;
+
         private const string CustomRecurrenceType = "Custom";
         private const int DefaultEndRecurrenceInterval = 7;
         private const int DefaultDepartureHour = 12;
@@ -23,80 +29,252 @@ namespace TicketSellingModule.ViewModel
         private int currentCompanyId;
         private List<Flight> masterFlightsCollection = new();
 
-        [ObservableProperty] private ObservableCollection<Company> companiesList;
-        [ObservableProperty] private ObservableCollection<Airport> airportsList;
-        [ObservableProperty] private ObservableCollection<Flight> companyFlightsList;
-        [ObservableProperty] private ObservableCollection<Runway> runwaysList;
-        [ObservableProperty] private ObservableCollection<Gate> gatesList;
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        [ObservableProperty] private string flightNumberSearchQuery = string.Empty;
-        [ObservableProperty] private string? selectedRouteType;
-        [ObservableProperty] private Airport? selectedAirport;
-        [ObservableProperty] private string capacityText = string.Empty;
-        [ObservableProperty] private TimeSpan departureTime = TimeSpan.Zero;
-        [ObservableProperty] private TimeSpan arrivalTime = TimeSpan.Zero;
-        [ObservableProperty] private DateTimeOffset? singleDate;
-        [ObservableProperty] private string customDaysText = string.Empty;
-        [ObservableProperty] private DateTimeOffset? startDate;
-        [ObservableProperty] private DateTimeOffset? endDate;
-        [ObservableProperty] private Runway? selectedRunway;
-        [ObservableProperty] private Gate? selectedGate;
+        public CompanyViewModel(
+            ICompanyService companyService,
+            IAirportService airportService,
+            IFlightRouteService flightRouteService,
+            IEmployeeFlightService employeeFlightService,
+            IRunwayService runwayService,
+            IGateService gateService)
+        {
+            this.companyService = companyService;
+            this.airportService = airportService;
+            this.flightRouteService = flightRouteService;
+            this.employeeFlightService = employeeFlightService;
+            this.runwayService = runwayService;
+            this.gateService = gateService;
 
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(RecurrentPanelVisibility))]
-        [NotifyPropertyChangedFor(nameof(SingleDateVisibility))]
+            ExecuteFlightDeletionCommand = new RelayCommand<int>(ExecuteFlightDeletion);
+            AddFlightFromInputsCommand = new RelayCommand(AddFlightFromInputs);
+        }
+
+        private ObservableCollection<Airport> airportsList;
+        public ObservableCollection<Airport> AirportsList
+        {
+            get => airportsList;
+            set
+            {
+                airportsList = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ObservableCollection<Flight> companyFlightsList;
+        public ObservableCollection<Flight> CompanyFlightsList
+        {
+            get => companyFlightsList;
+            set
+            {
+                companyFlightsList = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ObservableCollection<Runway> runwaysList;
+        public ObservableCollection<Runway> RunwaysList
+        {
+            get => runwaysList;
+            set
+            {
+                runwaysList = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ObservableCollection<Gate> gatesList;
+        public ObservableCollection<Gate> GatesList
+        {
+            get => gatesList;
+            set
+            {
+                gatesList = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string flightNumberSearchQuery = string.Empty;
+        public string FlightNumberSearchQuery
+        {
+            get => flightNumberSearchQuery;
+            set
+            {
+                if (flightNumberSearchQuery != value)
+                {
+                    flightNumberSearchQuery = value;
+                    OnPropertyChanged();
+                    this.SearchFlightsByNumber(value);
+                }
+            }
+        }
+
+        private string? selectedRouteType;
+        public string? SelectedRouteType
+        {
+            get => selectedRouteType;
+            set
+            {
+                selectedRouteType = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private Airport? selectedAirport;
+        public Airport? SelectedAirport
+        {
+            get => selectedAirport;
+            set
+            {
+                selectedAirport = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string capacityText = string.Empty;
+        public string? CapacityText
+        {
+            get => capacityText;
+            set
+            {
+                capacityText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private TimeSpan departureTime = TimeSpan.Zero;
+        public TimeSpan DepartureTime
+        {
+            get => departureTime;
+            set
+            {
+                departureTime = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private TimeSpan arrivalTime = TimeSpan.Zero;
+        public TimeSpan ArrivalTime
+        {
+            get => arrivalTime;
+            set
+            {
+                arrivalTime = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private DateTimeOffset? singleDate;
+        public DateTimeOffset? SingleDate
+        {
+            get => singleDate;
+            set
+            {
+                singleDate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string customDaysText = string.Empty;
+        public string CustomDaysText
+        {
+            get => customDaysText;
+            set
+            {
+                customDaysText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private DateTimeOffset? startDate;
+        public DateTimeOffset? StartDate
+        {
+            get => startDate;
+            set
+            {
+                startDate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private DateTimeOffset? endDate;
+        public DateTimeOffset? EndDate
+        {
+            get => endDate;
+            set
+            {
+                endDate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private Runway? selectedRunway;
+        public Runway? SelectedRunway
+        {
+            get => selectedRunway;
+            set
+            {
+                selectedRunway = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private Gate? selectedGate;
+        public Gate? SelectedGate
+        {
+            get => selectedGate;
+            set
+            {
+                selectedGate = value;
+                OnPropertyChanged();
+            }
+        }
+
         private bool isRecurrent;
-
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(CustomDaysVisibility))]
-        private string recurrenceType = string.Empty;
-
-        public Visibility RecurrentPanelVisibility
+        public bool IsRecurrent
         {
-            get
+            get => isRecurrent;
+            set
             {
-                if (this.IsRecurrent)
+                if (isRecurrent != value)
                 {
-                    return Visibility.Visible;
+                    isRecurrent = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(RecurrentPanelVisibility));
+                    OnPropertyChanged(nameof(SingleDateVisibility));
                 }
-                return Visibility.Collapsed;
             }
         }
 
-        public Visibility SingleDateVisibility
+        private string? recurrenceType = string.Empty;
+        public string RecurrenceType
         {
-            get
+            get => recurrenceType;
+            set
             {
-                if (this.IsRecurrent)
+                if (recurrenceType != value)
                 {
-                    return Visibility.Collapsed;
+                    recurrenceType = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(CustomDaysVisibility));
                 }
-                return Visibility.Visible;
             }
         }
 
-        public Visibility CustomDaysVisibility
-        {
-            get
-            {
-                if (this.RecurrenceType == CustomRecurrenceType)
-                {
-                    return Visibility.Visible;
-                }
-                return Visibility.Collapsed;
-            }
-        }
+        public Visibility RecurrentPanelVisibility => IsRecurrent ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility SingleDateVisibility => IsRecurrent ? Visibility.Collapsed : Visibility.Visible;
+        public Visibility CustomDaysVisibility => RecurrenceType == CustomRecurrenceType ? Visibility.Visible : Visibility.Collapsed;
 
-        partial void OnFlightNumberSearchQueryChanged(string value)
-        {
-            this.SearchFlightsByNumber(value);
-        }
+        public IRelayCommand<int> ExecuteFlightDeletionCommand { get; }
+        public IRelayCommand AddFlightFromInputsCommand { get; }
 
         public void InitializeCompanyDashboard(int companyId)
         {
             this.currentCompanyId = companyId;
             this.RefreshAirportsList();
             this.RefreshCompanyFlights(companyId);
+            this.RefreshRunwaysList();
+            this.RefreshGatesList();
         }
 
         public void RefreshRunwaysList()
@@ -133,8 +311,6 @@ namespace TicketSellingModule.ViewModel
         {
             CompanyFlightsList = new ObservableCollection<Flight>(flightsToDisplay);
         }
-
-        [RelayCommand]
         private void ExecuteFlightDeletion(int flightId)
         {
             try
@@ -146,10 +322,9 @@ namespace TicketSellingModule.ViewModel
             catch (Exception exception)
             {
                 //--intent: silent catch for bulk operations.
+                // test comment
             }
         }
-
-        [RelayCommand]
         public void AddFlightFromInputs()
         {
             int.TryParse(this.CapacityText, out int capacityValue);
@@ -192,6 +367,11 @@ namespace TicketSellingModule.ViewModel
             this.ArrivalTime = new TimeSpan(DefaultArrivalHour, DefaultMinute, 0);
 
             this.CustomDaysText = string.Empty;
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
